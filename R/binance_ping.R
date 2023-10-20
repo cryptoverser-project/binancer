@@ -35,9 +35,13 @@
 
 binance_ping <- function(api = "spot"){
   
-  response <- NULL
-  response <- binance_api(api = api, path = c("ping"), query = NULL)
-  response <- ifelse(purrr::is_empty(response), TRUE, FALSE)
+  response <- binance_api(api = api, path = "ping", query = NULL)
+  
+  if (purrr::is_empty(response)) {
+    response <- TRUE
+  } else {
+    response <- FALSE
+  }
   
   attr(response, "api") <- api
   attr(response, "ip_weight") <- 1

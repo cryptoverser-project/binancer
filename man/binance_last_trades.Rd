@@ -11,7 +11,7 @@ binance_last_trades(pair, api = "spot", quiet = FALSE)
 
 \item{api}{Character, specifying the reference API. Available options include:
 \itemize{
-\item "spot": For the \href{https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list}{Spot API}.
+\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list}{Spot API}.
 \item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list}{Futures USD-M API}.
 \item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list}{Futures Coin-M API}.
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list}{Options API}.

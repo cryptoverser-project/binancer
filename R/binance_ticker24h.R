@@ -4,7 +4,7 @@
 #'
 #' @param pair Character, specifying the trading pair of interest, e.g., "BTCUSDT".
 #'
-#' @param api Character, indicating the reference API. Available options are:
+#' @param api Character, specifying the reference API. Available options include:
 #'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics).
 #'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics).
 #'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#24hr-ticker-price-change-statistics).
@@ -66,47 +66,50 @@ binance_ticker24h <- function(pair, api = "spot", type = c("full", "mini"), quie
   return(response$result)
 }
 
-binance_spot_ticker24h <- function(pair = "BTCUSDT", type = c("full", "mini")) {
+binance_spot_ticker24h <- function(pair, type = c("full", "mini")) {
   
-  # Control on the Pair
-  if(is.null(pair)){
-    wrn <- 'The "pair" argument cannot be NULL'
-    if(!quiet) warning(wrn)
-    return(NULL)
+  # General Check: pair default argument 
+  if (missing(pair) || is.null(pair)) {
+    pair_name <- "BTCUSDT"
+    if (!quiet) {
+      wrn <- paste0('The pair argument is missing, default is ', '"', pair_name, '"')
+      warning(wrn)
+    }
   } else {
     pair_name <- toupper(pair)
   }
   
-  # Control on the Type
-  if(is.null(type)){
-    wrn <- 'The "type" argument cannot be NULL, by default is "full".'
-    if(!quiet) warning(wrn)
+  # General Check: type default argument 
+  if (missing(type) || is.null(type)) {
     type <- "full"
+    if (!quiet) {
+      wrn <- paste0('The type argument is missing, default is ', '"', type, '"')
+      warning(wrn)
+    }
   } else {
-    # Match type: full or mini
-    type <- match.arg(tolower(type), choices = c("full", "mini"))
+    type <- match.arg(type, choices = c("full", "mini"))
   }
   
-  # Multiple Pairs allowed
-  if(length(pair_name) > 1){
+  # multiple pairs are allowed
+  if (length(pair_name) > 1) {
     mult_api_query <- purrr::map_chr(pair_name, ~paste0('"', .x, '"'))
     mult_api_query <- paste0(mult_api_query, collapse = ",")
     pair_name <- paste0('[', mult_api_query, ']')
   }
   
-  # Query change for multiple Symbols
-  if(length(pair) > 1){
-    api_query <- list(symbols = pair_name, type = toupper(type))
+  # query change with multiple pairs
+  api_query <- list(type = toupper(type))
+  if (length(pair) > 1) {
+    api_query$symbols <- pair_name
   } else {
-    api_query <- list(symbol = pair_name, type = toupper(type))
+    api_query$symbol <- pair_name
   }
   
-  # Api Response
-  response <- NULL
+  # api GET call 
   response <- binance_api(api = "spot", path = c("ticker", "24hr" ), query = api_query)
   
-  # Cleaning
-  if(!purrr::is_empty(response) & type == "mini"){
+  # structure output dataset 
+  if (!purrr::is_empty(response) & type == "mini") {
     response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
                                date_close = as.POSIXct(as.numeric(response$closeTime)/1000, origin = "1970-01-01"),
                                pair = response$symbol,
@@ -121,8 +124,7 @@ binance_spot_ticker24h <- function(pair = "BTCUSDT", type = c("full", "mini")) {
                                last_id = as.character(response$lastId),
                                trades = as.integer(response$count))
     
-  } else if(!purrr::is_empty(response) & type == "full"){
-    
+  } else if(!purrr::is_empty(response) & type == "full") {
     response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
                                date_close = as.POSIXct(as.numeric(response$closeTime)/1000, origin = "1970-01-01"),
                                pair = response$symbol,
@@ -143,32 +145,32 @@ binance_spot_ticker24h <- function(pair = "BTCUSDT", type = c("full", "mini")) {
                                trades = as.integer(response$count))
   } 
   
-  # Attributes
+
   attr(response, "ip_weight") <- dplyr::case_when(
     length(pair) >= 1 & length(pair) <= 20 ~ 1,
     length(pair) > 20 & length(pair) <= 100 ~ 20,
-    length(pair) > 100 ~ 40
-  )
+    length(pair) > 100 ~ 40)
   attr(response, "api") <- "spot"
   return(response)
 }
 
-binance_fapi_ticker24h <- function(pair = "BTCUSDT") {
+binance_fapi_ticker24h <- function(pair) {
   
-  response <- list()
-  
-  # Control on the Pair
-  if(is.null(pair)){
-    wrn <- 'The "pair" argument cannot be NULL'
-    if(!quiet) warning(wrn)
-    return(NULL)
+  # General Check: pair default argument 
+  if (missing(pair) || is.null(pair)) {
+    pair_name <- "BTCUSDT"
+    if (!quiet) {
+      wrn <- paste0('The pair argument is missing, default is ', '"', pair_name, '"')
+      warning(wrn)
+    }
   } else {
     pair_name <- toupper(pair)
   }
-  
-  i <- 1
+
+  # multiple pairs are not allowed but implemented 
+  response <- list()
   for(i in 1:length(pair_name)){
-    
+    # api GET call 
     new_data <- binance_api(api = "fapi", path = c("ticker", "24hr"), query = list(symbol = pair_name[i]))
     if(purrr::is_empty(new_data)){
       next
@@ -176,9 +178,8 @@ binance_fapi_ticker24h <- function(pair = "BTCUSDT") {
     response[[i]] <- new_data
   }
   
-  # Cleaning
-  if(!purrr::is_empty(response)){
-    
+  # structure output dataset 
+  if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
     response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
@@ -194,31 +195,30 @@ binance_fapi_ticker24h <- function(pair = "BTCUSDT") {
                                first_id = as.character(response$firstId),
                                last_id = as.character(response$lastId),
                                trades = as.integer(response$count))
-    
   } 
   
-  # Attributes
   attr(response, "ip_weight") <- i
   attr(response, "api") <- "fapi"
   return(response)
 }
 
-binance_dapi_ticker24h <- function(pair = "BTCUSD_PERP") {
+binance_dapi_ticker24h <- function(pair) {
   
-  response <- list()
-  
-  # Control on the Pair
-  if(is.null(pair)){
-    wrn <- 'The "pair" argument cannot be NULL'
-    if(!quiet) warning(wrn)
-    return(NULL)
+  # General Check: pair default argument 
+  if (missing(pair) || is.null(pair)) {
+    pair_name <- "BTCUSD_PERP"
+    if (!quiet) {
+      wrn <- paste0('The pair argument is missing, default is ', '"', pair_name, '"')
+      warning(wrn)
+    }
   } else {
     pair_name <- toupper(pair)
   }
   
-  i <- 1
+  # multiple pairs are not allowed but implemented 
+  response <- list()
   for(i in 1:length(pair_name)){
-    
+    # api GET call 
     new_data <- binance_api(api = "dapi", path = c("ticker", "24hr"), query = list(symbol = pair_name[i]))
     if(purrr::is_empty(new_data)){
       next
@@ -226,9 +226,8 @@ binance_dapi_ticker24h <- function(pair = "BTCUSD_PERP") {
     response[[i]] <- new_data
   }
   
-  # Cleaning
-  if(!purrr::is_empty(response)){
-    
+  # structure output dataset 
+  if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
     response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
@@ -245,28 +244,28 @@ binance_dapi_ticker24h <- function(pair = "BTCUSD_PERP") {
                                trades = as.integer(response$count))
   } 
   
-  # Attributes
   attr(response, "ip_weight") <- i
   attr(response, "api") <- "dapi"
   return(response)
 }
 
-binance_eapi_ticker24h <- function(pair = "BTCUSD_PERP") {
+binance_eapi_ticker24h <- function(pair) {
   
-  response <- list()
-  
-  # Control on the Pair
-  if(is.null(pair)){
-    wrn <- 'The "pair" argument cannot be NULL'
-    if(!quiet) warning(wrn)
+  # General Check: pair default argument 
+  if (missing(pair) || is.null(pair)) {
+    if (!quiet) {
+      wrn <- paste0('The pair argument is missing with no default.')
+      warning(wrn)
+    }
     return(NULL)
   } else {
     pair_name <- toupper(pair)
   }
   
-  i <- 1
+  # multiple pairs are not allowed but implemented 
+  response <- list()
   for(i in 1:length(pair_name)){
-    
+    # api GET call 
     new_data <- binance_api(api = "eapi", path = c("ticker"), query = list(symbol = pair_name[i]))
     if(purrr::is_empty(new_data)){
       next
@@ -274,9 +273,8 @@ binance_eapi_ticker24h <- function(pair = "BTCUSD_PERP") {
     response[[i]] <- new_data
   }
   
-  # Cleaning
-  if(!purrr::is_empty(response)){
-    
+  # structure output dataset 
+  if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
     response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
@@ -298,10 +296,7 @@ binance_eapi_ticker24h <- function(pair = "BTCUSD_PERP") {
                                excercise_price = as.numeric(response$exercisePrice))
   } 
   
-  # Attributes
   attr(response, "ip_weight") <- i * 5
   attr(response, "api") <- "eapi"
   return(response)
 }
-
-

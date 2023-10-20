@@ -9,7 +9,7 @@ binance_ticker24h(pair, api = "spot", type = c("full", "mini"), quiet = FALSE)
 \arguments{
 \item{pair}{Character, specifying the trading pair of interest, e.g., "BTCUSDT".}
 
-\item{api}{Character, indicating the reference API. Available options are:
+\item{api}{Character, specifying the reference API. Available options include:
 \itemize{
 \item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics}{Spot API}.
 \item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics}{Futures USD-M API}.

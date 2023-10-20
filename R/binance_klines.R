@@ -55,12 +55,6 @@
 
 binance_klines <- function(pair, interval, from, to, api = "spot", contract_type, uiKlines = FALSE, quiet = FALSE){
   
-  if (missing(contract_type)) {
-    contract_type <- "perpetual"
-  } else {
-    contract_type <- match.arg(contract_type, choices = c("perpetual", "current_quarter", "next_quarter"))
-  }
-  
   # General Check: pair default argument 
   if (missing(pair) || is.null(pair)) {
     pair_name <- "BTCUSDT"
@@ -105,39 +99,50 @@ binance_klines <- function(pair, interval, from, to, api = "spot", contract_type
       wrn <- paste0('The "interval" argument is missing, default is ', '"', interval, '"')
       warning(wrn)
     }
+  } 
+  
+  # General Check: "contract_type"
+  if (missing(contract_type)) {
+    contract_type <- "perpetual"
   } else {
-    available_intervals <- c("1s", "1m", "3m", "5m", "15m","30m","1h", "2h", 
-                             "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M")
-    interval  <- match.arg(interval, choices = available_intervals)
+    contract_type <- match.arg(contract_type, choices = c("perpetual", "current_quarter", "next_quarter"))
   }
   
-  # function name 
-  fun_name <- paste0("binance_", api, "_klines")
-
-  # safe call to avoid errors 
+  # function arguments depending on api 
   if (api == "spot") {
     args <- list(pair = pair, interval = interval, from = from , to = to, uiKlines = uiKlines, quiet = quiet)
-    safe_fun <- purrr::safely(~do.call(fun_name, args = args))
   } else if (api %in% c("fapi", "dapi")) {
     args <- list(pair = pair, interval = interval, from = from , to = to, contract_type = contract_type, uiKlines = uiKlines, quiet = quiet)
-    safe_fun <- purrr::safely(~do.call(fun_name, args = args))
   } else {
     args <- list(pair = pair, interval = interval, from = from , to = to, quiet = quiet)
-    safe_fun <- purrr::safely(~do.call(fun_name, args = args))
   }
-  
-  response <- NULL
+  # function name 
+  fun_name <- paste0("binance_", api, "_klines")
+  # safe call to avoid errors 
+  safe_fun <- purrr::safely(~do.call(fun_name, args = args))
+  # api GET call 
   response <- safe_fun()
-  if(!quiet & !is.null(response$error)){
+  
+  if (!quiet & !is.null(response$error)) {
     warning(response$error)
+  } else {
+    return(response$result)
   }
-  return(response$result)
 }
 
 # api functions ---------------------------------------------------------------------------------------------
 binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, quiet = FALSE){
 
-  pair_name <- toupper(pair) # pair default argument 
+  # General Check: pair default argument 
+  if (missing(pair) || is.null(pair)) {
+    pair_name <- "BTCUSDT"
+    if (!quiet) {
+      wrn <- paste0('The pair argument is missing, default is ', '"', pair_name, '"')
+      warning(wrn)
+    }
+  } else {
+    pair_name <- toupper(pair)
+  }
   
   # General Check: interval
   if (missing(interval) || is.null(interval)) {
@@ -165,30 +170,26 @@ binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, qui
     api_query <- list(symbol = pair_name, startTime = NULL, interval = interval, endTime = end_time, limit = 1000)
     # api GET call 
     new_data <- binance_api(api = "spot", path = api_path, query = api_query)
-    
     # Break Condition: new_data is empty 
     if(purrr::is_empty(new_data)){
       break
     }
-    
     response[[i]] <- new_data
     # assign column names 
     colnames(response[[i]]) <- c("date", "open", "high", "low", "close", "volume",
                                  "date_close", "volume_quote", "trades", "taker_buy",
                                  "taker_buy_quote", "ignore")
     response[[i]] <- dplyr::as_tibble(response[[i]])
-    
     # extract the minimum date
     first_date <- min(as.numeric(response[[i]]$date))
     # Break Condition: IF first_date is greater than start_time THEN stop
     condition <- first_date > as.numeric(start_time) & first_date != last_date
     last_date <- first_date # avoid infinite loops 
     end_time <- paste0(trunc(first_date/1000), "000")
-    i = i + 1
+    i <- i + 1
   }
   
-  if(!purrr::is_empty(response)){
-    
+  if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::mutate(response,
                               pair = pair_name,
@@ -204,7 +205,6 @@ binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, qui
                               trades = as.numeric(trades),
                               taker_buy = as.numeric(taker_buy),
                               taker_buy_quote = as.numeric(taker_buy_quote))
-    
     # remove "ignore" column and reorder 
     response <- dplyr::select(response, -ignore)
     response <- dplyr::select(response, date, date_close, market, pair, dplyr::everything())
@@ -216,7 +216,6 @@ binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, qui
     response <- dplyr::tibble()
   }
   
-  # Weigth and Api attributes
   attr(response, "api") <- "spot"
   attr(response, "ip_weight") <- i
   attr(response, "interval") <- interval
@@ -332,13 +331,10 @@ binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKline
     
   }
   
-  # Weigth and Api attributes
   attr(response, "api") <- "fapi"
   attr(response, "ip_weight") <- i
   attr(response, "interval") <- interval
-  
   return(response)
-  
 }
 
 binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKlines = TRUE, quiet = FALSE){
@@ -532,13 +528,10 @@ binance_eapi_klines <- function(pair, interval, from, to, quiet = FALSE){
     response <- dplyr::arrange(response, date)
   }
   
-  # Weigth and Api attributes
   attr(response, "api") <- "eapi"
   attr(response, "ip_weight") <- i * 1
   attr(response, "interval") <- interval
-  
   return(response)
-  
 }
 
 

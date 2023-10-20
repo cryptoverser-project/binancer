@@ -1,15 +1,22 @@
-#' OrderBook 
-#' @name OrderBook
-#' @rdname OrderBook
-#' @description create and/or structure an existent order book
-#' @param data tibble, order book dataset 
-#' @param min_price minimum price 
-#' @param max_price maximum price 
-#' @param levels number of levels 
-#' @param trades tibble, trades dataset
-#' @param as_datatable logical 
-#' 
-#' @return a tibble
+#' Create and Structure an Order Book
+#'
+#' The `OrderBook` function is used to create and structure an existing order book dataset, 
+#' allowing you to specify the minimum and maximum price range and the number of levels to include.
+#'
+#' @param data A tibble containing the order book dataset.
+#'
+#' @param min_price The minimum price to consider for the order book.
+#'
+#' @param max_price The maximum price to consider for the order book.
+#'
+#' @param levels The number of levels to include in the order book.
+#'
+#' @param trades A tibble containing the trades dataset to be integrated with the order book.
+#'
+#' @param as_datatable Logical, specifying whether to return the structured order book as a data table (data frame). Default is FALSE.
+#'
+#' @return A structured tibble representing the order book with the specified price range and levels.
+#'
 #' @export
 
 OrderBook <- function(data = NULL, min_price = NULL, max_price = NULL, levels = 20, trades = NULL, as_datatable = FALSE){

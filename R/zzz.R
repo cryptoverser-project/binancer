@@ -1,21 +1,17 @@
+binance_add_weight_ip <- function(weight = 0, api = "spot"){
+  
+  old_weight <- binance_env[['weight_ip']][[api]]
+  binance_env[['weight_ip']][[api]] <- old_weight + weight
+  
+}
 
-weight_ip <- function(object){
+binance_weight_ip <- function(api = NULL){
   
-  if(missing(object)){
-    
-    df_weight <- dplyr::bind_rows(binance_env[['weight_ip']])
-    
-    return(df_weight)
+  if (is.null(api)){
+    return(binance_env[['weight_ip']][["total"]])
+  } else {
+    return(binance_env[['weight_ip']][[api]])
   }
-  
-  object_api <- attr(object, "api")
-  
-  new_weight <- binance_env[['weight_ip']][[object_api]] + attr(object, "ip_weight")
-  
-  binance_env[['weight_ip']][[object_api]] <- new_weight
-  
-  binance_env[['weight_ip']][['total']] <- sum(unlist(binance_env[['weight_ip']]))
-  
 }
 
 

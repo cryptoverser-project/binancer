@@ -5,7 +5,7 @@
 #' @param pair Character, specifying the trading pair of interest, e.g., "BTCUSDT".
 #'
 #' @param api Character, specifying the reference API. Available options include:
-#'   - "spot": For the [Spot API](https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list).
+#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list).
 #'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list).
 #'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list).
 #'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list).
@@ -41,9 +41,6 @@
 
 binance_last_trades <- function(pair, api = "spot", quiet = FALSE){
 
-  # function name 
-  fun_name <- "binance_api_last_trades"
-  
   api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
   
   # Check: default argument 
@@ -57,15 +54,18 @@ binance_last_trades <- function(pair, api = "spot", quiet = FALSE){
     pair_name <- toupper(pair)
   }
   
+  # function name 
+  fun_name <- "binance_api_last_trades"
   # safe call to avoid errors 
   safe_fun <- purrr::safely(~do.call(fun_name, args = list(pair = pair_name, api = api, quiet = quiet)))
-  
-  response <- NULL
+  # api GET call 
   response <- safe_fun()
+  
   if (!quiet & !is.null(response$error)) {
     warning(response$error)
+  } else {
+    return(response$result)
   }
-  return(response$result)
 }
 
 # api function 
@@ -84,11 +84,10 @@ binance_api_last_trades <- function(pair, api = "spot", quiet = FALSE){
     pair_name <- toupper(pair)
   }
   
-  response <- NULL
+  # api GET call 
   response <- binance_api(api = api, path = c("trades"), query = list(symbol = pair, limit = 1000))
   
-  if (!is.null(response)) {
-    
+  if (!purrr::is_empty(response)) {
     response <- dplyr::tibble(
       trade_id = response$id,
       date = as.POSIXct(response$time/1000, origin = "1970-01-01"),
@@ -96,14 +95,12 @@ binance_api_last_trades <- function(pair, api = "spot", quiet = FALSE){
       market = api,
       price = as.numeric(response$price),
       quantity = as.numeric(response$qty),
-      side = ifelse(response$isBuyerMaker, "SELL", "BUY")
-    )
+      side = ifelse(response$isBuyerMaker, "SELL", "BUY"))
   } 
   
   attr(response, "api") <- api
   attr(response, "ip_weight") <- ifelse(api == "spot", 1, 5)
   return(response)
-  
 }
 
 

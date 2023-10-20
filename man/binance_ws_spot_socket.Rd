@@ -9,6 +9,7 @@ binance_ws_spot_socket(
   subscription = "kline",
   interval = "1m",
   update_speed = 1000,
+  nobs_max = NULL,
   quiet = FALSE
 )
 }

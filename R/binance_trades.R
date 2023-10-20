@@ -56,16 +56,16 @@ binance_trades <- function(pair, api = "spot", from, to, quiet = FALSE){
 
   # function name 
   fun_name <- paste0("binance_", api, "_trades")
-  
   # safe call to avoid errors 
-  args <- list(pair = pair, from = from , to = to, quiet = quiet)
-  safe_fun <- purrr::safely(~do.call(fun_name, args = args))
-  response <- NULL
+  safe_fun <- purrr::safely(~do.call(fun_name, args = list(pair = pair, from = from, to = to, quiet = quiet)))
+  # api GET call 
   response <- safe_fun()
-  if(!quiet & !is.null(response$error)){
+  
+  if (!quiet & !is.null(response$error)) {
     warning(response$error)
+  } else {
+    return(response$result) 
   }
-  return(response$result)
 }
 
 # spot api 
@@ -108,13 +108,14 @@ binance_spot_trades <- function(pair, from, to, quiet = FALSE){
     to <- safe_as_datetime(to, origin = "1970-01-01")$result
   }
   
-  
+  # initialization 
   i <- 1
   response  <- list()
   condition <- TRUE
   end_time <- paste0(trunc(as.integer(to)), "000")
   start_time <- paste0(trunc(as.integer(from)), "000")
   first_date <- as.integer(from)*1000
+  # importation loop 
   while(condition){
     # query
     api_query <- list(symbol = pair_name, startTime = start_time, endTime = NULL, limit = 1000)
@@ -135,12 +136,10 @@ binance_spot_trades <- function(pair, from, to, quiet = FALSE){
     first_date <- last_date # needed avoid infinite loops 
     # ELSE: use the first_date as new endTime
     start_time <- paste0(trunc(last_date/1000), "000")
-    i = i + 1
-    
+    i <- i + 1
   }
   
-  if(!purrr::is_empty(response)){
-    
+  if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
     response <- dplyr::mutate(response,
@@ -149,8 +148,7 @@ binance_spot_trades <- function(pair, from, to, quiet = FALSE){
                               date = as.POSIXct(as.numeric(date)/1000, origin = "1970-01-01"),
                               price = as.numeric(price),
                               quantity = as.numeric(quantity),
-                              side = ifelse(side, "SELL", "BUY")
-    )
+                              side = ifelse(side, "SELL", "BUY"))
     response <- dplyr::filter(response, date >= from & date <= to)
     response <- dplyr::select(response, date, market, pair, price, quantity, side, agg_id, first_id, last_id)
   }
@@ -199,28 +197,26 @@ binance_fapi_trades <- function(pair, from, to, quiet = FALSE){
     safe_as_datetime <- purrr::safely(as.POSIXct)
     to <- safe_as_datetime(to, origin = "1970-01-01")$result
   }
-  
-  
+  # initialization 
   i <- 1
   response  <- list()
   condition <- TRUE
   end_time <- paste0(trunc(as.integer(to)), "000")
   start_time <- paste0(trunc(as.integer(from)), "000")
   first_date <- as.integer(from)*1000
-  
+  # importation loop 
   while(condition){
     
     # query
     api_query <- list(symbol = pair_name, startTime = start_time, endTime = NULL, limit = 1000)
     # api GET call 
-    new_data <- binance_api(api = "fapi", path = c("aggTrades"), query = api_query)
+    new_data <- binance_api(api = "fapi", path = "aggTrades", query = api_query)
     # Break Condition: new_data is empty 
     if(purrr::is_empty(new_data)){
       break
     }
     response[[i]] <- new_data
-    colnames(response[[i]]) <- c("agg_id", "price", "quantity", "first_id",
-                                 "last_id", "date", "side")
+    colnames(response[[i]]) <- c("agg_id", "price", "quantity", "first_id", "last_id", "date", "side")
     
     # extract the maximum date
     last_date <- max(as.numeric(response[[i]]$date))
@@ -229,12 +225,10 @@ binance_fapi_trades <- function(pair, from, to, quiet = FALSE){
     first_date <- last_date # needed avoid infinite loops 
     # ELSE: use the first_date as new endTime
     start_time <- paste0(trunc(last_date/1000), "000")
-    i = i + 1
-    
+    i <- i + 1
   }
   
-  if(!purrr::is_empty(response)){
-    
+  if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
     response <- dplyr::mutate(response,
@@ -243,8 +237,7 @@ binance_fapi_trades <- function(pair, from, to, quiet = FALSE){
                               date = as.POSIXct(as.numeric(date)/1000, origin = "1970-01-01"),
                               price = as.numeric(price),
                               quantity = as.numeric(quantity),
-                              side = ifelse(side, "SELL", "BUY")
-    )
+                              side = ifelse(side, "SELL", "BUY"))
     response <- dplyr::filter(response, date >= from & date <= to)
     response <- dplyr::select(response, date, market, pair, price, quantity, side, agg_id, first_id, last_id)
   }
@@ -294,16 +287,15 @@ binance_dapi_trades <- function(pair, from, to, quiet = FALSE){
     to <- safe_as_datetime(to, origin = "1970-01-01")$result
   }
   
-  
+  # initialization 
   i <- 1
   response  <- list()
   condition <- TRUE
   end_time <- paste0(trunc(as.integer(to)), "000")
   start_time <- paste0(trunc(as.integer(from)), "000")
   first_date <- as.integer(from)*1000
-  
+  # importation loop 
   while(condition){
-    
     # query
     api_query <- list(symbol = pair_name, startTime = start_time, endTime = NULL, limit = 1000)
     # api GET call 
@@ -323,12 +315,10 @@ binance_dapi_trades <- function(pair, from, to, quiet = FALSE){
     first_date <- last_date # needed avoid infinite loops 
     # ELSE: use the first_date as new endTime
     start_time <- paste0(trunc(last_date/1000), "000")
-    i = i + 1
-    
+    i <- i + 1
   }
   
-  if(!purrr::is_empty(response)){
-    
+  if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
     response <- dplyr::mutate(response,
@@ -337,8 +327,7 @@ binance_dapi_trades <- function(pair, from, to, quiet = FALSE){
                               date = as.POSIXct(as.numeric(date)/1000, origin = "1970-01-01"),
                               price = as.numeric(price),
                               quantity = as.numeric(quantity),
-                              side = ifelse(side, "SELL", "BUY")
-    )
+                              side = ifelse(side, "SELL", "BUY"))
     response <- dplyr::filter(response, date >= from & date <= to)
     response <- dplyr::select(response, date, market, pair, price, quantity, side, agg_id, first_id, last_id)
   }

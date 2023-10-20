@@ -34,10 +34,9 @@
 
 binance_time <- function(api = "spot"){
 
-  response <- NULL
   response <- binance_api(api = api, path = c("time"), query = NULL)
 
-  if (is.null(response)) {
+  if (purrr::is_empty(response)) {
     response <- ""
   } else {
     response <- as.POSIXct(response$serverTime/1000, origin = "1970-01-01")
@@ -45,7 +44,5 @@ binance_time <- function(api = "spot"){
   
   attr(response, "api") <- api
   attr(response, "ip_weight") <- 1
-  
   return(response)
-  
 }

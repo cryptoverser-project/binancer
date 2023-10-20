@@ -1,38 +1,39 @@
 #' Binance Order Book Snapshot
 #'
 #' Retrieve a snapshot of the order book for a specified trading pair. 
-#' This function allows you to access the current state of the order book, including both asks (sell orders) and bids (buy orders). 
 #'
 #' @param pair Character, specifying the trading pair of interest, e.g., "BTCBUSD".
 #'
 #' @param api Character, specifying the reference API. Available options include:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#order-book).
-#'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#order-book).
-#'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#order-book).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#order-book).
+#'   - "spot": For [Spot api](https://binance-docs.github.io/apidocs/spot/en/#order-book).
+#'   - "fapi": For [Futures USD-M api](https://binance-docs.github.io/apidocs/futures/en/#order-book).
+#'   - "dapi": For [Futures Coin-M api](https://binance-docs.github.io/apidocs/delivery/en/#order-book).
+#'   - "eapi": For [Options api](https://binance-docs.github.io/apidocs/voptions/en/#order-book).
 #'
 #' @param quiet Logical, specifying whether to suppress informational messages. Default is FALSE.
 #'
-#' @return A tibble (data frame) with the following 6 columns:
-#'   - `date`: Datetime, representing the date of the order book snapshot.
-#'   - `market`: Character, indicating the selected API.
-#'   - `pair`: Character, representing the selected trading pair.
-#'   - `side`: Character, describing the side of the order, which can be "ASK" (sell orders) or "BID" (buy orders).
-#'   - `price`: Numeric, denoting price levels in the order book.
-#'   - `quantity`: Numeric, indicating the quantity for each level in the order book.
+#' @return A tibble (data frame) with 6 columns:
+#'   - `date`: Datetime, the time of the order book snapshot.
+#'   - `market`: Character, the selected API.
+#'   - `pair`: Character, the selected trading pair.
+#'   - `side`: Character, the side of the order. It is "ASK" for sell orders and "BID" for buy orders.
+#'   - `price`: Numeric, the price levels in the order book.
+#'   - `quantity`: Numeric, the quantity correspondent to each price level.
+#'
+#' @details This function allows you to access the current state of the order book, including both asks (sell orders) and bids (buy orders). 
 #'
 #' @examples
 #'
-#' # Example: Get the order book for the BTCBUSD trading pair in the Spot market.
+#' # Get the order book for BTCBUSD in Spot market.
 #' binance_depth(pair = "BTCBUSD", api = "spot")
 #'
-#' # Example: Get the order book for the BTCBUSD trading pair in the Futures USD-M market.
+#' # Get the order book for BTCBUSD in Futures USD-M market.
 #' binance_depth(pair = "BTCBUSD", api = "fapi")
 #'
-#' # Example: Get the order book for the BTCUSD_PERP trading pair in the Futures COIN-M market.
+#' # Get the order book for BTCUSD_PERP in Futures COIN-M market.
 #' binance_depth(pair = "BTCUSD_PERP", api = "dapi")
 #'
-#' # Example: Get the order book for a put option on BTCUSDT with a strike of 30000 and maturity on 2024-06-28.
+#' # Get the order book for a Put option on BTCUSDT 
 #' binance_depth(pair = "BTC-240628-30000-P", api = "eapi")
 #'
 #' @export
@@ -40,7 +41,6 @@
 #' @rdname binance_depth
 #'
 #' @name binance_depth
-#'
 
 binance_depth <- function(pair, api = "spot", quiet = FALSE){
   
@@ -50,19 +50,17 @@ binance_depth <- function(pair, api = "spot", quiet = FALSE){
   # safe call to avoid errors 
   safe_fun <- purrr::safely(~do.call(binance_api_depth, args = list(pair = pair, api = api, quiet = quiet)))
 
-  response <- NULL
   response <- safe_fun()
   
-  if(!quiet & !is.null(response$error)){
+  if (!quiet & !is.null(response$error)) {
     warning(response$error)
+  } else {
+    return(response$result)
   }
-  return(response$result)
 }
 
 # api functions -----------------------------------------------------
 binance_api_depth <- function(pair, api = "spot", quiet = FALSE){
-  
-  response <- NULL
   
   # General Check: api default argument 
   if (missing(api) || is.null(api)) {
@@ -94,8 +92,10 @@ binance_api_depth <- function(pair, api = "spot", quiet = FALSE){
     api == "eapi" ~ "options"
   )
   
+  # api query 
+  query <- list(symbol = pair_name, limit = ifelse(api == "spot", 5000, 1000))
   # api response
-  response <- binance_api(api = api, path = c("depth"), query = list(symbol = pair_name, limit = ifelse(api == "spot", 5000, 1000)))
+  response <- binance_api(api = api, path = "depth", query = query)
   
   # IF response is NOT empty then cleaning 
   if(!purrr::is_empty(response)){
@@ -104,6 +104,7 @@ binance_api_depth <- function(pair, api = "spot", quiet = FALSE){
     colnames(response$bids) <- c("price", "quantity")
     colnames(response$asks) <- c("price", "quantity")
     
+    # bid and ask data 
     df_bid <- dplyr::as_tibble(response$bids)
     df_ask <- dplyr::as_tibble(response$asks)
     
@@ -116,11 +117,11 @@ binance_api_depth <- function(pair, api = "spot", quiet = FALSE){
     # order-book
     response <- dplyr::bind_rows(df_bid, df_ask)
     
-    # Add extra information: date, pair and market 
+    # add extra information (date, pair and market)
     response <- dplyr::mutate(response, date = update_time, pair = pair_name, market = market)
     # select and reorder variables 
     response <- dplyr::select(response, date, market, pair, side, price, quantity)
-    # arrange by price (descending)
+    # arrange by price in descending order 
     response <- dplyr::arrange(response, dplyr::desc(price))
   }
   
@@ -128,7 +129,4 @@ binance_api_depth <- function(pair, api = "spot", quiet = FALSE){
   attr(response, "ip_weight") <- 50
   attr(response, "api") <- api
   return(response)
-  
 }
-
-

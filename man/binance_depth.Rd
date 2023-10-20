@@ -11,41 +11,43 @@ binance_depth(pair, api = "spot", quiet = FALSE)
 
 \item{api}{Character, specifying the reference API. Available options include:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#order-book}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#order-book}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#order-book}{Futures Coin-M API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#order-book}{Options API}.
+\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#order-book}{Spot api}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#order-book}{Futures USD-M api}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#order-book}{Futures Coin-M api}.
+\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#order-book}{Options api}.
 }}
 
 \item{quiet}{Logical, specifying whether to suppress informational messages. Default is FALSE.}
 }
 \value{
-A tibble (data frame) with the following 6 columns:
+A tibble (data frame) with 6 columns:
 \itemize{
-\item \code{date}: Datetime, representing the date of the order book snapshot.
-\item \code{market}: Character, indicating the selected API.
-\item \code{pair}: Character, representing the selected trading pair.
-\item \code{side}: Character, describing the side of the order, which can be "ASK" (sell orders) or "BID" (buy orders).
-\item \code{price}: Numeric, denoting price levels in the order book.
-\item \code{quantity}: Numeric, indicating the quantity for each level in the order book.
+\item \code{date}: Datetime, the time of the order book snapshot.
+\item \code{market}: Character, the selected API.
+\item \code{pair}: Character, the selected trading pair.
+\item \code{side}: Character, the side of the order. It is "ASK" for sell orders and "BID" for buy orders.
+\item \code{price}: Numeric, the price levels in the order book.
+\item \code{quantity}: Numeric, the quantity correspondent to each price level.
 }
 }
 \description{
 Retrieve a snapshot of the order book for a specified trading pair.
+}
+\details{
 This function allows you to access the current state of the order book, including both asks (sell orders) and bids (buy orders).
 }
 \examples{
 
-# Example: Get the order book for the BTCBUSD trading pair in the Spot market.
+# Get the order book for BTCBUSD in Spot market.
 binance_depth(pair = "BTCBUSD", api = "spot")
 
-# Example: Get the order book for the BTCBUSD trading pair in the Futures USD-M market.
+# Get the order book for BTCBUSD in Futures USD-M market.
 binance_depth(pair = "BTCBUSD", api = "fapi")
 
-# Example: Get the order book for the BTCUSD_PERP trading pair in the Futures COIN-M market.
+# Get the order book for BTCUSD_PERP in Futures COIN-M market.
 binance_depth(pair = "BTCUSD_PERP", api = "dapi")
 
-# Example: Get the order book for a put option on BTCUSDT with a strike of 30000 and maturity on 2024-06-28.
+# Get the order book for a Put option on BTCUSDT 
 binance_depth(pair = "BTC-240628-30000-P", api = "eapi")
 
 }

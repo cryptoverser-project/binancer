@@ -1,92 +1,57 @@
-# binancer
+# Binance REST API Wrapper for R
 
+The "binancer" package is part of a collection of development tools designed for retrieving cryptocurrency data. It enables you to access various data related to cryptocurrency pairs through the [Binance API](https://binance-docs.github.io/apidocs). 
 
+# Installation 
 
-## Getting started
+```{r Installation}
+# lightweight
+remotes::install_github("cryptoverser-project/binancer")
+# or
+devtools::install_github("cryptoverser-project/binancer")
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/beniamino98/binancer.git
-git branch -M main
-git push -uf origin main
+library(binancer)
 ```
 
-## Integrate with your tools
+## OHLCV Historical Data
 
-- [ ] [Set up project integrations](https://gitlab.com/beniamino98/binancer/-/settings/integrations)
+Klines data contains high, low, open, close and volumes data. The binance api allows to retrieve this kind of data for many time frames ("1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M"). For example: 
 
-## Collaborate with your team
+```{r}
+binance_klines(api = "spot", pair = "BTCUSDT", interval = "1h")
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+# A tibble: 24 × 13
+   date                date_close          market pair      open   high    low  close volume volume_quote trades taker_buy taker_buy_quote
+   <dttm>              <dttm>              <chr>  <chr>    <dbl>  <dbl>  <dbl>  <dbl>  <dbl>        <dbl>  <dbl>     <dbl>           <dbl>
+ 1 2023-10-19 22:00:00 2023-10-19 22:59:59 spot   BTCUSDT 28751. 28882. 28685. 28715.  1737.    49976234.  59830      837.       24072439.
+ 2 2023-10-19 23:00:00 2023-10-19 23:59:59 spot   BTCUSDT 28715. 28740. 28604. 28604.  1119.    32056663.  42623      432.       12368607.
+ 3 2023-10-20 00:00:00 2023-10-20 00:59:59 spot   BTCUSDT 28604. 28705. 28599. 28650.   768.    22004203.  28479      388.       11125072.
+ 4 2023-10-20 01:00:00 2023-10-20 01:59:59 spot   BTCUSDT 28650. 28718. 28630. 28714.   613.    17582981.  27099      338.        9705128.
+ 5 2023-10-20 02:00:00 2023-10-20 02:59:59 spot   BTCUSDT 28714. 28772. 28636. 28640    886.    25431529.  41341      477.       13692333.
+ 6 2023-10-20 03:00:00 2023-10-20 03:59:59 spot   BTCUSDT 28640. 28660. 28578. 28660.   641.    18354126.  34806      305.        8715906.
+ 7 2023-10-20 04:00:00 2023-10-20 04:59:59 spot   BTCUSDT 28659. 29123  28641. 28980   3294.    95260547. 111096     1912.       55290507.
+ 8 2023-10-20 05:00:00 2023-10-20 05:59:59 spot   BTCUSDT 28980  29400  28920  29235.  4343.   126753071. 150111     2394.       69872969.
+ 9 2023-10-20 06:00:00 2023-10-20 06:59:59 spot   BTCUSDT 29235. 29350  29175. 29319.  2399.    70198015.  87783     1263.       36968173.
+10 2023-10-20 07:00:00 2023-10-20 07:59:59 spot   BTCUSDT 29319. 29346. 29111. 29222.  3774.   110132371.  86502     1298.       37904423.
+# 14 more rows
+```
 
-## Test and Deploy
+```{r}
+binancer::binance_klines(api = "spot", pair = "BTCUSDT", from = "2019-01-05", to = "2023-07-19", interval = "1d")
 
-Use the built-in continuous integration in GitLab.
+# A tibble: 1,657 × 13
+   date                date_close          market pair     open  high   low close volume volume_quote trades taker_buy taker_buy_quote
+   <dttm>              <dttm>              <chr>  <chr>   <dbl> <dbl> <dbl> <dbl>  <dbl>        <dbl>  <dbl>     <dbl>           <dbl>
+ 1 2019-01-05 01:00:00 2019-01-06 00:59:59 spot   BTCUSDT 3790. 3841. 3751  3771. 30491.   115893501. 203673    14909.       56667455.
+ 2 2019-01-06 01:00:00 2019-01-07 00:59:59 spot   BTCUSDT 3771. 4028. 3740  3988. 36554.   142198812. 240496    19773.       76903706.
+ 3 2019-01-07 01:00:00 2019-01-08 00:59:59 spot   BTCUSDT 3988. 4018. 3922. 3975. 31870.   126830380. 221219    16404.       65287612.
+ 4 2019-01-08 01:00:00 2019-01-09 00:59:59 spot   BTCUSDT 3977. 4070. 3903  3955. 38901.   154778847. 242898    20048.       79781105.
+ 5 2019-01-09 01:00:00 2019-01-10 00:59:59 spot   BTCUSDT 3955. 4007. 3930. 3967. 28989.   115218950. 209240    14984.       59559011.
+ 6 2019-01-10 01:00:00 2019-01-11 00:59:59 spot   BTCUSDT 3966. 3996. 3540  3586. 59402.   221789348. 374760    28288.      105616252.
+ 7 2019-01-11 01:00:00 2019-01-12 00:59:59 spot   BTCUSDT 3586. 3658  3465  3601. 38339.   137560744. 264996    19907.       71430016.
+ 8 2019-01-12 01:00:00 2019-01-13 00:59:59 spot   BTCUSDT 3601. 3618. 3530  3583. 22000.    78908771. 175679    11646.       41778836.
+ 9 2019-01-13 01:00:00 2019-01-14 00:59:59 spot   BTCUSDT 3584. 3611. 3441. 3477. 26386.    92882249. 183113    13692.       48229503.
+10 2019-01-14 01:00:00 2019-01-15 00:59:59 spot   BTCUSDT 3478. 3672. 3467. 3626. 35235.   125631820. 229452    18416.       65668831.
+# 1,647 more rows
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.

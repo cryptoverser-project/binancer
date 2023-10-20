@@ -8,8 +8,9 @@ binance_ws_fapi_socket(
   pair = "BTCUSDT",
   subscription = "kline",
   interval = "1m",
-  contractType = NULL,
+  contract_type = NULL,
   update_speed = 1000,
+  nobs_max = NULL,
   quiet = FALSE
 )
 }
