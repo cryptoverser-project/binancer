@@ -21,11 +21,12 @@ binance_api(
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#introduction}{Options API}.
 }}
 
-\item{path}{Character vector, specifying the API path. This vector represents the structure of the API endpoint.}
+\item{path}{Character vector, specifying the API path.}
 
 \item{query}{Named list, containing query parameters for the API call.}
 
-\item{use_base_path}{Logical, if \code{TRUE}, the appropriate base path will be automatically added to the \code{path} argument based on the selected API type. The base paths are as follows:
+\item{use_base_path}{Logical, if \code{TRUE}, will be automatically added to the \code{path} an argument based on the selected API type.
+The base paths are:
 \itemize{
 \item "spot": For the Spot API, the base path is "api/v3".
 \item "fapi": For the Futures USD-M API, the base path is "fapi/v1".
@@ -33,17 +34,17 @@ binance_api(
 \item "eapi": For the Options API, the base path is "eapi/v1".
 }}
 
-\item{quiet}{Logical, suppress informational messages if TRUE.}
+\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default is \code{FALSE}.}
 }
 \description{
-Execute an API call to the Binance REST API, allowing access to various endpoints across different Binance API types.
+Execute an API call to the Binance REST api, allowing access to various endpoints.
 }
 \examples{
 
-# Example: Execute an API call to "api/v3/time" with automatic base path addition (use_base_path = TRUE) for the Spot API.
+# Execute a call using "api/v3/time" with base path and for spot API.
 binance_api(api = "spot", path = c("time"), query = NULL)
 
-# Example: Execute an API call to "api/v3/time" without automatic base path addition (use_base_path = FALSE) for the Spot API.
+# Execute a call using "api/v3/time" without base path and for spot API.
 binance_api(api = "spot", path = c("api", "v3", "time"), use_base_path = FALSE, query = NULL)
 
 }

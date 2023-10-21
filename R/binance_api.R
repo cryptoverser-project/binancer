@@ -1,6 +1,6 @@
 #' Binance REST API Call Function
 #'
-#' Execute an API call to the Binance REST API, allowing access to various endpoints across different Binance API types.
+#' Execute an API call to the Binance REST api, allowing access to various endpoints.
 #'
 #' @param api Character, specifying the reference API. Available options include:
 #'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#introduction).
@@ -8,24 +8,25 @@
 #'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#introduction).
 #'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#introduction).
 #'
-#' @param path Character vector, specifying the API path. This vector represents the structure of the API endpoint.
+#' @param path Character vector, specifying the API path. 
 #'
 #' @param query Named list, containing query parameters for the API call.
 #'
-#' @param use_base_path Logical, if `TRUE`, the appropriate base path will be automatically added to the `path` argument based on the selected API type. The base paths are as follows:
+#' @param use_base_path Logical, if `TRUE`, will be automatically added to the `path` an argument based on the selected API type. 
+#' The base paths are:
 #'   - "spot": For the Spot API, the base path is "api/v3".
 #'   - "fapi": For the Futures USD-M API, the base path is "fapi/v1".
 #'   - "dapi": For the Futures Coin-M API, the base path is "dapi/v1".
 #'   - "eapi": For the Options API, the base path is "eapi/v1".
 #'
-#' @param quiet Logical, suppress informational messages if TRUE.
+#' @param quiet Logical, suppress informational messages if `TRUE`. Default is `FALSE`.
 #'
 #' @examples 
 #' 
-#' # Example: Execute an API call to "api/v3/time" with automatic base path addition (use_base_path = TRUE) for the Spot API.
+#' # Execute a call using "api/v3/time" with base path and for spot API.
 #' binance_api(api = "spot", path = c("time"), query = NULL)
 #'
-#' # Example: Execute an API call to "api/v3/time" without automatic base path addition (use_base_path = FALSE) for the Spot API.
+#' # Execute a call using "api/v3/time" without base path and for spot API.
 #' binance_api(api = "spot", path = c("api", "v3", "time"), use_base_path = FALSE, query = NULL)
 #'
 #' @export

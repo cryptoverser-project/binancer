@@ -1,11 +1,17 @@
-# Cleaner for the different websocket response 
+#' Cleaner binance websocket 
+#'
+#' Clean and structure the different websocket responses.
+#' 
+#' @param data Tibble
+
 binance_ws_cleaner <- function(data){
   UseMethod("binance_ws_cleaner")
 }
 
+# Cleaner for websocket "aggTrade" endpoint
 binance_ws_cleaner.aggTrade <- function(data){
 
-  if(purrr::is_empty(data)){
+  if (purrr::is_empty(data)) {
     return(dplyr::tibble())
   }
 
@@ -13,7 +19,6 @@ binance_ws_cleaner.aggTrade <- function(data){
   output <- dplyr::select(output,
                           date = "E", agg_id = "a", first_id = "f", last_id = "l",
                           pair = "s", price = "p", quantity = "q", side = "m")
-
   output <- dplyr::mutate(output,
                           date = as.POSIXct(date/1000, origin = "1970-01-01"),
                           price = as.numeric(price),
@@ -22,12 +27,13 @@ binance_ws_cleaner.aggTrade <- function(data){
   return(output)
 }
 
+# Cleaner for websocket "trade" endpoint
 binance_ws_cleaner.trade <- function(data){
 
-  if(purrr::is_empty(data)){
+  if (purrr::is_empty(data)) {
     return(dplyr::tibble())
   }
-
+  
   output <- dplyr::bind_rows(data)
   output <- dplyr::select(output, 
                           date = "T", id = "t", 
@@ -37,14 +43,13 @@ binance_ws_cleaner.trade <- function(data){
                           price = as.numeric(price),
                           quantity = as.numeric(quantity),
                           side = ifelse(side, "SELL", "BUY"))
-
   return(output)
-
 }
 
+# Cleaner for websocket "miniticker" endpoint
 binance_ws_cleaner.miniTicker <- function(data){
 
-  if(purrr::is_empty(data)){
+  if (purrr::is_empty(data)) {
     return(data)
   }
 
@@ -62,9 +67,10 @@ binance_ws_cleaner.miniTicker <- function(data){
   return(output)
 }
 
+# Cleaner for websocket "ticker" endpoint
 binance_ws_cleaner.ticker <- function(data){
 
-  if(purrr::is_empty(data)){
+  if (purrr::is_empty(data)) {
     return(data)
   }
 
@@ -73,7 +79,6 @@ binance_ws_cleaner.ticker <- function(data){
                           date = "E", pair = "s", price_change = "p", price_change_perc = "P", weighted_price = "w",
                           last_quantity = "Q", bid = "b", bid_quantity = "B", ask = "a", ask_quantity = "A",
                           open = "o", close = "c", high = "h", low = "l", volume = "v", quantity = "q", trades = "n")
-
   output <- dplyr::mutate(output,
                           date = as.POSIXct(date/1000, origin = "1970-01-01"),
                           price_change = as.double(price_change),
@@ -92,18 +97,17 @@ binance_ws_cleaner.ticker <- function(data){
                           quantity = as.double(quantity),
                           trades = as.integer(trades))
   return(output)
-
 }
 
+# Cleaner for websocket "bookTicker" endpoint
 binance_ws_cleaner.bookTicker <- function(data){
 
-  if(purrr::is_empty(data)){
+  if (purrr::is_empty(data)) {
     return(data)
   }
-
   output <- dplyr::bind_rows(data)
-  output <- dplyr::select(output, date = "u", pair = "s", bid = "b", quantity_bid = "B", ask = "a", quantity_ask = "A")
-
+  output <- dplyr::select(output, date = "u", pair = "s", bid = "b", 
+                          quantity_bid = "B", ask = "a", quantity_ask = "A")
   output <- dplyr::mutate(output,
                           date = Sys.time(),
                           bid = as.double(bid),
@@ -113,15 +117,18 @@ binance_ws_cleaner.bookTicker <- function(data){
   return(output)
 }
 
+# Cleaner for websocket "kline" endpoint
 binance_ws_cleaner.kline <- function(data){
+  
+  if (purrr::is_empty(data)) {
+    return(data)
+  }
 
   output <- dplyr::bind_rows(data$k)
-
   output <- dplyr::select(output,
                           date = "t", date_close = "T", pair = "s",
                           open = "o", close = "c", high = "h", low = "l", trades = "n", is_closed = "x",
                           volume = "v", volume_quote = "q", taker_buy = "V", taker_buy_quote = "Q" )
-
   output <- dplyr::mutate(output,
                           date = as.POSIXct(date/1000, origin = "1970-01-01"),
                           date_close = as.POSIXct(date_close/1000, origin = "1970-01-01"),
@@ -134,22 +141,22 @@ binance_ws_cleaner.kline <- function(data){
                           volume_quote = as.double(volume_quote),
                           taker_buy = as.double(taker_buy),
                           taker_buy_quote = as.double(taker_buy_quote))
-
   return(output)
-
 }
 
+# Cleaner for websocket "binance_ws_cleaner.continuousKline" endpoint
 binance_ws_cleaner.continuousKline <- function(data){
-
- 
- output <- dplyr::bind_rows(data$k)
-  output <- dplyr::mutate(output, pair = data$ps, contract = data$ct)
   
+  if (purrr::is_empty(data)) {
+    return(data)
+  }
+  
+  output <- dplyr::bind_rows(data$k)
+  output <- dplyr::mutate(output, pair = data$ps, contract = data$ct)
   output <- dplyr::select(output,
                           date = "t", date_close = "T", pair = "s",
                           open = "o", close = "c", high = "h", low = "l", trades = "n", is_closed = "x",
                           volume = "v", volume_quote = "q", taker_buy = "V", taker_buy_quote = "Q" )
-  
   output <- dplyr::mutate(output,
                           date = as.POSIXct(date/1000, origin = "1970-01-01"),
                           date_close = as.POSIXct(date_close/1000, origin = "1970-01-01"),
@@ -162,36 +169,46 @@ binance_ws_cleaner.continuousKline <- function(data){
                           volume_quote = as.double(volume_quote),
                           taker_buy = as.double(taker_buy),
                           taker_buy_quote = as.double(taker_buy_quote))
-  
   return(output)
-
 }
 
+# Cleaner for websocket "markPrice" endpoint
 binance_ws_cleaner.markPrice <- function(data){
 
+  if (purrr::is_empty(data)) {
+    return(data)
+  }
+  
   output <- dplyr::bind_rows(data)
   output <- dplyr::mutate(output, date = Sys.time())
-  output <- dplyr::select(output, date, next_funding_date = "T", pair = "s", mark_price = "p", index_price = "i", settlement = "P", funding_rate = "r")
-
+  output <- dplyr::select(output, date, next_funding_date = "T", pair = "s", mark_price = "p", 
+                          index_price = "i", settlement = "P", funding_rate = "r")
   output <- dplyr::mutate(output,
                           next_funding_date = as.POSIXct(next_funding_date/1000, origin = "1970-01-01"),
                           mark_price = as.numeric(mark_price),
                           index_price = as.numeric(index_price),
                           settlement = as.numeric(settlement),
                           funding_rate = as.numeric(funding_rate))
-
   return(output)
 }
 
+# Cleaner for websocket "forceOrder" endpoint
 binance_ws_cleaner.forceOrder <- function(data){
+  
+  if (purrr::is_empty(data)) {
+    return(data)
+  }
 
   output <- dplyr::bind_rows(data$o)
-
   return(output)
-
 }
 
+# Cleaner for websocket "depth" endpoint
 binance_ws_cleaner.depth <- function(data){
+  
+  if (purrr::is_empty(data)) {
+    return(data)
+  }
 
   # Creazione dataframe con informazioni (Data e Pair)
   output <- dplyr::bind_rows(data[c(2,3,4,5)])
@@ -217,57 +234,42 @@ binance_ws_cleaner.depth <- function(data){
   return(output)
 }
 
-# ----- Structure to avoid useless data -----
-
-# Structure the Kline to avoid to add unclosed canldes
+# Structure kline data to avoid un-closed candles
 binance_ws_kline <- function(data_before, data_after){
 
-  if(purrr::is_empty(data_before)){
+  if (purrr::is_empty(data_before)) {
     return(data_after)
   }
 
-  isClosed <- data_before[1,]$is_closed
-
-  if(isClosed){
+  if (data_before[1,]$is_closed) {
     merge_data <- dplyr::bind_rows(data_after, data_before)
   } else {
     merge_data <- dplyr::bind_rows(data_after, data_before[-1,])
   }
-
   return(merge_data)
 }
 
-# Structure an Order Book updating the levels
+# Structure order book data updating the levels
 binance_ws_orderbook <- function(data_before = NULL, data_after){
 
-  if(purrr::is_empty(data_before)){
+  if (purrr::is_empty(data_before)) {
     return(data_after)
   }
 
-  df1 <- data_before
-  df2 <- data_after
+  df_before <- dplyr::group_by(data_before, pair, side, price) 
+  df_before <- dplyr::summarise(df_before, quantity = sum(quantity), .groups = ".drop_last")
+  df_before <- dplyr::ungroup(df_before) 
+  
+  df_after <- dplyr::group_by(data_after, pair, side, price) 
+  df_after <- dplyr::summarise(df_after, quantity = sum(quantity), .groups = ".drop_last")
+  df_after <- dplyr::ungroup(df_after) 
 
-  last_update <- data_after$date[1]
-
-  df1 <- df1 %>%
-    dplyr::group_by(pair, side, price) %>%
-    dplyr::summarise(quantity = sum(quantity), .groups = "rowwise") %>%
-    dplyr::ungroup()
-
-  df2 <- df2 %>%
-    dplyr::group_by(pair, side, price) %>%
-    dplyr::summarise(quantity = sum(quantity), .groups = "rowwise") %>%
-    dplyr::ungroup()
-
-  df_out <- dplyr::full_join(df1, df2, by = c("pair", "side", "price")) %>%
-    dplyr::mutate(quantity = dplyr::case_when(
-      is.na(quantity.y) ~ quantity.x,
-      TRUE ~ quantity.y
-    )) %>%
-    dplyr::mutate(date = last_update)
-
+  df_out <- dplyr::full_join(df_before, df_after, by = c("pair", "side", "price"))
+  df_out <- dplyr::mutate(df_out, quantity = ifelse(is.na(quantity.y), quantity.x, quantity.y))
+  df_out <- dplyr::mutate(df_out, date = data_after$date[1])
   df_out <- dplyr::select(df_out, date, pair, side, price, quantity)
   df_out <- dplyr::filter(df_out, quantity > 0)
+  
   return(df_out)
 }
 

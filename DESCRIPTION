@@ -20,6 +20,8 @@ Imports:
     readr,
     websocket,
     lubridate,
+    cli,
+    TTR
 Suggests: 
     DT,
     broom,

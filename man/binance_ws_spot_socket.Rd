@@ -13,6 +13,20 @@ binance_ws_spot_socket(
   quiet = FALSE
 )
 }
+\arguments{
+\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
+
+\item{subscription}{Character}
+
+\item{interval}{Character, the time interval for Klines data.
+Acceptable intervals include "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M".}
+
+\item{update_speed}{time in milliseconds}
+
+\item{nobs_max}{Integer, maximum number of observations to save.}
+
+\item{quiet}{Logical, suppress informational messages if TRUE.}
+}
 \description{
 api websocket
 }

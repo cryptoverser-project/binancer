@@ -3,44 +3,41 @@
 #' Get 24-hour ticker statistics for a specified trading pair from the selected reference API.
 #'
 #' @param pair Character, specifying the trading pair of interest, e.g., "BTCUSDT".
-#'
 #' @param api Character, specifying the reference API. Available options include:
 #'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics).
 #'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics).
 #'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#24hr-ticker-price-change-statistics).
 #'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#24hr-ticker-price-change-statistics).
-#'
 #' @param type Character, specifying the type of ticker data to retrieve. Available options are:
 #'   - "mini": Retrieve ticker data without "ask" and "bid" prices and quantities.
 #'   - "full": Retrieve complete ticker data with all available columns.
+#' @param quiet Logical, suppress informational messages if `TRUE`. Default is `FALSE`.
 #'
-#' @param quiet Logical, indicating whether to suppress console messages. Default is FALSE.
-#'
-#' @return A tibble (data frame) with 13 columns containing 24-hour ticker statistics, including open, high, low, close prices, volume, and more.
+#' @return A tibble (data frame) with 13 columns containing 24-hour ticker statistics. 
+#' It includes open, high, low, close prices, volume, and more.
 #'
 #' @details The IP weight for this API call is 1, and the data source is memory.
 #'
 #' @examples
 #'
-#' # Example: Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+#' # Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
 #' binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "full")
 #'
-#' # Example: Retrieve mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+#' # Retrieve mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
 #' binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "mini")
 #'
-#' # Example: Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
+#' # Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
 #' binance_ticker24h(pair = "BTCUSDT", api = "fapi")
 #'
-#' # Example: Retrieve full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
+#' # Retrieve full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
 #' binance_ticker24h(pair = "BTCUSD_PERP", api = "dapi")
 #'
-#' # Example: Retrieve full 24-hour ticker statistics for an options trading pair from the Options API.
+#' # Retrieve full 24-hour ticker statistics for an options trading pair from the Options API.
 #' binance_ticker24h(pair = "BTC-230331-21000-P", api = "eapi")
 #'
 #' @export
 #'
 #' @rdname binance_ticker24h
-#'
 #' @name binance_ticker24h
 
 binance_ticker24h <- function(pair, api = "spot", type = c("full", "mini"), quiet = FALSE){
@@ -66,6 +63,7 @@ binance_ticker24h <- function(pair, api = "spot", type = c("full", "mini"), quie
   return(response$result)
 }
 
+# Ticker24h implementation for spot api 
 binance_spot_ticker24h <- function(pair, type = c("full", "mini")) {
   
   # General Check: pair default argument 
@@ -154,6 +152,7 @@ binance_spot_ticker24h <- function(pair, type = c("full", "mini")) {
   return(response)
 }
 
+# Ticker24h implementation for futures USD-M api 
 binance_fapi_ticker24h <- function(pair) {
   
   # General Check: pair default argument 
@@ -202,6 +201,7 @@ binance_fapi_ticker24h <- function(pair) {
   return(response)
 }
 
+# Ticker24h implementation for futures COIN-M api 
 binance_dapi_ticker24h <- function(pair) {
   
   # General Check: pair default argument 
@@ -249,6 +249,7 @@ binance_dapi_ticker24h <- function(pair) {
   return(response)
 }
 
+# Ticker24h implementation for options api 
 binance_eapi_ticker24h <- function(pair) {
   
   # General Check: pair default argument 

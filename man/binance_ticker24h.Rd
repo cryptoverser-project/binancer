@@ -23,10 +23,11 @@ binance_ticker24h(pair, api = "spot", type = c("full", "mini"), quiet = FALSE)
 \item "full": Retrieve complete ticker data with all available columns.
 }}
 
-\item{quiet}{Logical, indicating whether to suppress console messages. Default is FALSE.}
+\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default is \code{FALSE}.}
 }
 \value{
-A tibble (data frame) with 13 columns containing 24-hour ticker statistics, including open, high, low, close prices, volume, and more.
+A tibble (data frame) with 13 columns containing 24-hour ticker statistics.
+It includes open, high, low, close prices, volume, and more.
 }
 \description{
 Get 24-hour ticker statistics for a specified trading pair from the selected reference API.
@@ -36,19 +37,19 @@ The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Example: Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+# Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
 binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "full")
 
-# Example: Retrieve mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+# Retrieve mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
 binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "mini")
 
-# Example: Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
+# Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
 binance_ticker24h(pair = "BTCUSDT", api = "fapi")
 
-# Example: Retrieve full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
+# Retrieve full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
 binance_ticker24h(pair = "BTCUSD_PERP", api = "dapi")
 
-# Example: Retrieve full 24-hour ticker statistics for an options trading pair from the Options API.
+# Retrieve full 24-hour ticker statistics for an options trading pair from the Options API.
 binance_ticker24h(pair = "BTC-230331-21000-P", api = "eapi")
 
 }

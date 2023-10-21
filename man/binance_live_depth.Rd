@@ -4,10 +4,16 @@
 \alias{binance_live_depth}
 \title{binance_live_depth}
 \usage{
-binance_live_depth(pair = "BTCUSDT")
+binance_live_depth(pair = "BTCUSDT", api)
 }
 \arguments{
-\item{pair}{character}
+\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
+
+\item{api}{Character, specifying the reference API. Available options include:
+\itemize{
+\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-M API}.
+}}
 }
 \description{
 live orderbook

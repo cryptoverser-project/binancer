@@ -37,7 +37,6 @@
 #' @rdname binance_trades
 #'
 #' @name binance_trades
-#'
 
 binance_trades <- function(pair, api = "spot", from, to, quiet = FALSE){
   
@@ -68,7 +67,7 @@ binance_trades <- function(pair, api = "spot", from, to, quiet = FALSE){
   }
 }
 
-# spot api 
+# Trades implementation for spot api 
 binance_spot_trades <- function(pair, from, to, quiet = FALSE){
   
   # General Check: pair default argument 
@@ -158,7 +157,7 @@ binance_spot_trades <- function(pair, from, to, quiet = FALSE){
   return(response)
 }
 
-# futures USD-M api 
+# Trades implementation for futures USD-M api 
 binance_fapi_trades <- function(pair, from, to, quiet = FALSE){
   
   # General Check: pair default argument 
@@ -247,7 +246,7 @@ binance_fapi_trades <- function(pair, from, to, quiet = FALSE){
   return(response)
 }
 
-# futures COIN-M api 
+# Trades implementation for futures COIN-M api 
 binance_dapi_trades <- function(pair, from, to, quiet = FALSE){
   
   # General Check: pair default argument 

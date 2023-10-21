@@ -7,7 +7,7 @@
 binance_depth(pair, api = "spot", quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, specifying the trading pair of interest, e.g., "BTCBUSD".}
+\item{pair}{Character, specifying the trading pair of interest, e.g. "BTCBUSD".}
 
 \item{api}{Character, specifying the reference API. Available options include:
 \itemize{
@@ -17,7 +17,7 @@ binance_depth(pair, api = "spot", quiet = FALSE)
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#order-book}{Options api}.
 }}
 
-\item{quiet}{Logical, specifying whether to suppress informational messages. Default is FALSE.}
+\item{quiet}{Logical, specifying whether to suppress informational messages. Default is \code{FALSE}.}
 }
 \value{
 A tibble (data frame) with 6 columns:

@@ -1,5 +1,5 @@
 
-binance_futures_stats <- function(pair = "BTCUSDT", api = "fapi", interval = "1d", indicator = NULL, from = NULL, to = NULL){
+binance_futures_stats <- function(pair = "BTCUSDT", api = "fapi", interval = "1d", indicator = NULL, from = NULL, to = NULL, quiet = FALSE){
  
   api <- match.arg(api, choices = c("fapi", "dapi"))
   
@@ -110,7 +110,6 @@ binance_futures_stats <- function(pair = "BTCUSDT", api = "fapi", interval = "1d
   
   # Adjust the Response
   if(!purrr::is_empty(response)){
-    
     response <- dplyr::bind_rows(response)
     response <- dplyr::mutate(response,
                               pair = pair_name,
@@ -142,7 +141,7 @@ binance_futures_stats <- function(pair = "BTCUSDT", api = "fapi", interval = "1d
   return(response)
 }
 
-#binance_futures_stats(pair = "BTCUSD", api = "dapi", interval = "1d", indicator = "takerlongshortRatio", from = NULL, to = NULL)
+# binance_futures_stats(pair = "BTCUSD", api = "dapi", interval = "1d", indicator = "takerlongshortRatio", from = NULL, to = NULL)
 #binance_futures_stats(pair = "BTCUSD", api = "dapi", interval = "1d", indicator = "globalLongShortAccountRatio", from = NULL, to = NULL)
-#binance_futures_stats(pair = "BTCUSD", api = "dapi", interval = "1d", indicator = "topLongShortPositionRatio", from = NULL, to = NULL)
+# binance_futures_stats(pair = "BTCUSD", api = "dapi", interval = "1d", indicator = "topLongShortPositionRatio", from = NULL, to = NULL)
 #binance_futures_stats(pair = "BTCUSD", api = "dapi", interval = "1d", indicator = "topLongShortAccountRatio", from = NULL, to = NULL)

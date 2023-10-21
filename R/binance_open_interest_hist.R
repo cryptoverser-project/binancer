@@ -275,7 +275,6 @@ binance_dapi_open_interest_hist <- function(pair, interval = "1d", from = NULL, 
   start_time <- paste0(trunc(as.integer(from)), "000")
   last_date <- as.integer(to)*1000
   while(condition){
-    
     # path
     api_path <- c("futures","data", "openInterestHist")
     # query
