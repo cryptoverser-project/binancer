@@ -4,32 +4,29 @@
 \alias{binance_exchange_info}
 \title{Retrieve Market Information}
 \usage{
-binance_exchange_info(
-  pair = NULL,
-  api = "spot",
-  permissions = c("all", "spot", "margin", "leveraged")
-)
+binance_exchange_info(pair = NULL, api = "spot", permissions = "all")
 }
 \arguments{
-\item{pair}{Character, specifying the trading pair of interest (optional). For example, "BTCUSDT". By default, all available pairs will be retrieved.}
+\item{pair}{Character, optional trading pair, e.g. "BTCUSDT". Default is \code{NULL} and all available pairs will be retrieved.}
 
 \item{api}{Character, specifying the reference API. Available options include:
 \itemize{
 \item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#exchange-information}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#exchange-information}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#exchange-information}{Futures Coin-M API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#exchange-information}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#exchange-information}{Futures Coin-m API}.
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#exchange-information}{Options API}.
 }}
 
 \item{permissions}{Character or NULL, specifying the types of trading pairs to retrieve (optional). Available options include:
 \itemize{
-\item "all": Retrieve all available trading pairs.
-\item "margin": Retrieve trading pairs in margin markets.
-\item "leveraged": Retrieve trading pairs in leveraged markets.
+\item "all": get available trading pairs in all markets;
+\item "spot": get available trading pairs in spot markets;
+\item "margin": get available trading pairs in margin markets;
+\item "leveraged": get available trading pairs in leveraged markets.
 }}
 }
 \value{
-A tibble (data frame) containing detailed market information, including trading pairs, symbols, and their attributes.
+A tibble containing market information, including trading pairs, symbols, and their attributes.
 }
 \description{
 Obtain detailed market information, including available trading pairs, for a specified reference API.
@@ -39,34 +36,35 @@ The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Example: Retrieve information for all trading pairs in all spot markets.
-binance_exchange_info(api = "spot", pair = NULL, permissions = "all")
+# Retrieve information for all pairs in all markets
+binance_exchange_info(pair = NULL, api = "spot", permissions = "all")
 
-# Example: Retrieve information for trading pairs in spot markets with permission "spot".
-binance_exchange_info(api = "spot", pair = NULL, permissions = "spot")
+# Retrieve information for all pairs in spot market
+binance_exchange_info(pair = NULL, api = "spot", permissions = "spot")
 
-# Example: Retrieve information for trading pairs in margin spot markets.
-binance_exchange_info(api = "spot", pair = NULL, permissions = "margin")
+# Retrieve information for all pairs in margin market
+binance_exchange_info(pair = NULL, api = "spot", permissions = "margin")
 
-# Example: Retrieve information for trading pairs in leveraged spot markets.
-binance_exchange_info(api = "spot", pair = NULL, permissions = "leveraged")
+# Retrieve information for all pairs in leveraged market
+binance_exchange_info(pair = NULL, api = "spot", permissions = "leveraged")
 
-# Example: Retrieve information for the "BTCUSDT" trading pair in all spot markets.
-binance_exchange_info(api = "spot", pair = "BTCUSDT", permissions = "all")
+# Retrieve information for the "BTCUSDT" in spot market
+binance_exchange_info(pair = "BTCUSDT", api = "spot", permissions = "all")
 
-# Example: Retrieve information for multiple trading pairs in all spot markets.
-binance_exchange_info(api = "spot", pair = c("BTCUSDT", "BNBUSDT"), permissions = "all")
+# Retrieve information for multiple trading pairs in all markets
+binance_exchange_info(pair = c("BTCUSDT", "BNBUSDT"), api = "spot", permissions = "all")
 
-# Example: Retrieve information for specific trading pairs in margin and leveraged spot markets.
-binance_exchange_info(api = "spot", pair = c("BTCBUSD", "ETHBUSD"), permissions = c("margin", "leveraged"))
+# Retrieve information for multiple trading pairs in all margin and leveraged markets
+binance_exchange_info(pair = c("BTCBUSD", "ETHBUSD"), api = "spot",
+                      permissions = c("margin", "leveraged"))
+                      
+# Retrieve information for all pairs in the USD-m market
+binance_exchange_info(pair = NULL, api = "fapi")
 
-# Example: Retrieve information for all trading pairs in the perpetual market.
-binance_exchange_info(api = "fapi", pair = NULL)
+# Retrieve information for all pairs in the COIN-m market
+binance_exchange_info(pair = NULL, api = "dapi")
 
-# Example: Retrieve information for all trading pairs in the futures market.
-binance_exchange_info(api = "dapi", pair = NULL)
-
-# Example: Retrieve information for all trading pairs in the options market.
-binance_exchange_info(api = "eapi", pair = NULL)
+# Retrieve information for all pairs in the options market.
+binance_exchange_info(pair = NULL, api = "eapi")
 
 }

@@ -1,19 +1,26 @@
-#' binance_vision_klines
-#' @name binance_vision_klines
-#' @rdname binance_vision_klines
-#' @description Historical Kline/Candlestick Data for a pair from the database.
-#' @param pair a character containing the Pair of interest, for example `BTCUSDT`.
-#' @param day_date a character or a Date object containing the date of witch we would like to obtain the data. Note
-#' that the data available refer to the day before. For more recent data is better to use the REST api or the WebSocket.
-#' @param interval character object containing the time interval, for example `1m` for 1 minute data, `1h` for 1 hour data.
+#' Historical Kline/Candlestick from database 
+#' 
+#' Historical Kline/Candlestick Data for a pair from the database.
+#' 
+#' @param pair Character, the trading pair of interest, e.g., "BTCUSDT".
+#' @param api Character, specifying the reference API. Available options include:
+#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data).
+#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data).
+#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data).
+#' 
+#' @param interval Character, the time interval for Klines data. 
+#' Available intervals are: "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h" and "1d".
+#' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for data retrieval. 
+#' If `NULL`, the default is `Sys.Date()-lubridate::days(4)`.
+#' @param to Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for data retrieval. 
+#' If `NULL`, the default is `Sys.Date()-lubridate::days(2)`.
+#' @param quiet Logical, suppress informational messages if `TRUE`. Default `FALSE`.
 #'
-#' @param quiet logical, if TRUE some messages will be displayed.
-#'
-#' @return Returns a `tibble` object
-#'
-#' @examples
+#' @return Returns a `tibble`.
 #'
 #' @export
+#' @name binance_vision_klines
+#' @rdname binance_vision_klines
 
 binance_vision_klines <- function(api = "spot", pair = NULL, interval = "1d", from = NULL, to = NULL, quiet = FALSE) {
   
@@ -90,10 +97,10 @@ binance_vision_spot_klines <- function(pair = "BTCUSDT", day_date = Sys.Date()-2
   file_name <- paste0(pair_name, "-", interval, "-", day_date, ".csv")
   
   # Create a temporary directory
-  temp <- tempfile()
+  temp <- base::tempfile()
   
   # Download the file
-  safe_download <- purrr::safely(download.file)
+  safe_download <- purrr::safely(utils::download.file)
   
   dwn <- safe_download(data_url, temp, quiet = quiet)
   
@@ -116,7 +123,7 @@ binance_vision_spot_klines <- function(pair = "BTCUSDT", day_date = Sys.Date()-2
   # Ignore X12
   
   # Unzip and Read the file
-  response <- unz(temp, file_name)
+  response <- base::unz(temp, file_name)
   response <- readr::read_csv(response,
                               show_col_types = FALSE, # Avoid messages
                               col_names = c("date", "open", "high", "low", "close",
@@ -124,7 +131,7 @@ binance_vision_spot_klines <- function(pair = "BTCUSDT", day_date = Sys.Date()-2
                                             "taker_buy", "taker_buy_quote", "Ignore"))
   
   # Unlink the connection created with temp
-  unlink(temp)
+  base::unlink(temp)
   
   # Clear the response
   response <- dplyr::mutate(response,
@@ -202,10 +209,10 @@ binance_vision_futures_klines <- function(pair = "BTCUSD_PERP", day_date = Sys.D
   file_name <- paste0(pair_name, "-", interval, "-", day_date, ".csv")
   
   # Create a temporary directory
-  temp <- tempfile()
+  temp <- base::tempfile()
   
   # Download the file
-  download.file(data_url, temp, quiet = quiet)
+  utils::download.file(data_url, temp, quiet = quiet)
   
   # OpenTime X1
   # CloseTime X7
@@ -221,7 +228,7 @@ binance_vision_futures_klines <- function(pair = "BTCUSD_PERP", day_date = Sys.D
   # Ignore X12
   
   # Unzip and Read the file
-  response <- unz(temp, file_name)
+  response <- base::unz(temp, file_name)
   
   response <- readr::read_csv(response,
                               skip = 1,
@@ -231,7 +238,7 @@ binance_vision_futures_klines <- function(pair = "BTCUSD_PERP", day_date = Sys.D
                                             "taker_buy", "taker_buy_quote", "Ignore"))
   
   # Unlink the connection created with temp
-  unlink(temp)
+  base::unlink(temp)
   
   response <- dplyr::mutate(response,
                             date = as.numeric(date),
@@ -250,7 +257,7 @@ binance_vision_futures_klines <- function(pair = "BTCUSD_PERP", day_date = Sys.D
                             taker_buy = as.numeric(taker_buy),
                             taker_buy_quote = as.numeric(taker_buy_quote))
                             
-  # Reorder the Variables
+  # Reorder the variables
   response <- dplyr::select(response,
                             date, date_close, market, pair,
                             open, high, low, close, volume,
@@ -262,10 +269,5 @@ binance_vision_futures_klines <- function(pair = "BTCUSD_PERP", day_date = Sys.D
   # interval attribute
   attr(response, "interval") <- interval
   attr(response, "api") <-  ifelse(future_type == "usd-m", "fapi", "dapi" )
-
   return(response)
-  
 }
-
-
-

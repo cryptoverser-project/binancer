@@ -17,17 +17,19 @@ candleChart(
 \arguments{
 \item{data}{A data frame containing time-series data with columns: 'date', 'open', 'close', 'low', 'high', 'pair', and 'interval'.}
 
-\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the starting date for the plot. If specified, only data from this date on wards will be included in the chart.}
+\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start date for the plot.
+If specified, only data from this date on wards will be included in the chart.}
 
-\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the ending date for the plot. If specified, only data up to this date will be included in the chart.}
+\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end date for the plot.
+If specified, only data up to this date will be included in the chart.}
 
-\item{title}{Character, an optional title for the chart. By default, it is constructed from the 'pair' and 'interval' attributes of the data.}
+\item{title}{Character, optional title for the chart.}
 
-\item{col_body_up}{Character, specifying the color for candlestick bodies when the closing price is higher than the opening price. Default is "green".}
+\item{col_body_up}{Character, color for candlestick bodies when the close price is higher than the open price. Default is "green".}
 
-\item{col_body_dw}{Character, specifying the color for candlestick bodies when the closing price is lower than the opening price. Default is "red".}
+\item{col_body_dw}{Character, color for candlestick bodies when the close price is lower than the open price. Default is "red".}
 
-\item{col_wick}{Character, specifying the color for candlestick wicks. Default is "black".}
+\item{col_wick}{Character, color for candlestick wicks. Default is "black".}
 }
 \value{
 A ggplot2 object representing the candlestick chart.

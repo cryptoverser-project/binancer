@@ -211,33 +211,33 @@ binance_ws_cleaner.depth <- function(data){
   }
 
   # Creazione dataframe con informazioni (Data e Pair)
-  output <- dplyr::bind_rows(data[c(2,3,4,5)])
-  output <- dplyr::select(output, date = "E", pair = "s")
+  df_out <- dplyr::bind_rows(data[c(2,3,4,5)])
+  df_out <- dplyr::select(df_out, date = "E", pair = "s")
 
   # Dataset Prezzi BID
   colnames(data$b) <- c("price", "quantity")
   df_BID <- dplyr::as_tibble(data$b)
   df_BID <- dplyr::mutate_all(df_BID, as.numeric)
-  df_BID <- dplyr::bind_cols(output, df_BID, side = "BID" )
+  df_BID <- dplyr::bind_cols(df_out, df_BID, side = "BID")
 
   # Dataset Prezzi BID
   colnames(data$a) <- c("price", "quantity")
   df_ASK <- dplyr::as_tibble(data$a)
   df_ASK <- dplyr::mutate_all(df_ASK, as.numeric)
-  df_ASK <- dplyr::bind_cols(output, df_ASK, side = "ASK" )
+  df_ASK <- dplyr::bind_cols(df_out, df_ASK, side = "ASK")
 
-  output <- dplyr::bind_rows(df_ASK, df_BID)
-  output <- dplyr::mutate(output,
+  df_out <- dplyr::bind_rows(df_ASK, df_BID)
+  df_out <- dplyr::mutate(df_out,
                           date = as.POSIXct(date/1000, origin = "1970-01-01"),
                           side = factor(side, levels = c("ASK", "BID"), ordered = FALSE))
   
-  return(output)
+  return(df_out)
 }
 
 # Structure kline data to avoid un-closed candles
 binance_ws_kline <- function(data_before, data_after){
 
-  if (purrr::is_empty(data_before)) {
+  if (purrr::is_empty(data_before) || nrow(data_before) == 0) {
     return(data_after)
   }
 
@@ -257,11 +257,11 @@ binance_ws_orderbook <- function(data_before = NULL, data_after){
   }
 
   df_before <- dplyr::group_by(data_before, pair, side, price) 
-  df_before <- dplyr::summarise(df_before, quantity = sum(quantity), .groups = ".drop_last")
+  df_before <- dplyr::summarise(df_before, quantity = sum(quantity), .groups = "rowwise")
   df_before <- dplyr::ungroup(df_before) 
   
   df_after <- dplyr::group_by(data_after, pair, side, price) 
-  df_after <- dplyr::summarise(df_after, quantity = sum(quantity), .groups = ".drop_last")
+  df_after <- dplyr::summarise(df_after, quantity = sum(quantity), .groups = "rowwise")
   df_after <- dplyr::ungroup(df_after) 
 
   df_out <- dplyr::full_join(df_before, df_after, by = c("pair", "side", "price"))

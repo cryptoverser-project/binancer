@@ -5,29 +5,31 @@ Version: 0.1.0
 Author: Cryptoverser
 Maintainer: Cryptoverser <cryptoverser-project@gmail.com>
 Description: Provides a comprehensive R interface to the Binance REST API.
-License: MIT
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.5.0)
 Imports: 
+    cli (>= 3.4.0),
     dplyr,
-    tibble,
     ggplot2,
     httr,
-    purrr,
     jsonlite,
-    stringr,
-    readr,
-    websocket,
     lubridate,
-    cli,
-    TTR
+    purrr,
+    readr,
+    stringr,
+    tibble (>= 3.2.0),
+    TTR,
+    utils,
+    websocket,
 Suggests: 
     DT,
-    broom,
     knitr,
     rmarkdown,
     testthat (>= 2.1.0)
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
+URL: http://www.cryptoverser.org https://github.com/cryptoverser-project/binancer
+BugReports: https://github.com/cryptoverser-project/binancer/issues
 VignetteBuilder: knitr

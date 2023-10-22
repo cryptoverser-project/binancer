@@ -15,22 +15,46 @@ binance_open_interest_hist(
 )
 }
 \arguments{
-\item{pair}{Character, specifying the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
-\item{api}{Character, specifying the reference API. Default is "fapi". Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{Futures Coin-M API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{Futures COIN-m API}.
 }}
 
-\item{interval}{Character, specifying the time interval for open interest data. Default is "1d". Available intervals include "1d", "3d", "1w", and more.}
+\item{interval}{Character, time interval for open interest data. Available intervals are:
+\itemize{
+\item \code{minutely}: "5m", "15m" and "30m";
+\item \code{hourly}: "1h", "2h", "4h", "6h", "8h" and "12h";
+\item \code{daily}: "1d".
+}}
 
-\item{from}{Character or POSIXct, specifying the start time for data retrieval. Default is NULL, which represents the earliest available data. You can provide a character or a POSIXct object, e.g., "2023-01-01" or a specific date and time.}
+\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data.
+Default is \code{NULL} and will be used as start date \code{Sys.time()-lubridate::days(30)}.}
 
-\item{to}{Character or POSIXct, specifying the end time for data retrieval. Default is NULL, which represents the most recent available data. You can provide a character or a POSIXct object, e.g., "2023-12-31" or a specific date and time.}
+\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
+Default is \code{NULL} and will be used as end date \code{Sys.time()}.}
+
+\item{contract_type}{Character, used only if \code{api = "dapi"}. Available contract type are:
+\itemize{
+\item "all": for all types of contracts;
+\item "perpetual": for perpetual futures;
+\item "current_quarter": for futures with a maturity in the current quarter;
+\item "next_quarter": for futures with a maturity in the next quarter.
+}}
+
+\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
 }
 \value{
-A tibble (data frame) object containing open interest data, including date, market, pair, and open interest values over time.
+A tibble with 5 columns:
+\itemize{
+\item \code{date}: Datetime, observation date.
+\item \code{market}: Character, selected API.
+\item \code{pair}: Character, selected pair.
+\item \code{open_interest}: Numeric, open interest in base currency.
+\item \code{open_interest_usd}: Numeric, open interest in usd.
+}
 }
 \description{
 Obtain historical open interest data for a specific trading pair. This function allows you to access the open interest information over time.
@@ -41,7 +65,7 @@ The IP weight for this API call is 1, and the data source is memory.
 \examples{
 
 # Retrieve historical open interest for "BTCUSD" in USD-M market
-binance_open_interest_hist(pair = "BTCUSDT", api = "fapi", interval = "1d", from = "2023-01-01")
+binance_open_interest_hist(pair = "BTCUSDT", api = "fapi", interval = "1d", from = "2023-10-01")
 
 # Retrieve historical open interest for "BTCUSD" in Coin-M market
 binance_open_interest_hist(pair = "BTCUSD", api = "dapi", interval = "1d", from = "2023-01-01")

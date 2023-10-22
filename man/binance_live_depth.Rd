@@ -4,7 +4,7 @@
 \alias{binance_live_depth}
 \title{binance_live_depth}
 \usage{
-binance_live_depth(pair = "BTCUSDT", api)
+binance_live_depth(pair = "BTCUSDT", api, quiet = FALSE)
 }
 \arguments{
 \item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
@@ -14,6 +14,8 @@ binance_live_depth(pair = "BTCUSDT", api)
 \item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
 \item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-M API}.
 }}
+
+\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
 }
 \description{
 live orderbook

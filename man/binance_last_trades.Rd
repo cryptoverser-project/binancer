@@ -4,31 +4,31 @@
 \alias{binance_last_trades}
 \title{Retrieve Recent Trades Data}
 \usage{
-binance_last_trades(pair, api = "spot", quiet = FALSE)
+binance_last_trades(pair, api, quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, specifying the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
 \item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list}{Futures Coin-M API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list}{Futures COIN-m API}.
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list}{Options API}.
 }}
 
-\item{quiet}{Logical, specifying whether to suppress informational messages. Default is FALSE.}
+\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
 }
 \value{
-A tibble (data frame) with the following 7 columns:
+A tibble with 7 columns:
 \itemize{
-\item \code{trade_id}: Column containing the trade ID.
-\item \code{date}: Datetime, representing the trade execution date.
-\item \code{pair}: Column specifying the selected trading pair.
-\item \code{market}: Column indicating the selected API.
-\item \code{price}: Column showing the trade price.
-\item \code{quantity}: Column representing the trade quantity.
-\item \code{side}: Character, indicating whether the trade was a "SELL" or "BUY."
+\item \code{date}: Datetime, trade execution date.
+\item \code{market}: Character, selected API.
+\item \code{pair}: Character, selected pair.
+\item \code{price}: Numeric, trade price.
+\item \code{quantity}: Numeric, trade quantity.
+\item \code{side}: Character, trade side. Can be "SELL" or "BUY".
+\item \code{trade_id}: Integer, trade Id.
 }
 }
 \description{
@@ -36,13 +36,16 @@ Obtain the most recent 1000 trades for a specified trading pair. This function a
 }
 \examples{
 
-# Example: Get the most recent trades for the BTCUSDT trading pair in the Spot market.
+# Get the last 1000 trades for BTCUSDT in spot market
 binance_last_trades(pair = "BTCUSDT", api = "spot")
 
-# Example: Get the most recent trades for the BTCUSDT trading pair in the Futures USD-M market.
+# Get the last 1000 trades for BTCUSDT in USD-M market
 binance_last_trades(pair = "BTCUSDT", api = "fapi")
 
-# Example: Get the most recent trades for the BTCUSD_PERP trading pair in the Futures COIN-M market.
+# Get the last 1000 trades for BTCUSDT in COIN-M market
 binance_last_trades(pair = "BTCUSD_PERP", api = "dapi")
+
+# Get the last 1000 trades for BTCUSDT in COIN-M market
+binance_last_trades(pair = "BTC-240628-30000-P", api = "eapi")
 
 }

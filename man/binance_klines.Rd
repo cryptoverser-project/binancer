@@ -16,33 +16,42 @@ binance_klines(
 )
 }
 \arguments{
-\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
-\item{interval}{Character, the time interval for Klines data.
-Acceptable intervals include "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M".}
+\item{interval}{Character, time interval for Klines data. Available intervals are:
+\itemize{
+\item \code{secondly}: "1s";
+\item \code{minutely}: "1m", "3m", "5m", "15m" and "30m";
+\item \code{hourly}: "1h", "2h", "4h", "6h", "8h" and "12h";
+\item \code{daily}: "1d" and "3d";
+\item \code{weekly}: "1w";
+\item \code{monthly}: "1M".
+}}
 
-\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for data retrieval. If left unspecified (NULL), the default is Sys.Date()-1.}
+\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data.
+Default is \code{NULL} and will be used as start date \code{Sys.time()-lubridate::days(1)}.}
 
-\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for data retrieval. If left unspecified (NULL), the default is Sys.Date().}
+\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
+Default is \code{NULL} and will be used as end date \code{Sys.time()}.}
 
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
 \item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{Futures Coin-M API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{Futures COIN-m API}.
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{Options API}.
 }}
 
-\item{contract_type}{Character, only used if \code{api = "dapi"}. Choose from:
+\item{contract_type}{Character, used only if \code{api = "dapi"}. Available contract type are:
 \itemize{
-\item "perpetual": For perpetual futures.
-\item "current_quarter": For futures with a maturity in the current quarter.
-\item "next_quarter": For futures with a maturity in the next quarter.
+\item "perpetual": for perpetual futures.
+\item "current_quarter": for futures with a maturity in the current quarter.
+\item "next_quarter": for futures with a maturity in the next quarter.
 }}
 
-\item{uiKlines}{Logical, indicating whether to return data in UI Klines format.}
+\item{uiKlines}{Logical, if \code{TRUE} return data in UIklines format. Default is \code{FALSE}.}
 
-\item{quiet}{Logical, suppress informational messages if TRUE.}
+\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
 }
 \value{
 A tibble (data frame) with the following 13 columns:

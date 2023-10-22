@@ -2,7 +2,7 @@
 % Please edit documentation in R/binance_vision_klines.R
 \name{binance_vision_klines}
 \alias{binance_vision_klines}
-\title{binance_vision_klines}
+\title{Historical Kline/Candlestick from database}
 \usage{
 binance_vision_klines(
   api = "spot",
@@ -14,21 +14,29 @@ binance_vision_klines(
 )
 }
 \arguments{
-\item{pair}{a character containing the Pair of interest, for example \code{BTCUSDT}.}
+\item{api}{Character, specifying the reference API. Available options include:
+\itemize{
+\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures COIN-m API}.
+}}
 
-\item{interval}{character object containing the time interval, for example \verb{1m} for 1 minute data, \verb{1h} for 1 hour data.}
+\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
 
-\item{quiet}{logical, if TRUE some messages will be displayed.}
+\item{interval}{Character, the time interval for Klines data.
+Available intervals are: "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h" and "1d".}
 
-\item{day_date}{a character or a Date object containing the date of witch we would like to obtain the data. Note
-that the data available refer to the day before. For more recent data is better to use the REST api or the WebSocket.}
+\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for data retrieval.
+If \code{NULL}, the default is \code{Sys.Date()-lubridate::days(4)}.}
+
+\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for data retrieval.
+If \code{NULL}, the default is \code{Sys.Date()-lubridate::days(2)}.}
+
+\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
 }
 \value{
-Returns a \code{tibble} object
+Returns a \code{tibble}.
 }
 \description{
 Historical Kline/Candlestick Data for a pair from the database.
-}
-\examples{
-
 }

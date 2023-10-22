@@ -7,9 +7,9 @@
 binance_ticker24h(pair, api = "spot", type = c("full", "mini"), quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, specifying the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
 \item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics}{Spot API}.
 \item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics}{Futures USD-M API}.
@@ -17,13 +17,13 @@ binance_ticker24h(pair, api = "spot", type = c("full", "mini"), quiet = FALSE)
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#24hr-ticker-price-change-statistics}{Options API}.
 }}
 
-\item{type}{Character, specifying the type of ticker data to retrieve. Available options are:
+\item{type}{Character, type of ticker data. Available options are:
 \itemize{
-\item "mini": Retrieve ticker data without "ask" and "bid" prices and quantities.
-\item "full": Retrieve complete ticker data with all available columns.
+\item "mini": ticker data without "ask" and "bid" prices and quantities.
+\item "full": complete ticker data with all available columns.
 }}
 
-\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default is \code{FALSE}.}
+\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
 }
 \value{
 A tibble (data frame) with 13 columns containing 24-hour ticker statistics.
@@ -37,19 +37,19 @@ The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+# Get full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
 binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "full")
 
-# Retrieve mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+# Get mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
 binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "mini")
 
-# Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
+# Get full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
 binance_ticker24h(pair = "BTCUSDT", api = "fapi")
 
-# Retrieve full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
+# Get full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
 binance_ticker24h(pair = "BTCUSD_PERP", api = "dapi")
 
-# Retrieve full 24-hour ticker statistics for an options trading pair from the Options API.
-binance_ticker24h(pair = "BTC-230331-21000-P", api = "eapi")
+# Get full 24-hour ticker statistics for an options trading pair from the Options API.
+binance_ticker24h(pair = "BTC-240628-30000-P", api = "eapi")
 
 }

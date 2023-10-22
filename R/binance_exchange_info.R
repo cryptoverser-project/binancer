@@ -2,63 +2,63 @@
 #'
 #' Obtain detailed market information, including available trading pairs, for a specified reference API.
 #'
-#' @param pair Character, specifying the trading pair of interest (optional). For example, "BTCUSDT". By default, all available pairs will be retrieved.
+#' @param pair Character, optional trading pair, e.g. "BTCUSDT". Default is `NULL` and all available pairs will be retrieved.
 #'
 #' @param api Character, specifying the reference API. Available options include:
 #'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#exchange-information).
-#'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#exchange-information).
-#'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#exchange-information).
+#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#exchange-information).
+#'   - "dapi": For [Futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#exchange-information).
 #'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#exchange-information).
 #'
 #' @param permissions Character or NULL, specifying the types of trading pairs to retrieve (optional). Available options include:
-#'   - "all": Retrieve all available trading pairs.
-#'   - "margin": Retrieve trading pairs in margin markets.
-#'   - "leveraged": Retrieve trading pairs in leveraged markets.
+#'   - "all": get available trading pairs in all markets;
+#'   - "spot": get available trading pairs in spot markets;
+#'   - "margin": get available trading pairs in margin markets;
+#'   - "leveraged": get available trading pairs in leveraged markets.
 #'
-#' @return A tibble (data frame) containing detailed market information, including trading pairs, symbols, and their attributes.
+#' @return A tibble containing market information, including trading pairs, symbols, and their attributes.
 #'
 #' @details The IP weight for this API call is 1, and the data source is memory.
 #'
 #' @examples
 #'
-#' # Example: Retrieve information for all trading pairs in all spot markets.
-#' binance_exchange_info(api = "spot", pair = NULL, permissions = "all")
+#' # Retrieve information for all pairs in all markets
+#' binance_exchange_info(pair = NULL, api = "spot", permissions = "all")
 #'
-#' # Example: Retrieve information for trading pairs in spot markets with permission "spot".
-#' binance_exchange_info(api = "spot", pair = NULL, permissions = "spot")
+#' # Retrieve information for all pairs in spot market
+#' binance_exchange_info(pair = NULL, api = "spot", permissions = "spot")
 #'
-#' # Example: Retrieve information for trading pairs in margin spot markets.
-#' binance_exchange_info(api = "spot", pair = NULL, permissions = "margin")
+#' # Retrieve information for all pairs in margin market
+#' binance_exchange_info(pair = NULL, api = "spot", permissions = "margin")
 #'
-#' # Example: Retrieve information for trading pairs in leveraged spot markets.
-#' binance_exchange_info(api = "spot", pair = NULL, permissions = "leveraged")
+#' # Retrieve information for all pairs in leveraged market
+#' binance_exchange_info(pair = NULL, api = "spot", permissions = "leveraged")
 #'
-#' # Example: Retrieve information for the "BTCUSDT" trading pair in all spot markets.
-#' binance_exchange_info(api = "spot", pair = "BTCUSDT", permissions = "all")
+#' # Retrieve information for the "BTCUSDT" in spot market
+#' binance_exchange_info(pair = "BTCUSDT", api = "spot", permissions = "all")
 #'
-#' # Example: Retrieve information for multiple trading pairs in all spot markets.
-#' binance_exchange_info(api = "spot", pair = c("BTCUSDT", "BNBUSDT"), permissions = "all")
+#' # Retrieve information for multiple trading pairs in all markets
+#' binance_exchange_info(pair = c("BTCUSDT", "BNBUSDT"), api = "spot", permissions = "all")
 #'
-#' # Example: Retrieve information for specific trading pairs in margin and leveraged spot markets.
-#' binance_exchange_info(api = "spot", pair = c("BTCBUSD", "ETHBUSD"), permissions = c("margin", "leveraged"))
+#' # Retrieve information for multiple trading pairs in all margin and leveraged markets
+#' binance_exchange_info(pair = c("BTCBUSD", "ETHBUSD"), api = "spot",
+#'                       permissions = c("margin", "leveraged"))
+#'                       
+#' # Retrieve information for all pairs in the USD-m market
+#' binance_exchange_info(pair = NULL, api = "fapi")
 #'
-#' # Example: Retrieve information for all trading pairs in the perpetual market.
-#' binance_exchange_info(api = "fapi", pair = NULL)
+#' # Retrieve information for all pairs in the COIN-m market
+#' binance_exchange_info(pair = NULL, api = "dapi")
 #'
-#' # Example: Retrieve information for all trading pairs in the futures market.
-#' binance_exchange_info(api = "dapi", pair = NULL)
-#'
-#' # Example: Retrieve information for all trading pairs in the options market.
-#' binance_exchange_info(api = "eapi", pair = NULL)
+#' # Retrieve information for all pairs in the options market.
+#' binance_exchange_info(pair = NULL, api = "eapi")
 #'
 #' @export
 #'
 #' @rdname binance_exchange_info
-#'
 #' @name binance_exchange_info
-#'
 
-binance_exchange_info <- function(pair = NULL, api = "spot", permissions = c("all", "spot", "margin", "leveraged")){
+binance_exchange_info <- function(pair = NULL, api = "spot", permissions = "all"){
   
   # api function name 
   fun_name <- paste0("binance_", api, "_exchange_info")
@@ -69,32 +69,24 @@ binance_exchange_info <- function(pair = NULL, api = "spot", permissions = c("al
   } else {
     safe_fun <- purrr::safely(~do.call(fun_name, args = list(pair = pair)))
   }
-  
-  response <- NULL
   response <- safe_fun()
   
   return(response$result)
-
 }
 
-# api functions -----------------------------------------------------------------------------------------------
-binance_spot_exchange_info <- function(pair = NULL, permissions = c("all", "spot", "margin", "leveraged")){
+# exchangeInfo implementation for spot API
+binance_spot_exchange_info <- function(pair = NULL, permissions = "all"){
   
   # multiple pairs in one query are allowed
   if (length(pair) > 1) {
-    
     mult_pair_name <- toupper(pair)
-    
     # Query for Multiple Pairs
     mult_pair_query <- purrr::map_chr(mult_pair_name, ~paste0('"', .x, '"'))
     mult_pair_query <- paste0(mult_pair_query, collapse = ",")
     pair_name <- paste0('[', mult_pair_query, ']')
-    
   } else {
-    
     mult_pair_name <- NULL
     mult_pair_query <- NULL
-    
   }
   
   # Multiple Permissions are allowed, however if a submission is inserted
@@ -144,6 +136,7 @@ binance_spot_exchange_info <- function(pair = NULL, permissions = c("all", "spot
   
 }
 
+# exchangeInfo implementation for futures USD-M api
 binance_fapi_exchange_info <- function(pair = NULL){
   
   response <- NULL
@@ -167,6 +160,7 @@ binance_fapi_exchange_info <- function(pair = NULL){
   
 }
 
+# exchangeInfo implementation for futures COIN-M api
 binance_dapi_exchange_info <- function(pair = NULL){
   
   response <- NULL
@@ -190,6 +184,7 @@ binance_dapi_exchange_info <- function(pair = NULL){
   
 }
 
+# exchangeInfo implementation for options api
 binance_eapi_exchange_info <- function(pair = NULL){
   
   response <- NULL

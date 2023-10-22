@@ -2,7 +2,7 @@
 % Please edit documentation in R/OrderBook.R
 \name{OrderBook}
 \alias{OrderBook}
-\title{Create and Structure an Order Book}
+\title{Order Book from Depth}
 \usage{
 OrderBook(
   data = NULL,
@@ -16,13 +16,13 @@ OrderBook(
 \arguments{
 \item{data}{A tibble containing the order book dataset.}
 
-\item{min_price}{The minimum price to consider for the order book.}
+\item{min_price}{The minimum price to consider in the order book.}
 
-\item{max_price}{The maximum price to consider for the order book.}
+\item{max_price}{The maximum price to consider in the order book.}
 
-\item{levels}{The number of levels to include in the order book.}
+\item{levels}{The number of levels for the order book.}
 
-\item{trades}{A tibble containing the trades dataset to be integrated with the order book.}
+\item{trades}{A tibble.}
 
 \item{as_datatable}{Logical, specifying whether to return the structured order book as a data table (data frame). Default is FALSE.}
 }
@@ -30,6 +30,5 @@ OrderBook(
 A structured tibble representing the order book with the specified price range and levels.
 }
 \description{
-The \code{OrderBook} function is used to create and structure an existing order book dataset,
-allowing you to specify the minimum and maximum price range and the number of levels to include.
+Create and structure an order book from depth data,
 }

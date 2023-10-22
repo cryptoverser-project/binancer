@@ -6,9 +6,10 @@
 #' @param api Character, specifying the reference API. Available options include:
 #'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data).
 #'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data).
+#' @param quiet Logical, suppress informational messages if `TRUE`. Default `FALSE`.
 #' @export
 
-binance_live_depth <- function(pair = "BTCUSDT", api){
+binance_live_depth <- function(pair = "BTCUSDT", api, quiet = FALSE){
   
   # Check "api" argument 
   if (missing(api) || is.null(api)) {
@@ -33,16 +34,15 @@ binance_live_depth <- function(pair = "BTCUSDT", api){
   }
 
   # Initial snapshot of the order book
-  response <- binance_depth(api = api, pair = pair)
-
-  # Update the order book in stream data
-  ws$.__enclos_env__$stream$data <- response
+  response <- binance_depth(api = api, pair = pair, quiet = quiet)
 
   # Function name and arguments 
   fun_name <- paste0("binance_ws_", api, "_socket")
   args <- list(pair = pair, subscription = "depth", interval = NULL)
   # Create a websocket connection
   ws <- do.call(fun_name, args = args)
+  # Update the order book in stream data
+  ws$.__enclos_env__$stream$data <- response
   ws$connect()
 
   structure(
@@ -64,9 +64,10 @@ binance_live_depth <- function(pair = "BTCUSDT", api){
 #'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data).
 #'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data).
 #' @param data initial data
+#' @param quiet Logical, suppress informational messages if `TRUE`. Default `FALSE`.
 #' @export
 
-binance_live_klines <- function(pair = "BTCUSDT", interval = "1m", api, data = NULL){
+binance_live_klines <- function(pair = "BTCUSDT", interval = "1m", api, data = NULL, quiet = FALSE){
 
   # Check "api" argument 
   if (missing(api) || is.null(api)) {
@@ -94,26 +95,26 @@ binance_live_klines <- function(pair = "BTCUSDT", interval = "1m", api, data = N
   sys_time <- Sys.time() 
   if (is.null(data)) {
     response <- binance_klines(
-      api = api, pair = pair, interval = interval, from = sys_time - lubridate::hours(24), to = sys_time
+      api = api, pair = pair, interval = interval, from = sys_time - lubridate::hours(24), to = sys_time, quiet = quiet
       )
   } else {
     # Update till last date
     new_data <- binance_klines(
-      api = api, pair = pair, interval = interval, from = max(data$date), to = sys_time
+      api = api, pair = pair, interval = interval, from = max(data$date), to = sys_time, quiet = quiet
       )
     response <- dplyr::bind_rows(new_data, data)
     response <- response[!duplicated(response$date),]
     response <- dplyr::mutate(response, is_closed = TRUE)
   }
   
-  # Update the klines in stream data
-  ws$.__enclos_env__$stream$data <- response
-  
   # Function name and arguments 
   fun_name <- paste0("binance_ws_", api, "_socket")
   args <- list(pair = pair, subscription = "kline", interval = interval)
   # Create a websocket connection
   ws <- do.call(fun_name, args = args)
+  # Update the klines in stream data
+  response$is_closed <- TRUE
+  ws$.__enclos_env__$stream$data <- response
   ws$connect()
 
   structure(
@@ -132,9 +133,10 @@ binance_live_klines <- function(pair = "BTCUSDT", interval = "1m", api, data = N
 #' @param api Character, specifying the reference API. Available options include:
 #'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data).
 #'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data).
+#' @param quiet Logical, suppress informational messages if `TRUE`. Default `FALSE`.
 #' @export
 
-binance_live_trades <- function(pair = "BTCUSDT", api){
+binance_live_trades <- function(pair = "BTCUSDT", api, quiet = FALSE){
 
   # Check "api" argument 
   if (missing(api) || is.null(api)) {
@@ -159,16 +161,15 @@ binance_live_trades <- function(pair = "BTCUSDT", api){
   }
   
   # Initial snapshot of trades of last 10 minutes 
-  response <- binance_trades(pair = pair, api = api)
-  
-  # Update the trades in stream data
-  ws$.__enclos_env__$stream$data <- response
-  
+  response <- binance_trades(pair = pair, api = api, quiet = quiet)
+
   # Function name and arguments 
   fun_name <- paste0("binance_ws_", api, "_socket")
   args <- list(pair = pair, subscription = "aggTrade", interval = NULL)
   # Create a websocket connection
   ws <- do.call(fun_name, args = args)
+  # Update the trades in stream data
+  ws$.__enclos_env__$stream$data <- response
   ws$connect()
 
   structure(

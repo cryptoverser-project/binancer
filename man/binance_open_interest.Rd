@@ -4,17 +4,12 @@
 \alias{binance_open_interest}
 \title{Retrieve Present Open Interest Data}
 \usage{
-binance_open_interest(
-  pair,
-  api = "fapi",
-  expiration = Sys.Date(),
-  quiet = FALSE
-)
+binance_open_interest(pair, api, expiration = Sys.Date(), quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, specifying the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
 \item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{Futures USD-M API}.
 \item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{Futures Coin-M API}.
@@ -24,8 +19,18 @@ binance_open_interest(
 \item{expiration}{POSIXct, specifying the expiration date for options contracts. This parameter is used when \code{api = "eapi"}.
 Default is NULL, which represents the most recent data.
 You can provide a POSIXct object, e.g., Sys.Date() + 1 or a specific date and time in the future.}
+
+\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
 }
 \value{
+A tibble with 4 columns:
+\itemize{
+\item \code{date}: Datetime, observation date.
+\item \code{market}: Character, selected API.
+\item \code{pair}: Character, selected pair.
+\item \code{open_interest}: Numeric, open interest in base currency.
+}
+
 A tibble (data frame) object containing the current open interest data, including date, market, pair, and open interest values.
 }
 \description{
@@ -36,13 +41,13 @@ The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Example: Retrieve the current open interest data for the "BTCUSDT" trading pair in the Futures USD-M market.
+# Get the open interest data for "BTCUSDT" in USD-M market
 binance_open_interest(pair = "BTCUSDT", api = "fapi")
 
-# Example: Retrieve the current open interest data for the "BTCUSD_PERP" trading pair in the Futures Coin-M market.
+# Get the open interest data for "BTCUSD_PERP" in COIN-M market
 binance_open_interest(pair = "BTCUSD_PERP", api = "dapi")
 
-# Example: Retrieve the current open interest data for options contracts on "BTC" with a specific expiration date.
+# Get the open interest data for options on BTC
 binance_open_interest(pair = "BTC", api = "eapi", expiration = Sys.Date() + 1)
 
 }

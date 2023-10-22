@@ -1,23 +1,24 @@
-#' Create and Structure an Order Book
+#' Order Book from Depth
 #'
-#' The `OrderBook` function is used to create and structure an existing order book dataset, 
-#' allowing you to specify the minimum and maximum price range and the number of levels to include.
+#' Create and structure an order book from depth data, 
 #'
 #' @param data A tibble containing the order book dataset.
 #'
-#' @param min_price The minimum price to consider for the order book.
+#' @param min_price The minimum price to consider in the order book.
 #'
-#' @param max_price The maximum price to consider for the order book.
+#' @param max_price The maximum price to consider in the order book.
 #'
-#' @param levels The number of levels to include in the order book.
+#' @param levels The number of levels for the order book.
 #'
-#' @param trades A tibble containing the trades dataset to be integrated with the order book.
+#' @param trades A tibble.
 #'
 #' @param as_datatable Logical, specifying whether to return the structured order book as a data table (data frame). Default is FALSE.
 #'
 #' @return A structured tibble representing the order book with the specified price range and levels.
 #'
 #' @export
+#' @rdname OrderBook
+#' @name OrderBook
 
 OrderBook <- function(data = NULL, min_price = NULL, max_price = NULL, levels = 20, trades = NULL, as_datatable = FALSE){
   
@@ -79,7 +80,7 @@ OrderBook <- function(data = NULL, min_price = NULL, max_price = NULL, levels = 
  
   if (!is.null(trades)) {
     for(i in 1:nrow(order_book)){
-      if(i == 1){
+      if (i == 1) {
         # first level quantity will be the sum of all quantity below first level 
         index <- trades$price <= order_book[i,]$price
       } else if(i == nrow(order_book)) {
@@ -89,7 +90,6 @@ OrderBook <- function(data = NULL, min_price = NULL, max_price = NULL, levels = 
         # a level quantity will be the sum of all quantity in between previous level and actual level  
         index <- trades$price > order_book[i-1,]$price & trades$price <= order_book[i,]$price
       }
-      
       new_data <- trades[which(index),]
       order_book[i,]$buy <- sum(dplyr::filter(new_data, side == "BUY")$quantity, na.rm = TRUE)  # BUY trades 
       order_book[i,]$sell <- sum(dplyr::filter(new_data, side == "SELL")$quantity, na.rm = TRUE) # SELL trades 
@@ -127,8 +127,6 @@ OrderBook <- function(data = NULL, min_price = NULL, max_price = NULL, levels = 
                                  backgroundPosition = 'center')
     order_book <- DT::formatStyle(order_book, 'ask', backgroundColor = "#FF5F47", color = "white")
   }
-  
   return(order_book)
-  
 }
 

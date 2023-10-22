@@ -2,16 +2,19 @@
 #'
 #' Get 24-hour ticker statistics for a specified trading pair from the selected reference API.
 #'
-#' @param pair Character, specifying the trading pair of interest, e.g., "BTCUSDT".
-#' @param api Character, specifying the reference API. Available options include:
+#' @param pair Character, trading pair, e.g. "BTCUSDT".
+#' 
+#' @param api Character, reference API. Available options are:
 #'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics).
 #'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics).
 #'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#24hr-ticker-price-change-statistics).
 #'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#24hr-ticker-price-change-statistics).
-#' @param type Character, specifying the type of ticker data to retrieve. Available options are:
-#'   - "mini": Retrieve ticker data without "ask" and "bid" prices and quantities.
-#'   - "full": Retrieve complete ticker data with all available columns.
-#' @param quiet Logical, suppress informational messages if `TRUE`. Default is `FALSE`.
+#'   
+#' @param type Character, type of ticker data. Available options are:
+#'   - "mini": ticker data without "ask" and "bid" prices and quantities.
+#'   - "full": complete ticker data with all available columns.
+#'   
+#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
 #'
 #' @return A tibble (data frame) with 13 columns containing 24-hour ticker statistics. 
 #' It includes open, high, low, close prices, volume, and more.
@@ -20,20 +23,20 @@
 #'
 #' @examples
 #'
-#' # Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+#' # Get full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
 #' binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "full")
 #'
-#' # Retrieve mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+#' # Get mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
 #' binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "mini")
 #'
-#' # Retrieve full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
+#' # Get full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
 #' binance_ticker24h(pair = "BTCUSDT", api = "fapi")
 #'
-#' # Retrieve full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
+#' # Get full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
 #' binance_ticker24h(pair = "BTCUSD_PERP", api = "dapi")
 #'
-#' # Retrieve full 24-hour ticker statistics for an options trading pair from the Options API.
-#' binance_ticker24h(pair = "BTC-230331-21000-P", api = "eapi")
+#' # Get full 24-hour ticker statistics for an options trading pair from the Options API.
+#' binance_ticker24h(pair = "BTC-240628-30000-P", api = "eapi")
 #'
 #' @export
 #'
@@ -64,7 +67,7 @@ binance_ticker24h <- function(pair, api = "spot", type = c("full", "mini"), quie
 }
 
 # Ticker24h implementation for spot api 
-binance_spot_ticker24h <- function(pair, type = c("full", "mini")) {
+binance_spot_ticker24h <- function(pair, type = c("full", "mini"), quiet = FALSE) {
   
   # General Check: pair default argument 
   if (missing(pair) || is.null(pair)) {
@@ -153,7 +156,7 @@ binance_spot_ticker24h <- function(pair, type = c("full", "mini")) {
 }
 
 # Ticker24h implementation for futures USD-M api 
-binance_fapi_ticker24h <- function(pair) {
+binance_fapi_ticker24h <- function(pair, quiet = FALSE) {
   
   # General Check: pair default argument 
   if (missing(pair) || is.null(pair)) {
@@ -202,7 +205,7 @@ binance_fapi_ticker24h <- function(pair) {
 }
 
 # Ticker24h implementation for futures COIN-M api 
-binance_dapi_ticker24h <- function(pair) {
+binance_dapi_ticker24h <- function(pair, quiet = FALSE) {
   
   # General Check: pair default argument 
   if (missing(pair) || is.null(pair)) {
@@ -250,7 +253,7 @@ binance_dapi_ticker24h <- function(pair) {
 }
 
 # Ticker24h implementation for options api 
-binance_eapi_ticker24h <- function(pair) {
+binance_eapi_ticker24h <- function(pair, quiet = FALSE) {
   
   # General Check: pair default argument 
   if (missing(pair) || is.null(pair)) {

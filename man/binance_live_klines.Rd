@@ -4,7 +4,13 @@
 \alias{binance_live_klines}
 \title{binance_live_klines}
 \usage{
-binance_live_klines(pair = "BTCUSDT", interval = "1m", api, data = NULL)
+binance_live_klines(
+  pair = "BTCUSDT",
+  interval = "1m",
+  api,
+  data = NULL,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
@@ -19,6 +25,8 @@ Acceptable intervals include "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "
 }}
 
 \item{data}{initial data}
+
+\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
 }
 \description{
 live candlestick

@@ -7,35 +7,36 @@
 binance_time(api = "spot")
 }
 \arguments{
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
 \item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#check-server-time}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#check-server-time}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#check-server-time}{Futures Coin-M API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#check-server-time}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#check-server-time}{Futures COIN-m API}.
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#check-server-time}{Options API}.
 }}
 }
 \value{
-An object of class \code{"\link[=POSIXt-class]{POSIXt}"} representing the server's time for the selected API.
+An object of class \code{"\link[=POSIXt-class]{POSIXt}"}, server's time for the reference API.
 }
 \description{
-Test the connectivity to the Binance REST API and obtain the current server time. This function allows you to verify the connection to the API and retrieve the server's time.
+Test the connectivity to the Binance REST API and obtain the current server time.
 }
 \details{
+This function allows you to verify the connection to the API and retrieve the server's time.
 The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Example: Get the server time for the Spot API.
+# Get the server time for the Spot API.
 binance_time("spot")
 
-# Example: Get the server time for the Futures USD-M API.
+# Get the server time for the Futures USD-M API.
 binance_time("fapi")
 
-# Example: Get the server time for the Futures Coin-M API.
+# Get the server time for the Futures Coin-M API.
 binance_time("dapi")
 
-# Example: Get the server time for the Options API.
+# Get the server time for the Options API.
 binance_time("eapi")
 
 }

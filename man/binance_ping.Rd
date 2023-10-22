@@ -7,16 +7,16 @@
 binance_ping(api = "spot")
 }
 \arguments{
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
 \item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#test-connectivity}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#test-connectivity}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity}{Futures Coin-M API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#test-connectivity}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity}{Futures COIN-m API}.
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#test-connectivity}{Options API}.
 }}
 }
 \value{
-Logical, with \code{TRUE} indicating a successful connection and \code{FALSE} indicating a failed connection.
+Logical, \code{TRUE} denote a successful connection, while \code{FALSE} denote a failed connection.
 }
 \description{
 Check the connectivity to the Binance API to ensure it is operational.
@@ -27,16 +27,16 @@ The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Example: Test the connection to the Spot API.
+# Test the connection to the Spot API.
 binance_ping("spot")
 
-# Example: Test the connection to the Futures USD-M API.
+# Test the connection to the Futures USD-M API.
 binance_ping("fapi")
 
-# Example: Test the connection to the Futures Coin-M API.
+# Test the connection to the Futures Coin-M API.
 binance_ping("dapi")
 
-# Example: Test the connection to the Options API.
+# Test the connection to the Options API.
 binance_ping("eapi")
 
 }
