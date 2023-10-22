@@ -2,21 +2,27 @@
 % Please edit documentation in R/binance_ws_live.R
 \name{binance_live_trades}
 \alias{binance_live_trades}
-\title{binance_live_trades}
+\title{Binance Live Trades}
 \usage{
-binance_live_trades(pair = "BTCUSDT", api, quiet = FALSE)
+binance_live_trades(pair, api, from, to, quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
 \item{api}{Character, specifying the reference API. Available options include:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-M API}.
+\item \code{spot}: For \href{https://binance-docs.github.io/apidocs/spot/en/#aggregate-trade-streams}{Spot API}.
+\item \code{fapi}: For \href{https://binance-docs.github.io/apidocs/futures/en/#aggregate-trade-streams}{Futures USD-M API}.
 }}
+
+\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data.
+Default is \code{Sys.time()-lubridate::minutes(10)}.}
+
+\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
+Default is \code{Sys.time()}.}
 
 \item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
 }
 \description{
-live trades
+Live trades stream for a trading pair.
 }

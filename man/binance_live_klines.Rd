@@ -2,7 +2,7 @@
 % Please edit documentation in R/binance_ws_live.R
 \name{binance_live_klines}
 \alias{binance_live_klines}
-\title{binance_live_klines}
+\title{Binance Live Klines}
 \usage{
 binance_live_klines(
   pair = "BTCUSDT",
@@ -13,15 +13,15 @@ binance_live_klines(
 )
 }
 \arguments{
-\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
 \item{interval}{Character, the time interval for Klines data.
 Acceptable intervals include "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M".}
 
 \item{api}{Character, specifying the reference API. Available options include:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-M API}.
+\item \code{spot}: For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-streams}{Spot API}.
+\item \code{fapi}: For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-streams}{Futures USD-m API}.
 }}
 
 \item{data}{initial data}
@@ -29,5 +29,5 @@ Acceptable intervals include "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "
 \item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
 }
 \description{
-live candlestick
+Live klines stream for a trading pair.
 }

@@ -100,7 +100,10 @@ binance_klines <- function(pair, api = "spot", interval, from, to, contract_type
   } else {
     av_int <- c("1s", "1m", "3m", "5m", "15m","30m","1h", "2h", 
                 "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M")
-    interval  <- match.arg(interval, choices = ifelse(api != spot, av_int[-1], av_int))
+    if (api != "spot"){
+      av_int <- av_int[-1] 
+    }
+    interval  <- match.arg(interval, choices = av_int)
   }
   
   # Check "from" argument 

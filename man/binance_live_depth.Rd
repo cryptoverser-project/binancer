@@ -2,21 +2,21 @@
 % Please edit documentation in R/binance_ws_live.R
 \name{binance_live_depth}
 \alias{binance_live_depth}
-\title{binance_live_depth}
+\title{Binance Live Depth}
 \usage{
-binance_live_depth(pair = "BTCUSDT", api, quiet = FALSE)
+binance_live_depth(pair, api, quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-M API}.
+\item \code{spot}: For \href{https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream}{Spot API}.
+\item \code{fapi}: For \href{https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams}{Futures USD-m API}.
 }}
 
 \item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
 }
 \description{
-live orderbook
+Live depth stream for a trading pair.
 }

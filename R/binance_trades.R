@@ -72,7 +72,7 @@ binance_trades <- function(pair, api, from, to, quiet = FALSE){
   
   # Check "from" argument 
   if (missing(from) || is.null(from)) {
-    from <- Sys.time() - lubridate::days(1)
+    from <- Sys.time() - lubridate::minutes(10)
     if (!quiet) {
       wrn <- paste0('The "from" argument is missing, default is ', '"', from, '"')
       cli::cli_alert_warning(wrn)
@@ -260,4 +260,3 @@ binance_dapi_trades <- function(pair, from, to, quiet = FALSE){
   attr(response, "api") <- "coin-m"
   return(response)
 }
-

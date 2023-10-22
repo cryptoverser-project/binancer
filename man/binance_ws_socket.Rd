@@ -18,18 +18,12 @@ binance_ws_socket(
 \arguments{
 \item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
 
-\item{api}{Character, specifying the reference API. Available options include:
-\itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#exchange-information}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#exchange-information}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#exchange-information}{Futures Coin-M API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#exchange-information}{Options API}.
-}}
+\item{api}{Character, specifying the reference API. Available options are \code{spot}, \code{fapi}, \code{dapi}, \code{eapi}.}
 
 \item{subscription}{Character}
 
 \item{interval}{Character, the time interval for Klines data.
-Acceptable intervals include "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M".}
+Acceptable intervals are "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M".}
 
 \item{contract_type}{Character, only used if \code{api = "dapi"}. Choose from:
 \itemize{
