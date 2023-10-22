@@ -1,12 +1,12 @@
-#' Retrieve Present Open Interest Data
+#' Current Open Interest Data
 #'
-#' Obtain the current open interest data for a specific trading pair. This function allows you to access the real-time open interest information.
+#' Get the current open interest data for a specific trading pair.
 #'
 #' @param pair Character, trading pair, e.g. "BTCUSDT".
 #'
 #' @param api Character, reference API. Available options are:
-#'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#open-interest).
-#'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#open-interest).
+#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#open-interest).
+#'   - "dapi": For [Futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#open-interest).
 #'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#open-interest).
 #'
 #' @param expiration POSIXct, specifying the expiration date for options contracts. This parameter is used when `api = "eapi"`. 
@@ -21,8 +21,6 @@
 #'   - `pair`: Character, selected pair.
 #'   - `open_interest`: Numeric, open interest in base currency.
 #'  
-#' @return A tibble (data frame) object containing the current open interest data, including date, market, pair, and open interest values.
-#'
 #' @details The IP weight for this API call is 1, and the data source is memory.
 #'
 #' @examples

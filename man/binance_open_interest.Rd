@@ -2,7 +2,7 @@
 % Please edit documentation in R/binance_open_interest.R
 \name{binance_open_interest}
 \alias{binance_open_interest}
-\title{Retrieve Present Open Interest Data}
+\title{Current Open Interest Data}
 \usage{
 binance_open_interest(pair, api, expiration = Sys.Date(), quiet = FALSE)
 }
@@ -11,8 +11,8 @@ binance_open_interest(pair, api, expiration = Sys.Date(), quiet = FALSE)
 
 \item{api}{Character, reference API. Available options are:
 \itemize{
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{Futures Coin-M API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{Futures Coin-m API}.
 \item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#open-interest}{Options API}.
 }}
 
@@ -30,11 +30,9 @@ A tibble with 4 columns:
 \item \code{pair}: Character, selected pair.
 \item \code{open_interest}: Numeric, open interest in base currency.
 }
-
-A tibble (data frame) object containing the current open interest data, including date, market, pair, and open interest values.
 }
 \description{
-Obtain the current open interest data for a specific trading pair. This function allows you to access the real-time open interest information.
+Get the current open interest data for a specific trading pair.
 }
 \details{
 The IP weight for this API call is 1, and the data source is memory.

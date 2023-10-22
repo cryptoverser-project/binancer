@@ -11,10 +11,10 @@ binance_trades(pair, api, from, to, quiet = FALSE)
 
 \item{api}{Character, reference API. Available options are:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list}{Futures USD-m API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list}{Futures COIN-m API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list}{Options API}.
+\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup}{Spot API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup}{Futures COIN-m API}.
+\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup}{Options API}.
 }}
 
 \item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data.

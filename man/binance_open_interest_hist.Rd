@@ -2,7 +2,7 @@
 % Please edit documentation in R/binance_open_interest_hist.R
 \name{binance_open_interest_hist}
 \alias{binance_open_interest_hist}
-\title{Retrieve Historical Open Interest Data}
+\title{Historical Open Interest Data}
 \usage{
 binance_open_interest_hist(
   pair,
@@ -57,7 +57,7 @@ A tibble with 5 columns:
 }
 }
 \description{
-Obtain historical open interest data for a specific trading pair. This function allows you to access the open interest information over time.
+Get the historical open interest data for a specific trading pair.
 }
 \details{
 The IP weight for this API call is 1, and the data source is memory.

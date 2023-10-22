@@ -32,7 +32,7 @@ A tibble with 7 columns:
 }
 }
 \description{
-Obtain the most recent 1000 trades for a specified trading pair. This function allows you to access the latest trades that have occurred in a specific market.
+Get the most recent 1000 trades for a specified trading pair.
 }
 \examples{
 

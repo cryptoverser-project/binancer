@@ -6,10 +6,10 @@
 \usage{
 binance_klines(
   pair,
+  api = "spot",
   interval,
   from,
   to,
-  api = "spot",
   contract_type,
   uiKlines = FALSE,
   quiet = FALSE
@@ -17,6 +17,14 @@ binance_klines(
 }
 \arguments{
 \item{pair}{Character, trading pair, e.g. "BTCUSDT".}
+
+\item{api}{Character, reference API. Available options are:
+\itemize{
+\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
+\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-m API}.
+\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{Futures COIN-m API}.
+\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{Options API}.
+}}
 
 \item{interval}{Character, time interval for Klines data. Available intervals are:
 \itemize{
@@ -28,19 +36,11 @@ binance_klines(
 \item \code{monthly}: "1M".
 }}
 
-\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data.
+\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}. Start time for historical data.
 Default is \code{NULL} and will be used as start date \code{Sys.time()-lubridate::days(1)}.}
 
-\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
+\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}. End time for historical data.
 Default is \code{NULL} and will be used as end date \code{Sys.time()}.}
-
-\item{api}{Character, reference API. Available options are:
-\itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-m API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{Futures COIN-m API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{Options API}.
-}}
 
 \item{contract_type}{Character, used only if \code{api = "dapi"}. Available contract type are:
 \itemize{
@@ -72,7 +72,7 @@ A tibble (data frame) with the following 13 columns:
 }
 }
 \description{
-Retrieve Klines (candlestick) data for a specific trading pair from the Binance API. This function supports various Binance API types, including spot, futures, and options.
+Retrieve Klines (candlestick) data for a specific trading pair from the Binance API.
 }
 \details{
 The IP weight for this API call is 1, and the data source is memory.

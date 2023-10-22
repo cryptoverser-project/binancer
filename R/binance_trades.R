@@ -5,10 +5,10 @@
 #' @param pair Character, trading pair, e.g. "BTCUSDT".
 #'
 #' @param api Character, reference API. Available options are:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list).
-#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list).
-#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list).
+#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup).
+#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup).
+#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup).
+#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup).
 #'
 #' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data. 
 #' Default is `NULL` and will be used as start date `Sys.time()-lubridate::minutes(10)`.

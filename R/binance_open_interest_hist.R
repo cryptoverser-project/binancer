@@ -1,6 +1,6 @@
-#' Retrieve Historical Open Interest Data
+#' Historical Open Interest Data
 #'
-#' Obtain historical open interest data for a specific trading pair. This function allows you to access the open interest information over time.
+#' Get the historical open interest data for a specific trading pair.
 #'
 #' @param pair Character, trading pair, e.g. "BTCUSDT".
 #'
@@ -15,6 +15,7 @@
 #'
 #' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data. 
 #' Default is `NULL` and will be used as start date `Sys.time()-lubridate::days(30)`.
+#' 
 #' @param to Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
 #' Default is `NULL` and will be used as end date `Sys.time()`.
 #' 

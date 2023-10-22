@@ -1,9 +1,15 @@
 #' Get Klines Data from Binance API
 #'
-#' Retrieve Klines (candlestick) data for a specific trading pair from the Binance API. This function supports various Binance API types, including spot, futures, and options.
+#' Retrieve Klines (candlestick) data for a specific trading pair from the Binance API. 
 #'
 #' @param pair Character, trading pair, e.g. "BTCUSDT".
 #' 
+#' @param api Character, reference API. Available options are:
+#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data).
+#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data).
+#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data).
+#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data).
+#'   
 #' @param interval Character, time interval for Klines data. Available intervals are: 
 #'   - `secondly`: "1s";
 #'   - `minutely`: "1m", "3m", "5m", "15m" and "30m";
@@ -12,22 +18,17 @@
 #'   - `weekly`: "1w";
 #'   - `monthly`: "1M".
 #'   
-#' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data. 
+#' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}. Start time for historical data. 
 #' Default is `NULL` and will be used as start date `Sys.time()-lubridate::days(1)`.
 #' 
-#' @param to Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
+#' @param to Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}. End time for historical data.
 #' Default is `NULL` and will be used as end date `Sys.time()`.
 #' 
-#' @param api Character, reference API. Available options are:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data).
-#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data).
-#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data).
-#'   
 #' @param contract_type Character, used only if `api = "dapi"`. Available contract type are: 
 #'   - "perpetual": for perpetual futures.
 #'   - "current_quarter": for futures with a maturity in the current quarter.
 #'   - "next_quarter": for futures with a maturity in the next quarter.
+#'   
 #' @param uiKlines Logical, if `TRUE` return data in UIklines format. Default is `FALSE`.
 #' 
 #' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
@@ -66,7 +67,7 @@
 #' @rdname binance_klines
 #' @name binance_klines
 
-binance_klines <- function(pair, interval, from, to, api = "spot", contract_type, uiKlines = FALSE, quiet = FALSE){
+binance_klines <- function(pair, api = "spot", interval, from, to, contract_type, uiKlines = FALSE, quiet = FALSE){
   
   # Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
@@ -76,6 +77,17 @@ binance_klines <- function(pair, interval, from, to, api = "spot", contract_type
     }
   } else {
     pair <- toupper(pair)
+  }
+  
+  # Check "api" argument 
+  if (missing(api) || is.null(api)) {
+    api <- "spot"
+    if (!quiet) {
+      wrn <- paste0('The "api" argument is missing, default is ', '"', api, '"')
+      cli::cli_alert_warning(wrn)
+    }
+  } else {
+    api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
   }
   
   # Check "interval" argument 
@@ -88,7 +100,7 @@ binance_klines <- function(pair, interval, from, to, api = "spot", contract_type
   } else {
     av_int <- c("1s", "1m", "3m", "5m", "15m","30m","1h", "2h", 
                 "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M")
-    interval  <- match.arg(interval, choices = av_int)
+    interval  <- match.arg(interval, choices = ifelse(api != spot, av_int[-1], av_int))
   }
   
   # Check "from" argument 
@@ -112,18 +124,7 @@ binance_klines <- function(pair, interval, from, to, api = "spot", contract_type
   } else {
     to <- as.POSIXct(to, origin = "1970-01-01")
   }
-  
-  # Check "api" argument 
-  if (missing(api) || is.null(api)) {
-    api <- "spot"
-    if (!quiet) {
-      wrn <- paste0('The "api" argument is missing, default is ', '"', api, '"')
-      cli::cli_alert_warning(wrn)
-    }
-  } else {
-    api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
-  }
-  
+
   # Check "contract_type" argument
   if (missing(contract_type)) {
     contract_type <- "PERPETUAL"
