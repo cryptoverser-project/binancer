@@ -48,14 +48,14 @@
 #'   - `taker_buy`: Numeric, buy volume in asset value.
 #'   - `taker_buy_quote`: Numeric, buy volume in quote value.
 #'
-#' @usage 
+#' @usage
 #' binance_klines(pair,
 #'                api = "spot",
 #'                interval, 
 #'                from, 
 #'                to,
-#'                contract_type
-#'                uiKlines = FALSE
+#'                contract_type,
+#'                uiKlines = FALSE,
 #'                quiet = FALSE)
 #'                   
 #' @details The IP weight for this API call is 1, and the data source is memory.
@@ -63,13 +63,20 @@
 #' @examples
 #' 
 #' # Get 1-hour OHLC data for BTCUSDT in the spot market
-#' binance_klines(api = "spot", pair = "BTCUSDT", interval = "1h")
+#' binance_klines(pair = "BTCUSDT", api = "spot", interval = "1h")
 #'
 #' # Get 30-minute OHLC data for BNBUSDT in the perpetual market
-#' binance_klines(api = "fapi", pair = "BNBUSDT", interval = "30m")
+#' binance_klines(pair = "BNBUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "perpetual")
+#' binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "next_quarter")
+#' binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "current_quarter")
+#' binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = FALSE)
 #'
-#' # Get 15-minute OHLC data for BTCUSD_PERP in the futures market
-#' binance_klines(api = "dapi", pair = "BTCUSD_PERP", interval = "15m")
+#' # Get 15-minute OHLC data for BTCUSD_PERP 
+#' binance_klines(api = "dapi", pair = "BTCUSD_PERP", interval = "15m", uiKlines = FALSE)
+#' binance_klines(api = "dapi", pair = "BTCUSD", interval = "15m", uiKlines = TRUE, contract_type = "perpetual") 
+#' 
+#' binance_klines(api = "dapi", pair = "BTCUSD", interval = "1h", uiKlines = TRUE, contract_type = "next_quarter")
+#' binance_klines(api = "dapi", pair = "BTCUSD", interval = "15m", uiKlines = TRUE, contract_type = "current_quarter") 
 #'
 #' # Get 1-hour OHLC data for a put option on BTCUSDT with a strike of 30000 and maturity on 2024-06-28
 #' binance_klines(api = "eapi", pair = "BTC-240628-30000-P", interval = "1h")
@@ -141,12 +148,25 @@ binance_klines <- function(pair, api = "spot", interval, from, to, contract_type
 
   # Check "contract_type" argument
   if (missing(contract_type) || is.null(contract_type)) {
-    contract_type <- "PERPETUAL"
-    if (!quiet) {
-      wrn <- paste0('The "contract_type" argument is missing, default is ', '"', tolower(contract_type), '"')
-      cli::cli_alert_warning(wrn)
+    if(uiKlines){
+      contract_type <- "perpetual"
+      if (!quiet) {
+        wrn <- paste0('If `uiKlines` is `TRUE` "contract_type" must be specified. Default is ', '"', contract_type, '"')
+        cli::cli_alert_warning(wrn)
+      }
+      contract_type <- toupper(contract_type)
+    } else {
+      contract_type <- NULL
     }
   } else {
+    if(!uiKlines){
+      uiKlines <- TRUE
+      if (!quiet) {
+        wrn <- paste0('If a "contract_type" is specified, `uiKlines` must be `TRUE`.')
+        cli::cli_alert_warning(wrn)
+      }
+    }
+    contract_type <- tolower(contract_type)
     contract_type <- match.arg(contract_type, choices = c("perpetual", "current_quarter", "next_quarter"))
     contract_type <- toupper(contract_type)
   }
@@ -242,24 +262,6 @@ binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, qui
 # Klines implementation for futures USD-M api 
 binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKlines = FALSE, quiet = FALSE){
 
-  # Check when uiKlines = TRUE AND contract_type is NULL
-  if(uiKlines & (missing(contract_type) || is.null(contract_type))){
-    contract_type <- "PERPETUAL"
-    if (!quiet) {
-      msg <- paste0('When `uiklines` is TRUE `contract_type` must be specified. Default is "perpetual"`.')
-      cli::cli_alert_warning(msg)
-    }
-  }
-  
-  # Check when uiKlines = FALSE AND contract_type is not NULL
-  if(!uiKlines & !(missing(contract_type) || is.null(contract_type))){
-    uiKlines <- TRUE
-    if (!quiet) {
-      msg <- paste0('When `contract_type` is specified `uiklines` must be TRUE.')
-      cli::cli_alert_warning(msg)
-    }
-  }
-  
   i <- 1
   response  <- list()
   condition <- TRUE
@@ -268,19 +270,21 @@ binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKline
   end_time <- paste0(trunc(as.integer(to)), "000")
   last_date <- 0
   while(condition){
-    # query 
-    api_query <- list(pair = pair, 
+    
+    api_query <- list(pair = NULL,
+                      symbol = NULL,
                       contractType = NULL, 
-                      startTime = NULL, 
                       interval = interval, 
+                      startTime = NULL, 
                       endTime = end_time, 
                       limit = 1500)
     
-    # query depending on uiKlines
     if (uiKlines) {
-      api_query$contractType <- contractType 
+      api_query$pair <- pair 
+      api_query$contractType <- contract_type
+    } else {
+      api_query$symbol <- pair 
     }
-  
     # api GET call 
     api_path <- ifelse(uiKlines, "continuousKlines", "klines")
     new_data <- binance_api(api = "fapi", path = api_path, query = api_query)
@@ -309,7 +313,7 @@ binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKline
     response <- dplyr::bind_rows(response)
     response <- dplyr::mutate(response,
                               pair = pair,
-                              market = "coin-m",
+                              market = "USD-m",
                               date = as.POSIXct(as.numeric(date)/1000, origin = "1970-01-01"),
                               date_close = as.POSIXct(as.numeric(date_close)/1000, origin = "1970-01-01"),
                               open = as.numeric(open),
@@ -342,25 +346,6 @@ binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKline
 # Klines implementation for futures COIN-M api 
 binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKlines = FALSE, quiet = FALSE){
  
-  uiKlines <- FALSE # not work with uiKlines = TRUE ?
-  # Check when uiKlines = TRUE AND contract_type is NULL
-  if(uiKlines & (missing(contract_type) || is.null(contract_type))){
-    contract_type <- "PERPETUAL"
-    if (!quiet) {
-      msg <- paste0('When `uiklines` is TRUE `contract_type` must be specified. Default is "perpetual"`.')
-      cli::cli_alert_warning(msg)
-    }
-  }
-  
-  # Check when uiKlines = FALSE AND contract_type is not NULL
-  if(!uiKlines & !(missing(contract_type) || is.null(contract_type))){
-    uiKlines <- TRUE
-    if (!quiet) {
-      msg <- paste0('When `contract_type` is specified `uiklines` must be TRUE.')
-      cli::cli_alert_warning(msg)
-    }
-  }
-  
   # format start and end time
   format_time <- function(x){
     paste0(trunc(as.integer(x)), "000")
@@ -375,23 +360,22 @@ binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKline
   last_date <- 0
   while(condition){
     
+    api_query <- list(pair = NULL,
+                      symbol = NULL,
+                      contractType = NULL, 
+                      interval = interval, 
+                      startTime = NULL, 
+                      endTime = end_time, 
+                      limit = 1500)
+    
     if (uiKlines) {
-      api_path <- "continuousKlines"
-      api_query <- list(pair = pair, 
-                        contractType = contract_type, 
-                        interval = interval, 
-                        startTime = NULL, 
-                        endTime = end_time, 
-                        limit = 1500)
+      api_query$pair <- pair 
+      api_query$contractType <- contract_type
     } else {
-      api_path <- "klines"
-      api_query <- list(symbol = pair, 
-                        interval = interval, 
-                        startTime = NULL,
-                        endTime = end_time, 
-                        limit = 1500)
+      api_query$symbol <- pair 
     }
     # GET call 
+    api_path <- ifelse(uiKlines, "continuousKlines", "klines")
     new_data <- binance_api(api = "dapi", path = api_path, query = api_query)
     # Break if new_data is empty 
     if (purrr::is_empty(new_data)) {
@@ -417,7 +401,7 @@ binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKline
     response <- dplyr::bind_rows(response)
     response <- dplyr::mutate(response,
                               pair = pair,
-                              market = "coin-m",
+                              market = "COIN-m",
                               date = as.POSIXct(as.numeric(date)/1000, origin = "1970-01-01"),
                               date_close = as.POSIXct(as.numeric(date_close)/1000, origin = "1970-01-01"),
                               open = as.numeric(open),
@@ -466,7 +450,11 @@ binance_eapi_klines <- function(pair, interval, from, to, quiet = FALSE){
   
   while(condition){
     # GET call
-    api_query <- list(symbol = pair, startTime = NULL, interval = interval, endTime = end_time, limit = 1500)
+    api_query <- list(symbol = pair,
+                      startTime = NULL, 
+                      interval = interval, 
+                      endTime = end_time, 
+                      limit = 1500)
     new_data <- binance_api(api = "eapi", path = "klines", query = api_query)
     
     # Break if new_data is empty 
@@ -501,10 +489,14 @@ binance_eapi_klines <- function(pair, interval, from, to, quiet = FALSE){
                               takerAmount = as.numeric(takerAmount),
                               amount = as.numeric(amount))
     # Rename and reorder 
-    response <- dplyr::select(response, date = "openTime", date_close = "closeTime", 
+    response <- dplyr::select(response, 
+                              date = "openTime", 
+                              date_close = "closeTime", 
                               market, pair, open, high, low, close, volume, 
-                              trades = "tradeCount", taker_volume = "takerVolume", 
-                              taker_amount = "takerAmount", amount)
+                              trades = "tradeCount", 
+                              taker_volume = "takerVolume", 
+                              taker_amount = "takerAmount", 
+                              amount)
     # Filter to be exactly in from-to range
     response <- dplyr::filter(response, date >= from & date <= to)
     # Arrange with respect to date
@@ -519,5 +511,4 @@ binance_eapi_klines <- function(pair, interval, from, to, quiet = FALSE){
   
   return(response)
 }
-
 

@@ -29,6 +29,8 @@ Available options include:
 \item \code{"margin"}: get available trading pairs in margin markets;
 \item \code{"leveraged"}: get available trading pairs in leveraged markets.
 }}
+
+\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}}
 }
 \value{
 A tibble containing market information, including trading pairs, symbols.

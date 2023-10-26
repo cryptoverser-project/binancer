@@ -9,8 +9,8 @@ binance_klines(pair,
                interval, 
                from, 
                to,
-               contract_type
-               uiKlines = FALSE
+               contract_type,
+               uiKlines = FALSE,
                quiet = FALSE)
 }
 \arguments{
@@ -78,13 +78,20 @@ The IP weight for this API call is 1, and the data source is memory.
 \examples{
 
 # Get 1-hour OHLC data for BTCUSDT in the spot market
-binance_klines(api = "spot", pair = "BTCUSDT", interval = "1h")
+binance_klines(pair = "BTCUSDT", api = "spot", interval = "1h")
 
 # Get 30-minute OHLC data for BNBUSDT in the perpetual market
-binance_klines(api = "fapi", pair = "BNBUSDT", interval = "30m")
+binance_klines(pair = "BNBUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "perpetual")
+binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "next_quarter")
+binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "current_quarter")
+binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = FALSE)
 
-# Get 15-minute OHLC data for BTCUSD_PERP in the futures market
-binance_klines(api = "dapi", pair = "BTCUSD_PERP", interval = "15m")
+# Get 15-minute OHLC data for BTCUSD_PERP 
+binance_klines(api = "dapi", pair = "BTCUSD_PERP", interval = "15m", uiKlines = FALSE)
+binance_klines(api = "dapi", pair = "BTCUSD", interval = "15m", uiKlines = TRUE, contract_type = "perpetual") 
+
+binance_klines(api = "dapi", pair = "BTCUSD", interval = "1h", uiKlines = TRUE, contract_type = "next_quarter")
+binance_klines(api = "dapi", pair = "BTCUSD", interval = "15m", uiKlines = TRUE, contract_type = "current_quarter") 
 
 # Get 1-hour OHLC data for a put option on BTCUSDT with a strike of 30000 and maturity on 2024-06-28
 binance_klines(api = "eapi", pair = "BTC-240628-30000-P", interval = "1h")

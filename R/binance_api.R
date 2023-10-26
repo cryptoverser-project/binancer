@@ -48,10 +48,10 @@
 
 binance_api <- function(api = NULL, path = NULL, query = NULL, use_base_path = TRUE, quiet = FALSE){
   
-  # arguments with the type of api
+  # Available api
   api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
   
-  # modify the url depending on the api  
+  # Create the base url depending on api   
   if (api == "spot") {
     base_url <- "https://api.binance.com"
     base_path <- c("api", "v3")
@@ -66,49 +66,59 @@ binance_api <- function(api = NULL, path = NULL, query = NULL, use_base_path = T
     base_path <- c("eapi", "v1")
   }
   
+  # Use base path 
   if (use_base_path) {
     path <- c(base_path, path)
   } 
   
-  # path: remove null/NA elements
+  # Api path
   if (purrr::is_empty(path)){
     api_path <- NULL
   } else {
+    # Remove NA elements 
     api_path <- path[!is.na(path)]
   }
-  # query: remove null/NA elements
-  api_query <- query[!is.null(query) && !is.na(query)]
-  # request url
+  
+  # Api query
+  if (purrr::is_empty(query)){
+    api_query <- list()
+  } else {
+    # Remove NULL elements 
+    non_null <- !purrr::map_lgl(query, is.null)
+    api_query <- query[non_null]
+    # Remove NA elements 
+    non_na <- !purrr::map_lgl(api_query, is.na)
+    api_query <- api_query[non_na]
+  }
+  
+  # Api url
   api_url <- httr::modify_url(base_url, path = api_path, query = api_query)
-  # api GET call
+  # GET call
   response <- httr::GET(api_url)
-  
-  # check error: status code and result
+
+  # Check http status code 
   api_status <- httr::status_code(response)
-  api_empty  <- purrr::is_empty(response)
-  
-  # initialize output
-  api_content <- NULL
-  # check error: status code is not equal to 200
   if (api_status != 200) {
     if (!quiet) {
       cli::cli_alert_danger("GET Request ERROR: status code is not equal to 200.")
     }
-    return(api_content)
   }
  
-  # check error: the result is empty
+  # Check if response is empty  
+  api_empty <- purrr::is_empty(response)
   if (api_empty) {
     if (!quiet) {
       cli::cli_alert_danger("GET Request Error: response is empty!")
     }
-    return(api_content)
   }
   
-  # return api content
+  # Output 
   if (api_status == 200 && !api_empty) {
     api_content <- httr::content(response, type = "text", encoding = "UTF-8")
     api_content <- jsonlite::fromJSON(api_content)
+  } else {
+    api_content <- NULL
   }
+  
   return(api_content)
 }

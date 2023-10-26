@@ -17,6 +17,8 @@
 #'   - `"spot"`: get available trading pairs in spot markets;
 #'   - `"margin"`: get available trading pairs in margin markets;
 #'   - `"leveraged"`: get available trading pairs in leveraged markets.
+#'   
+#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`
 #'
 #' @return A tibble containing market information, including trading pairs, symbols.
 #'
@@ -142,7 +144,7 @@ binance_spot_exchange_info <- function(pair = NULL, permissions = "all"){
     }
   } 
   attr(response, "api") <- "spot"
-  attr(response, "ip_weight") <- 1
+  attr(response, "ip_weight") <- 20
   
   return(response)
 }

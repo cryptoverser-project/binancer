@@ -3,17 +3,19 @@
 #' Obtain the current server time. 
 #'
 #' @param api Character, reference API. Available options are:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#check-server-time).
-#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#check-server-time).
-#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#check-server-time).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#check-server-time).
+#'   - `"spot"`: For [spot API](https://binance-docs.github.io/apidocs/spot/en/#check-server-time);
+#'   - `"fapi"`: For [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#check-server-time);
+#'   - `"dapi"`: For [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#check-server-time);
+#'   - `"eapi"`: For [options API](https://binance-docs.github.io/apidocs/voptions/en/#check-server-time).
+#'
+#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`
 #'
 #' @return An object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the server's time for the reference API.
 #'
 #' @details The IP weight for this API call is 1, and the data source is memory.
 #' 
 #' @usage 
-#' binance_time(api)
+#' binance_time(api, quiet = FALSE)
 #' 
 #' @examples
 #'
@@ -34,7 +36,7 @@
 #' @rdname binance_time
 #' @name binance_time
 
-binance_time <- function(api){
+binance_time <- function(api, quiet = FALSE){
   
   # Check "api" argument 
   if (missing(api) || is.null(api)) {
@@ -46,7 +48,7 @@ binance_time <- function(api){
   } 
   
   # GET call
-  response <- binance_api(api = api, path = "time", query = NULL)
+  response <- binance_api(api = api, path = "time", query = NULL, quiet = quiet)
 
   if (purrr::is_empty(response)) {
     response <- ""

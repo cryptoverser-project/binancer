@@ -1,6 +1,6 @@
 Package: binancer
 Type: Package
-Title: Binance REST API Wrapper for R
+Title: Wrapper for Binance REST API in R
 Version: 0.1.0
 Author: Cryptoverser
 Maintainer: Cryptoverser <cryptoverser-project@gmail.com>

@@ -4,16 +4,18 @@
 \alias{binance_time}
 \title{Binance Server Time}
 \usage{
-binance_time(api)
+binance_time(api, quiet = FALSE)
 }
 \arguments{
 \item{api}{Character, reference API. Available options are:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#check-server-time}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#check-server-time}{Futures USD-m API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#check-server-time}{Futures COIN-m API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#check-server-time}{Options API}.
+\item \code{"spot"}: For \href{https://binance-docs.github.io/apidocs/spot/en/#check-server-time}{spot API};
+\item \code{"fapi"}: For \href{https://binance-docs.github.io/apidocs/futures/en/#check-server-time}{futures USD-m API};
+\item \code{"dapi"}: For \href{https://binance-docs.github.io/apidocs/delivery/en/#check-server-time}{futures COIN-m API};
+\item \code{"eapi"}: For \href{https://binance-docs.github.io/apidocs/voptions/en/#check-server-time}{options API}.
 }}
+
+\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}}
 }
 \value{
 An object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the server's time for the reference API.
