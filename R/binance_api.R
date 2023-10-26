@@ -71,13 +71,17 @@ binance_api <- function(api = NULL, path = NULL, query = NULL, use_base_path = T
   } 
   
   # path: remove null/NA elements
-  api_path <- path[!is.null(path) && !is.na(path)]
+  if (purrr::is_empty(path)){
+    api_path <- NULL
+  } else {
+    api_path <- path[!is.na(path)]
+  }
   # query: remove null/NA elements
   api_query <- query[!is.null(query) && !is.na(query)]
   # request url
-  req_url <- httr::modify_url(base_url, path = api_path, query = api_query)
+  api_url <- httr::modify_url(base_url, path = api_path, query = api_query)
   # api GET call
-  response <- httr::GET(req_url)
+  response <- httr::GET(api_url)
   
   # check error: status code and result
   api_status <- httr::status_code(response)
@@ -88,7 +92,7 @@ binance_api <- function(api = NULL, path = NULL, query = NULL, use_base_path = T
   # check error: status code is not equal to 200
   if (api_status != 200) {
     if (!quiet) {
-      warning("GET Request ERROR: the status code is not equal to 200.")
+      cli::cli_alert_danger("GET Request ERROR: status code is not equal to 200.")
     }
     return(api_content)
   }
@@ -96,7 +100,7 @@ binance_api <- function(api = NULL, path = NULL, query = NULL, use_base_path = T
   # check error: the result is empty
   if (api_empty) {
     if (!quiet) {
-      warning("GET Request Error: the response is empty!")
+      cli::cli_alert_danger("GET Request Error: response is empty!")
     }
     return(api_content)
   }
