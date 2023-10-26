@@ -2,9 +2,9 @@
 % Please edit documentation in R/binance_time.R
 \name{binance_time}
 \alias{binance_time}
-\title{Retrieve Binance Server Time}
+\title{Binance Server Time}
 \usage{
-binance_time(api = "spot")
+binance_time(api)
 }
 \arguments{
 \item{api}{Character, reference API. Available options are:
@@ -16,13 +16,12 @@ binance_time(api = "spot")
 }}
 }
 \value{
-An object of class \code{"\link[=POSIXt-class]{POSIXt}"}, server's time for the reference API.
+An object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the server's time for the reference API.
 }
 \description{
-Test the connectivity to the Binance REST API and obtain the current server time.
+Obtain the current server time.
 }
 \details{
-This function allows you to verify the connection to the API and retrieve the server's time.
 The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{

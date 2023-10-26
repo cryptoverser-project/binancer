@@ -1,38 +1,49 @@
-#' Binance REST API Call Function
+#' Binance REST API
 #'
-#' Execute an API call to the Binance REST api, allowing access to various endpoints.
+#' Execute an GET call to the Binance REST API.
 #'
-#' @param api Character, specifying the reference API. Available options include:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#introduction).
-#'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#introduction).
-#'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#introduction).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#introduction).
+#' @param api  Character, reference API. Available options are:
+#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#introduction).
+#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#introduction).
+#'   - `"dapi"`: for [Futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#introduction).
+#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#introduction).
 #'
-#' @param path Character vector, specifying the API path. 
+#' @param path Character vector, API path. `NULL` or `NA` elements will be excluded. 
 #'
-#' @param query Named list, containing query parameters for the API call.
+#' @param query Named list, query parameters for the API call. `NULL` or `NA` elements will be excluded. 
 #'
-#' @param use_base_path Logical, if `TRUE`, will be automatically added to the `path` an argument based on the selected API type. 
-#' The base paths are:
-#'   - "spot": For the Spot API, the base path is "api/v3".
-#'   - "fapi": For the Futures USD-M API, the base path is "fapi/v1".
-#'   - "dapi": For the Futures Coin-M API, the base path is "dapi/v1".
-#'   - "eapi": For the Options API, the base path is "eapi/v1".
+#' @param use_base_path Logical, Default is `TRUE` and to `path` will be added a base bath on the selected API. Base paths are:
+#'   - `"spot"`: base path is `"api/v3"`;
+#'   - `"fapi"`: base path is `"fapi/v1"`;
+#'   - `"dapi"`: base path is `"dapi/v1"`;
+#'   - `"eapi"`: base path is `"eapi/v1"`.
 #'
 #' @param quiet Logical, suppress informational messages if `TRUE`. Default is `FALSE`.
-#'
-#' @examples 
 #' 
-#' # Execute a call using "api/v3/time" with base path and for spot API.
-#' binance_api(api = "spot", path = c("time"), query = NULL)
-#'
-#' # Execute a call using "api/v3/time" without base path and for spot API.
-#' binance_api(api = "spot", path = c("api", "v3", "time"), use_base_path = FALSE, query = NULL)
+#' @usage 
+#' binance_api(api = NULL, 
+#'             path = NULL, 
+#'             query = NULL, 
+#'             use_base_path = TRUE, 
+#'             quiet = FALSE)
 #'
 #' @export
+#' 
+#' @examples 
+#' 
+#' # Execute a call to spot API with base path
+#' binance_api(api = "spot", 
+#'             path = c("time"), 
+#'             query = NULL, 
+#'             use_base_path = TRUE)
+#'
+#' # Execute a call to spot API without base path
+#' binance_api(api = "spot", 
+#'             path = c("api", "v3", "time"), 
+#'             query = NULL,
+#'             use_base_path = FALSE)
 #'
 #' @rdname binance_api
-#'
 #' @name binance_api
 
 binance_api <- function(api = NULL, path = NULL, query = NULL, use_base_path = TRUE, quiet = FALSE){

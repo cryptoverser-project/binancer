@@ -4,29 +4,32 @@
 \alias{binance_ticker24h}
 \title{Retrieve 24-Hour Ticker Statistics}
 \usage{
-binance_ticker24h(pair, api = "spot", type = c("full", "mini"), quiet = FALSE)
+binance_ticker24h(pair, 
+                  api = "spot", 
+                  type = c("full", "mini"), 
+                  quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. \code{"BTCUSDT"}.}
 
 \item{api}{Character, reference API. Available options are:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#24hr-ticker-price-change-statistics}{Futures Coin-M API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#24hr-ticker-price-change-statistics}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics}{Spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics}{Futures USD-M API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#24hr-ticker-price-change-statistics}{Futures Coin-M API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#24hr-ticker-price-change-statistics}{Options API}.
 }}
 
-\item{type}{Character, type of ticker data. Available options are:
+\item{type}{Character, type of ticker data if \code{api = "spot"}. Default is \code{"full"}. Available options are:
 \itemize{
-\item "mini": ticker data without "ask" and "bid" prices and quantities.
-\item "full": complete ticker data with all available columns.
+\item \code{"mini"}: data without ask and bid prices and quantities.
+\item \code{"full"}: complete ticker data.
 }}
 
 \item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
 }
 \value{
-A tibble (data frame) with 13 columns containing 24-hour ticker statistics.
+A tibble with 13 columns containing 24-hour ticker statistics.
 It includes open, high, low, close prices, volume, and more.
 }
 \description{
@@ -37,19 +40,19 @@ The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Get full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+# Get full 24-hour ticker for BTCUSDT pair
 binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "full")
 
-# Get mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+# Get mini 24-hour ticker for BTCUSDT pair
 binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "mini")
 
-# Get full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
+# Get full 24-hour ticker for BTCUSDT 
 binance_ticker24h(pair = "BTCUSDT", api = "fapi")
 
-# Get full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
+# Get full 24-hour ticker for BTCUSD_PERP
 binance_ticker24h(pair = "BTCUSD_PERP", api = "dapi")
 
-# Get full 24-hour ticker statistics for an options trading pair from the Options API.
+# Get full 24-hour ticker for an options
 binance_ticker24h(pair = "BTC-240628-30000-P", api = "eapi")
 
 }

@@ -11,14 +11,13 @@ binance_open_interest(pair, api, expiration = Sys.Date(), quiet = FALSE)
 
 \item{api}{Character, reference API. Available options are:
 \itemize{
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{Futures USD-m API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{Futures Coin-m API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#open-interest}{Options API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{Futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{Futures Coin-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#open-interest}{Options API}.
 }}
 
 \item{expiration}{POSIXct, specifying the expiration date for options contracts. This parameter is used when \code{api = "eapi"}.
-Default is NULL, which represents the most recent data.
-You can provide a POSIXct object, e.g., Sys.Date() + 1 or a specific date and time in the future.}
+Default is NULL, which represents the most recent data.}
 
 \item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
 }

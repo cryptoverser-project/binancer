@@ -4,17 +4,21 @@
 \alias{binance_trades}
 \title{Retrieve Aggregated Historical Trades}
 \usage{
-binance_trades(pair, api, from, to, quiet = FALSE)
+binance_trades(pair, 
+               api, 
+               from,
+               to,
+               quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. \code{"BTCUSDT"}.}
 
 \item{api}{Character, reference API. Available options are:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup}{Futures USD-m API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup}{Futures COIN-m API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup}{Spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup}{Futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup}{Futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup}{Options API}.
 }}
 
 \item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data.
@@ -28,32 +32,32 @@ Default is \code{NULL} and will be used as end date \code{Sys.time()}.}
 \value{
 A tibble with 9 columns:
 \itemize{
-\item \code{date}: Datetime, trade execution date.
+\item \code{date}: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date;
 \item \code{market}: Character, selected API.
-\item \code{pair}: Character, selected pair.
+\item \code{pair}: Character, trading pair.
 \item \code{price}: Numeric, trade price.
 \item \code{quantity}: Numeric, trade quantity.
-\item \code{side}: Character, trade side. Can be "SELL" or "BUY".
+\item \code{side}: Character, trade side. Can be \code{"BUY"} or \code{"SELL"}.
 \item \code{agg_id}: Integer, aggregated trade Id.
 \item \code{first_id}: Integer, first trade Id for aggregation.
 \item \code{last_id}: Integer, last trade Id for aggregation.
 }
 }
 \description{
-Get aggregated historical trades data for a specified trading pair from the selected reference API.
+Get aggregated historical trades data for a trading pair.
 }
 \examples{
 
-# Retrieve the last 10 minutes of trades for BTCUSDT in Spot market
+# Get trades in last 10 minutes for BTCUSDT
 binance_trades(pair = "BTCUSDT", api = "spot", from = NULL, to = NULL)
 
-# Get trades for LAZIOUSDT in a date range in Spot market.
+# Get trades in last 10 minutes for LAZIOUSDT
 binance_trades(pair = "LAZIOUSDT", api = "spot", from = "2023-01-01", to = "2023-01-02")
 
-# Get the last 10 minutes of trades for BTCUSDT in USD-M market
+# Get trades in last 10 minutes for BTCUSDT
 binance_trades(pair = "BTCUSDT", api = "fapi", from = NULL, to = NULL)
 
-# Get last 10 minutes of trades for BTCUSD_PERP in Coin-M market.
+# Get trades in last 10 minutes for BTCUSD_PERP
 binance_trades(pair = "BTCUSD_PERP", api = "dapi", from = NULL, to = NULL)
 
 }

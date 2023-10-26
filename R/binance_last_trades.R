@@ -1,38 +1,43 @@
 #' Retrieve Recent Trades Data
 #'
-#' Get the most recent 1000 trades for a specified trading pair.
+#' Get the most recent 1000 trades for a trading pair.
 #'
-#' @param pair Character, trading pair, e.g. "BTCUSDT".
+#' @param pair Character, trading pair, e.g. `"BTCUSDT"` or `"BTCUSD_PERP"`.
 #'
 #' @param api Character, reference API. Available options are:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list).
-#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list).
-#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list).
+#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list).
+#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list).
+#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list).
+#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list).
 #'
 #' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
+#' 
+#' @usage 
+#' binance_last_trades(pair, 
+#'                     api, 
+#'                     quiet = FALSE)
 #'
 #' @return A tibble with 7 columns:
-#'   - `date`: Datetime, trade execution date.
+#'   - `date`: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date;
 #'   - `market`: Character, selected API.
-#'   - `pair`: Character, selected pair.
+#'   - `pair`: Character, trading pair.
 #'   - `price`: Numeric, trade price.
 #'   - `quantity`: Numeric, trade quantity.
-#'   - `side`: Character, trade side. Can be "SELL" or "BUY".
+#'   - `side`: Character, trade side. Can be `"BUY"` or `"SELL"`.
 #'   - `trade_id`: Integer, trade Id.
 #'
 #' @examples
 #'
-#' # Get the last 1000 trades for BTCUSDT in spot market
+#' # Get last 1000 trades for BTCUSDT
 #' binance_last_trades(pair = "BTCUSDT", api = "spot")
 #'
-#' # Get the last 1000 trades for BTCUSDT in USD-M market
+#' # Get last 1000 trades for BTCUSDT
 #' binance_last_trades(pair = "BTCUSDT", api = "fapi")
 #'
-#' # Get the last 1000 trades for BTCUSDT in COIN-M market
+#' # Get last 1000 trades for BTCUSDT
 #' binance_last_trades(pair = "BTCUSD_PERP", api = "dapi")
 #' 
-#' # Get the last 1000 trades for BTCUSDT in COIN-M market
+#' # Get last 1000 trades for a put option on BTC
 #' binance_last_trades(pair = "BTC-240628-30000-P", api = "eapi")
 #'
 #' @export
@@ -69,17 +74,17 @@ binance_last_trades <- function(pair, api, quiet = FALSE){
   response <- safe_fun()
   
   if (!quiet & !is.null(response$error)) {
-    cli::cli_abort(response$error)
+    cli::cli_alert_danger(response$error)
   } else {
     return(response$result)
   }
 }
 
-# Depth implementation for all APIs
+# trades implementation for all APIs
 binance_api_last_trades <- function(pair, api){
   
   # GET call 
-  response <- binance_api(api = api, path = c("trades"), query = list(symbol = pair, limit = 1000))
+  response <- binance_api(api = api, path = "trades", query = list(symbol = pair, limit = 1000))
   
   if (!purrr::is_empty(response) & api != "eapi") {
     response <- dplyr::tibble(

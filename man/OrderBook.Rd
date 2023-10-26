@@ -2,33 +2,33 @@
 % Please edit documentation in R/OrderBook.R
 \name{OrderBook}
 \alias{OrderBook}
-\title{Order Book from Depth}
+\title{Order Book}
 \usage{
 OrderBook(
   data = NULL,
   min_price = NULL,
   max_price = NULL,
-  levels = 20,
+  levels = NULL,
   trades = NULL,
   as_datatable = FALSE
 )
 }
 \arguments{
-\item{data}{A tibble containing the order book dataset.}
+\item{data}{A tibble with at least 3 columns (price, quantity and side).}
 
-\item{min_price}{The minimum price to consider in the order book.}
+\item{min_price}{Numeric, the minimum price for the aggregation of order book.}
 
-\item{max_price}{The maximum price to consider in the order book.}
+\item{max_price}{Numeric, the maximum price for the aggregation of order book.}
 
-\item{levels}{The number of levels for the order book.}
+\item{levels}{The number of levels for the aggregated order book.}
 
-\item{trades}{A tibble.}
+\item{trades}{A tibble with trades data.}
 
-\item{as_datatable}{Logical, specifying whether to return the structured order book as a data table (data frame). Default is FALSE.}
+\item{as_datatable}{Logical, if \code{TRUE} return the order book as a datatable. Default is \code{FALSE}.}
 }
 \value{
-A structured tibble representing the order book with the specified price range and levels.
+A tibble with depth data in the specified price range.
 }
 \description{
-Create and structure an order book from depth data,
+Create and structure an order book from depth data.
 }

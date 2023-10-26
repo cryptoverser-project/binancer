@@ -1,56 +1,67 @@
-#' Retrieve Market Information
+#' Binance Market Information
 #'
-#' Obtain detailed market information, including available trading pairs, for a specified reference API.
+#' Obtain market information and available trading pairs.
 #'
-#' @param pair Character, optional trading pair, e.g. "BTCUSDT". Default is `NULL` and all available pairs will be retrieved.
+#' @param pair Character, optional trading pair, e.g. `"BTCUSDT"`. 
+#' Default is `NULL` and all available pairs will be retrieved.
 #'
 #' @param api Character, specifying the reference API. Available options include:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#exchange-information).
-#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#exchange-information).
-#'   - "dapi": For [Futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#exchange-information).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#exchange-information).
+#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#exchange-information);
+#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#exchange-information);
+#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#exchange-information);
+#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#exchange-information).
 #'
-#' @param permissions Character or NULL, specifying the types of trading pairs to retrieve (optional). Available options include:
-#'   - "all": get available trading pairs in all markets;
-#'   - "spot": get available trading pairs in spot markets;
-#'   - "margin": get available trading pairs in margin markets;
-#'   - "leveraged": get available trading pairs in leveraged markets.
+#' @param permissions Character or NULL, specifying the types of trading pairs to retrieve (optional). 
+#' Available options include:
+#'   - `"all"`: get available trading pairs in all markets;
+#'   - `"spot"`: get available trading pairs in spot markets;
+#'   - `"margin"`: get available trading pairs in margin markets;
+#'   - `"leveraged"`: get available trading pairs in leveraged markets.
 #'
-#' @return A tibble containing market information, including trading pairs, symbols, and their attributes.
+#' @return A tibble containing market information, including trading pairs, symbols.
 #'
 #' @details The IP weight for this API call is 1, and the data source is memory.
+#' 
+#' @usage 
+#' binance_exchange_info(pair = NULL, 
+#'                       api = "spot", 
+#'                       permissions = "all", 
+#'                       quiet = FALSE)
 #'
 #' @examples
 #'
-#' # Retrieve information for all pairs in all markets
+#' # Get all pairs in all markets
 #' binance_exchange_info(pair = NULL, api = "spot", permissions = "all")
 #'
-#' # Retrieve information for all pairs in spot market
+#' # Get all pairs only in spot markets
 #' binance_exchange_info(pair = NULL, api = "spot", permissions = "spot")
 #'
-#' # Retrieve information for all pairs in margin market
+#' # Get all pairs only in margin markets
 #' binance_exchange_info(pair = NULL, api = "spot", permissions = "margin")
 #'
-#' # Retrieve information for all pairs in leveraged market
+#' # Get all pairs only in leveraged market
 #' binance_exchange_info(pair = NULL, api = "spot", permissions = "leveraged")
 #'
-#' # Retrieve information for the "BTCUSDT" in spot market
+#' # Get information only for BTCUSDT in all markets
 #' binance_exchange_info(pair = "BTCUSDT", api = "spot", permissions = "all")
 #'
-#' # Retrieve information for multiple trading pairs in all markets
-#' binance_exchange_info(pair = c("BTCUSDT", "BNBUSDT"), api = "spot", permissions = "all")
+#' # Get information for multiple pairs in all markets
+#' binance_exchange_info(pair = c("BTCUSDT", "BNBUSDT"), 
+#'                       api = "spot", 
+#'                       permissions = "all")
 #'
-#' # Retrieve information for multiple trading pairs in all margin and leveraged markets
-#' binance_exchange_info(pair = c("BTCBUSD", "ETHBUSD"), api = "spot",
+#' # Get information for multiple pairs only in margin and leveraged markets
+#' binance_exchange_info(pair = c("BTCBUSD", "ETHBUSD"), 
+#'                       api = "spot", 
 #'                       permissions = c("margin", "leveraged"))
 #'                       
-#' # Retrieve information for all pairs in the USD-m market
+#' # Get all pairs in futures USD-m markets
 #' binance_exchange_info(pair = NULL, api = "fapi")
 #'
-#' # Retrieve information for all pairs in the COIN-m market
+#' # Get all pairs in futures COIN-m markets
 #' binance_exchange_info(pair = NULL, api = "dapi")
 #'
-#' # Retrieve information for all pairs in the options market.
+#' # Get all pairs in options markets
 #' binance_exchange_info(pair = NULL, api = "eapi")
 #'
 #' @export
@@ -58,20 +69,25 @@
 #' @rdname binance_exchange_info
 #' @name binance_exchange_info
 
-binance_exchange_info <- function(pair = NULL, api = "spot", permissions = "all"){
+binance_exchange_info <- function(pair = NULL, api = "spot", permissions = "all", quiet = FALSE){
   
-  # api function name 
-  fun_name <- paste0("binance_", api, "_exchange_info")
-  
-  # safe call to avoid errors 
+  args <- list(pair = pair)
   if (api == "spot") {
-    safe_fun <- purrr::safely(~do.call(fun_name, args = list(pair = pair, permissions = permissions)))
-  } else {
-    safe_fun <- purrr::safely(~do.call(fun_name, args = list(pair = pair)))
-  }
+    args$permissions <- permissions
+  } 
+  
+  # Function name 
+  fun_name <- paste0("binance_", api, "_exchange_info")
+  # Safe call to avoid errors 
+  safe_fun <- purrr::safely(~do.call(fun_name, args = args))
+  # GET call 
   response <- safe_fun()
   
-  return(response$result)
+  if (!quiet & !is.null(response$error)) {
+    cli::cli_alert_warning(response$error)
+  } else {
+    return(response$result) 
+  }
 }
 
 # exchangeInfo implementation for spot API
@@ -99,10 +115,8 @@ binance_spot_exchange_info <- function(pair = NULL, permissions = "all"){
     permissions <- toupper(permissions)
     
     if (length(permissions) > 1) {
-
       permissions <- purrr::map_chr(permissions, ~paste0('"', .x, '"' ))
       permissions <- paste0('[', paste0(permissions, collapse = ","), ']')
-      
     }
   } else {
     permissions <- NULL
@@ -115,39 +129,35 @@ binance_spot_exchange_info <- function(pair = NULL, permissions = "all"){
     api_query <- list(symbol = NULL, permissions = permissions)
   }
   
-  # api GET call
-  response <- NULL
+  # GET call
   response <- binance_api(api = "spot", path = c("exchangeInfo"), query = api_query)
   
   if (!purrr::is_empty(response)) {
     
     response <- dplyr::as_tibble(response$symbols)
     response <- dplyr::bind_cols(market = "spot", response)
-    
-    # filter if a pair is specified 
+    # Filter only if a pair is specified (pair is not NULL)
     if (length(mult_pair_name) > 1) {
       response <- dplyr::filter(response, symbol %in% mult_pair_name)
     }
   } 
-  
   attr(response, "api") <- "spot"
   attr(response, "ip_weight") <- 1
-  return(response)
   
+  return(response)
 }
 
 # exchangeInfo implementation for futures USD-M api
 binance_fapi_exchange_info <- function(pair = NULL){
   
-  response <- NULL
-  response <- binance_api(api = "fapi", path = c("exchangeInfo"), query = NULL)
+  # GET call
+  response <- binance_api(api = "fapi", path = "exchangeInfo", query = NULL)
   
-  if(!purrr::is_empty(response)){
+  if (!purrr::is_empty(response)) {
     
     response <- dplyr::as_tibble(response$symbols)
-    response <- dplyr::bind_cols(market = "futures-usd-m", response)
-    
-    # filter if a pair is specified 
+    response <- dplyr::bind_cols(market = "usd-m", response)
+    # Filter only if a pair is specified (pair is not NULL)
     pair_name <- toupper(pair)
     if(length(pair_name) > 1){
       response <- dplyr::filter(response, symbol %in% pair_name)
@@ -156,22 +166,20 @@ binance_fapi_exchange_info <- function(pair = NULL){
   
   attr(response, "api") <- "fapi"
   attr(response, "ip_weight") <- 1
-  return(response)
   
+  return(response)
 }
 
 # exchangeInfo implementation for futures COIN-M api
 binance_dapi_exchange_info <- function(pair = NULL){
   
-  response <- NULL
-  response <- binance_api(api = "dapi", path = c("exchangeInfo"), query = NULL)
+  # GET call
+  response <- binance_api(api = "dapi", path = "exchangeInfo", query = NULL)
   
-  if(!purrr::is_empty(response)){
-    
+  if (!purrr::is_empty(response)) {
     response <- dplyr::as_tibble(response$symbols)
-    response <- dplyr::bind_cols(market = "futures-coin-m", response)
-    
-    # filter if a pair is specified 
+    response <- dplyr::bind_cols(market = "coin-m", response)
+    # Filter only if a pair is specified (pair is not NULL)
     pair_name <- toupper(pair)
     if(length(pair_name) > 1){
       response <- dplyr::filter(response, symbol %in% pair_name)
@@ -180,24 +188,23 @@ binance_dapi_exchange_info <- function(pair = NULL){
   
   attr(response, "api") <- "dapi"
   attr(response, "ip_weight") <- 1
-  return(response)
   
+  return(response)
 }
 
 # exchangeInfo implementation for options api
 binance_eapi_exchange_info <- function(pair = NULL){
   
-  response <- NULL
-  response <- binance_api(api = "eapi", path = c("exchangeInfo"), query = NULL)
+  # GET call
+  response <- binance_api(api = "eapi", path = "exchangeInfo", query = NULL)
   
-  if(!purrr::is_empty(response)){
+  if (!purrr::is_empty(response)) {
  
     response <- dplyr::as_tibble(response$optionSymbols)
     response <- dplyr::bind_cols(market = "options", dplyr::select(response, -filters, -contractId))
     response <- dplyr::mutate(response, expiryDate = as.POSIXct(expiryDate/1000, origin = "1970-01-01"))
     response <- dplyr::arrange(response, expiryDate)
-    
-    # filter if a pair is specified 
+    # Filter only if a pair is specified (pair is not NULL)
     pair_name <- toupper(pair)
     if(length(pair_name) >= 1){
       response <- dplyr::filter(response, underlying %in% pair_name)
@@ -206,8 +213,8 @@ binance_eapi_exchange_info <- function(pair = NULL){
   
   attr(response, "api") <- "eapi"
   attr(response, "ip_weight") <- 1
-  return(response)
   
+  return(response)
 }
 
 

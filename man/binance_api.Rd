@@ -2,49 +2,52 @@
 % Please edit documentation in R/binance_api.R
 \name{binance_api}
 \alias{binance_api}
-\title{Binance REST API Call Function}
+\title{Binance REST API}
 \usage{
-binance_api(
-  api = NULL,
-  path = NULL,
-  query = NULL,
-  use_base_path = TRUE,
-  quiet = FALSE
-)
+binance_api(api = NULL, 
+            path = NULL, 
+            query = NULL, 
+            use_base_path = TRUE, 
+            quiet = FALSE)
 }
 \arguments{
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character, reference API. Available options are:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#introduction}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#introduction}{Futures USD-M API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#introduction}{Futures Coin-M API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#introduction}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#introduction}{Spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#introduction}{Futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#introduction}{Futures Coin-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#introduction}{Options API}.
 }}
 
-\item{path}{Character vector, specifying the API path.}
+\item{path}{Character vector, API path. \code{NULL} or \code{NA} elements will be excluded.}
 
-\item{query}{Named list, containing query parameters for the API call.}
+\item{query}{Named list, query parameters for the API call. \code{NULL} or \code{NA} elements will be excluded.}
 
-\item{use_base_path}{Logical, if \code{TRUE}, will be automatically added to the \code{path} an argument based on the selected API type.
-The base paths are:
+\item{use_base_path}{Logical, Default is \code{TRUE} and to \code{path} will be added a base bath on the selected API. Base paths are:
 \itemize{
-\item "spot": For the Spot API, the base path is "api/v3".
-\item "fapi": For the Futures USD-M API, the base path is "fapi/v1".
-\item "dapi": For the Futures Coin-M API, the base path is "dapi/v1".
-\item "eapi": For the Options API, the base path is "eapi/v1".
+\item \code{"spot"}: base path is \code{"api/v3"};
+\item \code{"fapi"}: base path is \code{"fapi/v1"};
+\item \code{"dapi"}: base path is \code{"dapi/v1"};
+\item \code{"eapi"}: base path is \code{"eapi/v1"}.
 }}
 
 \item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default is \code{FALSE}.}
 }
 \description{
-Execute an API call to the Binance REST api, allowing access to various endpoints.
+Execute an GET call to the Binance REST API.
 }
 \examples{
 
-# Execute a call using "api/v3/time" with base path and for spot API.
-binance_api(api = "spot", path = c("time"), query = NULL)
+# Execute a call to spot API with base path
+binance_api(api = "spot", 
+            path = c("time"), 
+            query = NULL, 
+            use_base_path = TRUE)
 
-# Execute a call using "api/v3/time" without base path and for spot API.
-binance_api(api = "spot", path = c("api", "v3", "time"), use_base_path = FALSE, query = NULL)
+# Execute a call to spot API without base path
+binance_api(api = "spot", 
+            path = c("api", "v3", "time"), 
+            query = NULL,
+            use_base_path = FALSE)
 
 }

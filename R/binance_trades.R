@@ -1,14 +1,14 @@
 #' Retrieve Aggregated Historical Trades
 #'
-#' Get aggregated historical trades data for a specified trading pair from the selected reference API.
+#' Get aggregated historical trades data for a trading pair.
 #'
-#' @param pair Character, trading pair, e.g. "BTCUSDT".
+#' @param pair Character, trading pair, e.g. `"BTCUSDT"`.
 #'
 #' @param api Character, reference API. Available options are:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup).
-#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup).
-#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup).
+#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup).
+#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup).
+#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup).
+#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup).
 #'
 #' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data. 
 #' Default is `NULL` and will be used as start date `Sys.time()-lubridate::minutes(10)`.
@@ -16,30 +16,37 @@
 #' Default is `NULL` and will be used as end date `Sys.time()`.
 #' 
 #' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
+#' 
+#' @usage 
+#' binance_trades(pair, 
+#'                api, 
+#'                from,
+#'                to,
+#'                quiet = FALSE)
 #'
 #' @return A tibble with 9 columns:
-#'   - `date`: Datetime, trade execution date.
+#'   - `date`: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date;
 #'   - `market`: Character, selected API.
-#'   - `pair`: Character, selected pair.
+#'   - `pair`: Character, trading pair.
 #'   - `price`: Numeric, trade price.
 #'   - `quantity`: Numeric, trade quantity.
-#'   - `side`: Character, trade side. Can be "SELL" or "BUY".
+#'   - `side`: Character, trade side. Can be `"BUY"` or `"SELL"`.
 #'   - `agg_id`: Integer, aggregated trade Id.
 #'   - `first_id`: Integer, first trade Id for aggregation.
 #'   - `last_id`: Integer, last trade Id for aggregation.
 #'
 #' @examples
 #'
-#' # Retrieve the last 10 minutes of trades for BTCUSDT in Spot market
+#' # Get trades in last 10 minutes for BTCUSDT
 #' binance_trades(pair = "BTCUSDT", api = "spot", from = NULL, to = NULL)
 #' 
-#' # Get trades for LAZIOUSDT in a date range in Spot market.
+#' # Get trades in last 10 minutes for LAZIOUSDT
 #' binance_trades(pair = "LAZIOUSDT", api = "spot", from = "2023-01-01", to = "2023-01-02")
 #'
-#' # Get the last 10 minutes of trades for BTCUSDT in USD-M market
+#' # Get trades in last 10 minutes for BTCUSDT
 #' binance_trades(pair = "BTCUSDT", api = "fapi", from = NULL, to = NULL)
 #'
-#' # Get last 10 minutes of trades for BTCUSD_PERP in Coin-M market.
+#' # Get trades in last 10 minutes for BTCUSD_PERP
 #' binance_trades(pair = "BTCUSD_PERP", api = "dapi", from = NULL, to = NULL)
 #'
 #' @export

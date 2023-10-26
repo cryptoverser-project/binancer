@@ -53,7 +53,6 @@ binance_ws_cleaner.trade <- function(data){
   return(output)
 }
 
-
 # Cleaner for websocket "miniticker" endpoint
 binance_ws_cleaner.miniTicker <- function(data){
 
@@ -277,27 +276,37 @@ binance_ws_cleaner.depth <- function(data){
     return(data)
   }
 
-  df_out <- dplyr::bind_rows(data[c(2,3,4,5)])
-  df_out <- dplyr::select(df_out, date = "E", pair = "s")
-
+  df_out <- dplyr::bind_rows(data[c("U","u","E","s")])
+  df_out <- dplyr::select(df_out, 
+                          first_update_id = "U", 
+                          last_update_id = "u", 
+                          date = "E", 
+                          pair = "s")
   # BID data
-  colnames(data$b) <- c("price", "quantity")
-  df_BID <- dplyr::as_tibble(data$b)
-  df_BID <- dplyr::mutate_all(df_BID, as.numeric)
-  df_BID <- dplyr::bind_cols(df_out, df_BID, side = "BID")
-
+  if(!purrr::is_empty(data$b)){
+    colnames(data$b) <- c("price", "quantity")
+    df_bid <- dplyr::as_tibble(data$b)
+    df_bid <- dplyr::mutate_all(df_bid, as.numeric)
+    df_bid <- dplyr::bind_cols(df_out, df_bid, side = "BID")
+  } else {
+    df_bid <- dplyr::tibble()
+  }
+  
   # ASK data
-  colnames(data$a) <- c("price", "quantity")
-  df_ASK <- dplyr::as_tibble(data$a)
-  df_ASK <- dplyr::mutate_all(df_ASK, as.numeric)
-  df_ASK <- dplyr::bind_cols(df_out, df_ASK, side = "ASK")
-
+  if(!purrr::is_empty(data$a)){
+    colnames(data$a) <- c("price", "quantity")
+    df_ask <- dplyr::as_tibble(data$a)
+    df_ask <- dplyr::mutate_all(df_ask, as.numeric)
+    df_ask <- dplyr::bind_cols(df_out, df_ask, side = "ASK")
+  } else {
+    df_ask <- dplyr::tibble()
+  }
+  
   # Output dataset 
-  df_out <- dplyr::bind_rows(df_ASK, df_BID)
+  df_out <- dplyr::bind_rows(df_ask, df_bid)
   df_out <- dplyr::mutate(df_out,
                           date = as.POSIXct(date/1000, origin = "1970-01-01"),
                           side = factor(side, levels = c("ASK", "BID"), ordered = FALSE))
-  
   return(df_out)
 }
 
@@ -318,27 +327,43 @@ binance_ws_kline <- function(data_before, data_after){
 }
 
 # Structure order book data updating the levels
-binance_ws_orderbook <- function(data_before = NULL, data_after){
+binance_ws_orderbook <- function(data_before = NULL, data_after = NULL){
 
-  if (purrr::is_empty(data_before)) {
+  if (purrr::is_empty(data_before) & !purrr::is_empty(data_after)) {
     return(data_after)
+  } else if (!purrr::is_empty(data_before) & purrr::is_empty(data_after)) {
+    return(data_before)
   }
   
-  # data before 
-  df_before <- dplyr::group_by(data_before, pair, side, price) 
-  df_before <- dplyr::summarise(df_before, quantity = sum(quantity), .groups = "rowwise")
-  df_before <- dplyr::ungroup(df_before) 
-  # data after 
-  df_after <- dplyr::group_by(data_after, pair, side, price) 
-  df_after <- dplyr::summarise(df_after, quantity = sum(quantity), .groups = "rowwise")
-  df_after <- dplyr::ungroup(df_after) 
+  last_update_id <- data_after$last_update_id[1] 
+
   # merge data before with data after 
-  df_out <- dplyr::full_join(df_before, df_after, by = c("pair", "side", "price"))
+  df_out <- dplyr::full_join(
+    dplyr::select(data_before, pair, side, price, quantity), 
+    dplyr::select(data_after, pair, side, price, quantity),
+    by = c("pair", "side", "price"))
   df_out <- dplyr::mutate(df_out, quantity = ifelse(is.na(quantity.y), quantity.x, quantity.y))
-  df_out <- dplyr::mutate(df_out, date = data_after$date[1])
-  df_out <- dplyr::select(df_out, date, pair, side, price, quantity)
+  df_out <- dplyr::mutate(df_out, date = data_after$date[1], last_update_id = last_update_id)
+  df_out <- dplyr::select(df_out, last_update_id, date, pair, side, price, quantity)
   # keep only levels with a quantity > 0 
   df_out <- dplyr::filter(df_out, quantity > 0)
   
+  # Be sure that ASK and BID best prices are similar 
+  # can happen that some price levels is not updated when price moves rapidly 
+  data_ask <- dplyr::arrange(dplyr::filter(df_out, side == "ASK"), price)
+  data_bid <- dplyr::arrange(dplyr::filter(df_out, side == "BID"), dplyr::desc(price))
+  # Compute best 10 ask and bid prices
+  best_ask <- data_ask$price[1:10]
+  best_bid <- data_bid$price[1:10]
+  # Check which difference is smaller to establish best ask or best bid
+  diff_ask <- sum(diff(best_ask))
+  diff_bid <- sum(diff(best_bid))
+  # Filter the data 
+  if(min(diff_ask, diff_bid) == diff_ask){
+    data_bid <- dplyr::filter(data_ask, price <= best_ask[1])
+  } else if(min(diff_ask, diff_bid) == diff_bid){
+    data_ask <- dplyr::filter(data_ask, price >= best_bid[1])
+  } 
+  df_out <- dplyr::bind_rows(data_bid, data_ask)
   return(df_out)
 }

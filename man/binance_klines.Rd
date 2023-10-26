@@ -2,82 +2,81 @@
 % Please edit documentation in R/binance_klines.R
 \name{binance_klines}
 \alias{binance_klines}
-\title{Get Klines Data from Binance API}
+\title{Get Klines Data from Binance}
 \usage{
-binance_klines(
-  pair,
-  api = "spot",
-  interval,
-  from,
-  to,
-  contract_type,
-  uiKlines = FALSE,
-  quiet = FALSE
-)
+binance_klines(pair,
+               api = "spot",
+               interval, 
+               from, 
+               to,
+               contract_type
+               uiKlines = FALSE
+               quiet = FALSE)
 }
 \arguments{
 \item{pair}{Character, trading pair, e.g. "BTCUSDT".}
 
 \item{api}{Character, reference API. Available options are:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-m API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{Futures COIN-m API}.
-\item "eapi": For \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{Futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{Options API}.
 }}
 
-\item{interval}{Character, time interval for Klines data. Available intervals are:
+\item{interval}{Character, default is \code{"1d"}. Time interval for Klines data. Available intervals are:
 \itemize{
-\item \code{secondly}: "1s";
-\item \code{minutely}: "1m", "3m", "5m", "15m" and "30m";
-\item \code{hourly}: "1h", "2h", "4h", "6h", "8h" and "12h";
-\item \code{daily}: "1d" and "3d";
-\item \code{weekly}: "1w";
-\item \code{monthly}: "1M".
+\item \code{secondly}: \code{"1s"}, available only for \code{api = "spot"}.
+\item \code{minutely}: \code{"1m"}, \code{"3m"}, \code{"5m"}, \code{"15m"} and \code{"30m"};
+\item \code{hourly}: \code{"1h"}, \code{"2h"}, \code{"4h"}, \code{"6h"}, \code{"8h"} and \code{"12h"};
+\item \code{daily}: \code{"1d"} and \code{"3d"};
+\item \code{weekly}: \code{"1w"};
+\item \code{monthly}: \code{"1M"}.
 }}
 
-\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}. Start time for historical data.
-Default is \code{NULL} and will be used as start date \code{Sys.time()-lubridate::days(1)}.}
+\item{from}{Character or \code{"\link[=POSIXt-class]{POSIXt}"} object. Start time for historical data.
+Default is \code{missing} and will be used as start date \code{Sys.time()-lubridate::days(1)}.}
 
-\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}. End time for historical data.
-Default is \code{NULL} and will be used as end date \code{Sys.time()}.}
+\item{to}{Character or \code{"\link[=POSIXt-class]{POSIXt}"} object. End time for historical data.
+Default is \code{missing} and will be used as end date \code{"\link[=Sys.time]{Sys.time()}"}.}
 
 \item{contract_type}{Character, used only if \code{api = "dapi"}. Available contract type are:
 \itemize{
-\item "perpetual": for perpetual futures.
-\item "current_quarter": for futures with a maturity in the current quarter.
-\item "next_quarter": for futures with a maturity in the next quarter.
+\item \code{"perpetual"}: perpetual futures.
+\item \code{"current_quarter"}: futures contracts with maturity in the current quarter.
+\item \code{"next_quarter"}: futures contracts with maturity in the next quarter.
 }}
 
 \item{uiKlines}{Logical, if \code{TRUE} return data in UIklines format. Default is \code{FALSE}.}
 
-\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
+\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}}
 }
 \value{
 A tibble (data frame) with the following 13 columns:
 \itemize{
-\item \code{date}: POSIXct, the opening date of the candle.
-\item \code{date_close}: POSIXct, the closing date of the candle.
-\item \code{market}: Character, the selected API.
-\item \code{pair}: Character, the selected trading pair.
-\item \code{open}: Numeric, the opening price.
-\item \code{high}: Numeric, the highest price.
-\item \code{low}: Numeric, the lowest price.
-\item \code{close}: Numeric, the closing price.
-\item \code{volume}: Numeric, the volume of the asset in asset value.
-\item \code{volume_quote}: Numeric, the volume of the asset in quote value.
-\item \code{trades}: Numeric, the number of trades.
-\item \code{taker_buy}: Numeric, the buy volume of the asset in asset value.
-\item \code{taker_buy_quote}: Numeric, the buy volume of the asset in quote value.
+\item \code{date}: \code{"\link[=POSIXt-class]{POSIXt}"}, the opening date of the candle.
+\item \code{date_close}: \code{"\link[=POSIXt-class]{POSIXt}"}, the closing date of the candle.
+\item \code{market}: Character, selected API.
+\item \code{pair}: Character, selected trading pair.
+\item \code{open}: Numeric, open price or price in \code{date}.
+\item \code{high}: Numeric, highest price from \code{date} up to \code{date_close}.
+\item \code{low}: Numeric, lowest price from \code{date} up to \code{date_close}.
+\item \code{close}: Numeric, close price or price in \code{date_close}.
+\item \code{volume}: Numeric, volume in asset value.
+\item \code{volume_quote}: Numeric, volume in quote value.
+\item \code{trades}: Numeric, number of trades from \code{date} up to \code{date_close}.
+\item \code{taker_buy}: Numeric, buy volume in asset value.
+\item \code{taker_buy_quote}: Numeric, buy volume in quote value.
 }
 }
 \description{
-Retrieve Klines (candlestick) data for a specific trading pair from the Binance API.
+Get candlestick data for a trading pair with Binance API.
 }
 \details{
 The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
+
 # Get 1-hour OHLC data for BTCUSDT in the spot market
 binance_klines(api = "spot", pair = "BTCUSDT", interval = "1h")
 

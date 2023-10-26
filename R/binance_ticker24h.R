@@ -2,40 +2,46 @@
 #'
 #' Get 24-hour ticker statistics for a specified trading pair from the selected reference API.
 #'
-#' @param pair Character, trading pair, e.g. "BTCUSDT".
+#' @param pair Character, trading pair, e.g. `"BTCUSDT"`.
 #' 
 #' @param api Character, reference API. Available options are:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics).
-#'   - "fapi": For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics).
-#'   - "dapi": For [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#24hr-ticker-price-change-statistics).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#24hr-ticker-price-change-statistics).
+#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#24hr-ticker-price-change-statistics).
+#'   - `"fapi"`: for [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics).
+#'   - `"dapi"`: for [Futures Coin-M API](https://binance-docs.github.io/apidocs/delivery/en/#24hr-ticker-price-change-statistics).
+#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#24hr-ticker-price-change-statistics).
 #'   
-#' @param type Character, type of ticker data. Available options are:
-#'   - "mini": ticker data without "ask" and "bid" prices and quantities.
-#'   - "full": complete ticker data with all available columns.
+#' @param type Character, type of ticker data if `api = "spot"`. Default is `"full"`. Available options are:
+#'   - `"mini"`: data without ask and bid prices and quantities.
+#'   - `"full"`: complete ticker data.
 #'   
 #' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
 #'
-#' @return A tibble (data frame) with 13 columns containing 24-hour ticker statistics. 
+#' @return A tibble with 13 columns containing 24-hour ticker statistics. 
 #' It includes open, high, low, close prices, volume, and more.
 #'
 #' @details The IP weight for this API call is 1, and the data source is memory.
+#' 
+#' @usage 
+#' binance_ticker24h(pair, 
+#'                   api = "spot", 
+#'                   type = c("full", "mini"), 
+#'                   quiet = FALSE)
 #'
 #' @examples
 #'
-#' # Get full 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+#' # Get full 24-hour ticker for BTCUSDT pair
 #' binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "full")
 #'
-#' # Get mini 24-hour ticker statistics for the BTCUSDT pair from the Spot API.
+#' # Get mini 24-hour ticker for BTCUSDT pair
 #' binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "mini")
 #'
-#' # Get full 24-hour ticker statistics for the BTCUSDT pair from the Futures USD-M API.
+#' # Get full 24-hour ticker for BTCUSDT 
 #' binance_ticker24h(pair = "BTCUSDT", api = "fapi")
 #'
-#' # Get full 24-hour ticker statistics for the BTCUSD_PERP pair from the Futures Coin-M API.
+#' # Get full 24-hour ticker for BTCUSD_PERP
 #' binance_ticker24h(pair = "BTCUSD_PERP", api = "dapi")
 #'
-#' # Get full 24-hour ticker statistics for an options trading pair from the Options API.
+#' # Get full 24-hour ticker for an options
 #' binance_ticker24h(pair = "BTC-240628-30000-P", api = "eapi")
 #'
 #' @export
@@ -207,7 +213,7 @@ binance_fapi_ticker24h <- function(pair, quiet = FALSE) {
 # Ticker24h implementation for futures COIN-M api 
 binance_dapi_ticker24h <- function(pair, quiet = FALSE) {
   
-  # General Check: pair default argument 
+  # Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
     pair_name <- "BTCUSD_PERP"
     if (!quiet) {
@@ -304,3 +310,4 @@ binance_eapi_ticker24h <- function(pair, quiet = FALSE) {
   attr(response, "api") <- "eapi"
   return(response)
 }
+

@@ -1,30 +1,32 @@
-#' Test Connectivity to Binance API
+#' Test Connectivity to Binance REST API
 #'
-#' Check the connectivity to the Binance API to ensure it is operational. 
-#' This function is useful for verifying that the API is accessible and responsive.
+#' Check the connectivity to the Binance API to ensure it is working. 
 #'
 #' @param api Character, reference API. Available options are:
-#'   - "spot": For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#test-connectivity).
-#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#test-connectivity).
-#'   - "dapi": For [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#test-connectivity).
+#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#test-connectivity).
+#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#test-connectivity).
+#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity).
+#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#test-connectivity).
 #'
-#' @return Logical, `TRUE` denote a successful connection, while `FALSE` denote a failed connection.
+#' @return `TRUE` if the connection was successful, otherwise `FALSE` if the connection failed.
 #'
 #' @details The IP weight for this API call is 1, and the data source is memory.
-#'
+#' 
+#' @usage 
+#' binance_ping(api)
+#' 
 #' @examples
 #' 
-#' # Test the connection to the Spot API.
+#' # Test connection to Spot API
 #' binance_ping("spot")
 #'
-#' # Test the connection to the Futures USD-M API.
+#' # Test connection to Futures USD-m API
 #' binance_ping("fapi")
 #'
-#' # Test the connection to the Futures Coin-M API.
+#' # Test connection to Futures Coin-m API
 #' binance_ping("dapi")
 #'
-#' # Test the connection to the Options API.
+#' # Test connection to Options API
 #' binance_ping("eapi")
 #'
 #' @export

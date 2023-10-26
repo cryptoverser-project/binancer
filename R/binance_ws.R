@@ -64,7 +64,12 @@ binance_ws_socket <- function(pair = "BTCUSDT", api = "spot", subscription = "kl
     # retrieve the saved data
     old_data <- ws$.__enclos_env__[["stream"]][["data"]]
     # get the new stream data
-    new_data <- jsonlite::fromJSON(event$data)
+    # new_data <- jsonlite::fromJSON(event$data) # warning if event$data is a vector
+    if (is.list(event$data)){
+      new_data <- jsonlite::fromJSON(as.list(event$data))
+    } else {
+      new_data <- jsonlite::fromJSON(event$data)
+    }
     # assign a class for binance_ws_cleaner function
     attr(new_data, "class") <- c(subscription, class(new_data))
     # structure the output
@@ -117,18 +122,18 @@ binance_ws_socket <- function(pair = "BTCUSDT", api = "spot", subscription = "kl
   return(ws)
 }
 
-# Create the request URL for the spot websocket  
-binance_ws_spot_url <- function(pair = "BTCUSDT", subscription = "kline", interval = "1m", update_speed = 1000, quiet = FALSE){
+# Create wss URL for spot websocket 
+binance_ws_spot_url <- function(pair = "btcusdt", subscription = "kline", interval = "1m", update_speed = 1000, quiet = FALSE){
   
   # General Check: pair default argument 
   if (missing(pair) || is.null(pair)) {
-    pair <- "BTCUSDT"
+    pair <- "btcusdt"
     if (!quiet) {
       wrn <- paste0('The pair argument is missing, default is ', '"', pair, '"')
       warning(wrn)
     }
   } else {
-    pair <- toupper(pair)
+    pair <- tolower(pair)
   }
 
   # base url 
@@ -137,110 +142,233 @@ binance_ws_spot_url <- function(pair = "BTCUSDT", subscription = "kline", interv
   # available subscriptions
   subscription <- match.arg(subscription, choices = c("aggTrade", "bookTicker", "depth", "kline", "miniTicker", "ticker", "trade"))
   
-  # pair name
-  pair <- tolower(pair)
-  # create websocket_url 
   if (subscription == "kline") {
-    
-    # available intervals 
+    # Available intervals 
     av_int <- c("1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w", "1M")
     interval <- match.arg(interval, choices = av_int)
-    # websocket url
-    websocket_url <- paste0(base_url, "/", pair, "@", subscription, "_", interval)
-    # verbose message
-    msg <- paste0('The stream is klines: ', pair, "@", subscription, "_", interval)
-    
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription, "_", interval)
   } else if (subscription == "ticker" & !is.null(interval) && interval %in% c("1h", "4h", "1d")) {
-    
-    # websocket url
-    websocket_url <- paste0(base_url, "/", pair, "@", subscription, "_", interval)
-    # verbose message
-    msg <- paste0('The stream is a ticker with Window Size: ', pair, "@", subscription, "_", interval)
-    
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription, "_", interval)
   } else if (subscription == "depth") {
-    
-    # depth stream with a different update speed
-    update_speed <- match.arg(as.character(update_speed), choices = c("100", "1000"))
-    # websocket url
-    websocket_url <- paste0(base_url, "/", pair, "@", subscription, "@", update_speed, "ms")
-    # verbose message
-    msg <- paste0('The stream is Depth with Update Speed: ', pair, "@", subscription, "@", update_speed, "ms")
-    
+    # Depth stream with different update speed
+    update_speed <- as.character(update_speed)
+    update_speed <- match.arg(update_speed, choices = c("100", "1000"))
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription, "@", update_speed, "ms")
   } else {
-    # websocket url
-    websocket_url <- paste0(base_url, "/", pair, "@", subscription)
-    # verbose message
-    msg <- paste0('The stream is: ', pair, "@", subscription, "@", update_speed, "ms")
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription)
   }
   
+  # Websocket url
+  websocket_url <- paste0(base_url, "/", ws_subscription)
+  
+  # verbose message
   if (!quiet) {
-    message(msg)
+    msg <- paste0('Stream: ', ws_subscription)
+    cli::cli_alert_success(msg)
   }
-  
+  attr(websocket_url, "ws_subscription") <- ws_subscription
   return(websocket_url)
 }
 
-# Create the request URL for the fapi websocket 
+# Create wss URL for fapi websocket 
 binance_ws_fapi_url <- function(pair = "BTCUSDT", subscription = "kline", interval = "1m", contract_type = NULL, update_speed = 1000, quiet = FALSE){
   
-  # General Check: pair default argument 
+  # Base url 
+  base_url <- "wss://fstream.binance.com/ws"
+  
+  # Check pair argument 
   if (missing(pair) || is.null(pair)) {
-    pair <- "BTCUSDT"
+    pair <- "btcusdt"
     if (!quiet) {
       wrn <- paste0('The pair argument is missing, default is ', '"', pair, '"')
       warning(wrn)
     }
   } else {
-    pair <- toupper(pair)
+    pair <- tolower(pair)
   }
   
-  # base url 
-  base_url <- "wss://fstream.binance.com/ws"
-  # available subscriptions
-  subscription <- match.arg(subscription, choices = c("aggTrade", "bookTicker", "continuousKline", "depth", 
-                                                      "forceOrder", "kline", "markPrice", "miniTicker", "ticker", "trade"))
+  # Check subscription argument 
+  if (missing(subscription) || is.null(subscription)) {
+    if (!quiet) {
+      msg <- paste0('The subscription argument is missing without default.')
+      cli::cli_abort(msg)
+    }
+  } else {
+    # Available subscriptions
+    av_subscription <- c("aggTrade", "bookTicker", "continuousKline", "depth", "forceOrder", "kline", "markPrice", "miniTicker", "ticker", "trade")
+    subscription <- match.arg(subscription, choices = av_subscription)
+  }
   
-  # pair name
-  pair <- tolower(pair)
-  # create websocket_url 
   if (subscription %in% c("kline", "continuousKline")) {
-    
-    # available intervals 
+    # Available intervals 
     av_int <- c("1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w", "1M")
     interval <- match.arg(interval, choices = av_int)
-    # available contract_type for continuousKline
+    # Available contract_type if subscription is continuousKline
     if (subscription == "continuousKline") {
-      contract_type <- match.arg(tolower(contract_type), choices = c("perpetual", "current_quarter", "next_quarter"))
+      contract_type <- tolower(contract_type) 
+      contract_type <- match.arg(contract_type, choices = c("perpetual", "current_quarter", "next_quarter"))
       contract_type <- paste0("_", contract_type) 
     } else {
       contract_type <- ""
     }
-    
-    # websocket url
-    websocket_url <- paste0(base_url, "/", pair, contract_type, "@", subscription, "_", interval)
-    # verbose message
-    msg <- paste0('The stream is klines: ', pair, "(", contract_type, ")", "@", subscription, "_", interval)
-    
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, contract_type, "@", subscription, "_", interval)
   } else if (subscription == "depth") {
-    
-    # depth stream with a different update speed
+    # Depth stream with different update speed
     update_speed <- as.character(update_speed)
     update_speed <- match.arg(update_speed, choices = c("100", "250", "500"))
-    # websocket url
-    websocket_url <- paste0(base_url, "/", pair, "@", subscription, "@", update_speed, "ms")
-    # verbose message
-    msg <- paste0('The stream created is a Depth with Update Speed: ', pair, "@", subscription, "@", update_speed, "ms")
-    
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription, "@", update_speed, "ms")
   } else {
-    # websocket url
-    websocket_url <- paste0(base_url, "/", pair, "@", subscription)
-    # verbose message
-    msg <- paste0('The stream is: ', pair, "@", subscription, "@")
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription)
   }
   
+  # Websocket url
+  websocket_url <- paste0(base_url, "/", ws_subscription)
+  
+  # verbose message
   if (!quiet) {
-    message(msg)
+    msg <- paste0('Stream: ', ws_subscription)
+    cli::cli_alert_success(msg)
+  }
+  attr(websocket_url, "ws_subscription") <- ws_subscription
+  return(websocket_url)
+}
+
+# Create wss URL for dapi websocket (in progress)
+binance_ws_dapi_url <- function(pair = "BTCUSD", subscription = "kline", interval = "1m", contract_type = NULL, update_speed = 1000, quiet = FALSE){
+  
+  # Base url 
+  base_url <- "wss://dstream.binance.com/ws"
+  
+  # Check pair argument 
+  if (missing(pair) || is.null(pair)) {
+    pair <- "btcusdt"
+    if (!quiet) {
+      wrn <- paste0('The pair argument is missing, default is ', '"', pair, '"')
+      warning(wrn)
+    }
+  } else {
+    pair <- tolower(pair)
   }
   
+  # Check subscription argument 
+  if (missing(subscription) || is.null(subscription)) {
+    if (!quiet) {
+      msg <- paste0('The subscription argument is missing without default.')
+      cli::cli_abort(msg)
+    }
+  } else {
+    # Available subscriptions
+    av_subscription <- c("aggTrade", "bookTicker", "continuousKline", "contractInfo", "depth", "forceOrder", "indexPrice", 
+                         "indexPriceKline", "kline", "markPrice", "markPriceKline", "miniTicker", "ticker", "trade")
+    subscription <- match.arg(subscription, choices = av_subscription)
+  }
+  
+  if (subscription %in% c("kline", "continuousKline")) {
+    # Available intervals 
+    av_int <- c("1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w", "1M")
+    interval <- match.arg(interval, choices = av_int)
+    # Available contract_type if subscription is continuousKline
+    if (subscription == "continuousKline") {
+      contract_type <- tolower(contract_type) 
+      contract_type <- match.arg(contract_type, choices = c("perpetual", "current_quarter", "next_quarter"))
+      contract_type <- paste0("_", contract_type) 
+    } else {
+      contract_type <- ""
+    }
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, contract_type, "@", subscription, "_", interval)
+  } else if (subscription == "depth") {
+    # Depth stream with different update speed
+    update_speed <- as.character(update_speed)
+    update_speed <- match.arg(update_speed, choices = c("100", "250", "500"))
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription, "@", update_speed, "ms")
+  } else {
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription)
+  }
+  
+  # Websocket url
+  websocket_url <- paste0(base_url, "/", ws_subscription)
+  
+  # verbose message
+  if (!quiet) {
+    msg <- paste0('Stream: ', ws_subscription)
+    cli::cli_alert_success(msg)
+  }
+  attr(websocket_url, "ws_subscription") <- ws_subscription
+  return(websocket_url)
+}
+
+# IN PROGRESS
+binance_ws_eapi_url <- function(pair = "BTCUSD", subscription = "kline", interval = "1m", expiration_date = NULL, update_speed = 1000, quiet = FALSE){
+  
+  # Base url 
+  base_url <- "wss://nbstream.binance.com/eoptions"
+  
+  # Check pair argument 
+  if (missing(pair) || is.null(pair)) {
+    pair <- "btcusdt"
+    if (!quiet) {
+      wrn <- paste0('The pair argument is missing, default is ', '"', pair, '"')
+      warning(wrn)
+    }
+  } else {
+    pair <- tolower(pair)
+  }
+  
+  # Check subscription argument 
+  if (missing(subscription) || is.null(subscription)) {
+    if (!quiet) {
+      msg <- paste0('The subscription argument is missing without default.')
+      cli::cli_abort(msg)
+    }
+  } else {
+    # Available subscriptions
+    av_subscription <- c("index", "depth", "index", "kline", "markPrice", "openInterest", "ticker", "trade")
+    subscription <- match.arg(subscription, choices = av_subscription)
+  }
+  
+  if (subscription %in% c("kline", "continuousKline")) {
+    # Available intervals 
+    av_int <- c("1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w", "1M")
+    interval <- match.arg(interval, choices = av_int)
+    # Available contract_type if subscription is continuousKline
+    if (subscription == "continuousKline") {
+      contract_type <- tolower(contract_type) 
+      contract_type <- match.arg(contract_type, choices = c("perpetual", "current_quarter", "next_quarter"))
+      contract_type <- paste0("_", contract_type) 
+    } else {
+      contract_type <- ""
+    }
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, contract_type, "@", subscription, "_", interval)
+  } else if (subscription == "depth") {
+    # Depth stream with different update speed
+    update_speed <- as.character(update_speed)
+    update_speed <- match.arg(update_speed, choices = c("100", "250", "500"))
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription, "@", update_speed, "ms")
+  } else {
+    # Stream subscription identifier  
+    ws_subscription <- paste0(pair, "@", subscription)
+  }
+  
+  # Websocket url
+  websocket_url <- paste0(base_url, "/", ws_subscription)
+  
+  # verbose message
+  if (!quiet) {
+    msg <- paste0('Stream: ', ws_subscription)
+    cli::cli_alert_success(msg)
+  }
+  attr(websocket_url, "ws_subscription") <- ws_subscription
   return(websocket_url)
 }

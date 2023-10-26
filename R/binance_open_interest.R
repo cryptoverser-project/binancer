@@ -5,13 +5,12 @@
 #' @param pair Character, trading pair, e.g. "BTCUSDT".
 #'
 #' @param api Character, reference API. Available options are:
-#'   - "fapi": For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#open-interest).
-#'   - "dapi": For [Futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#open-interest).
-#'   - "eapi": For [Options API](https://binance-docs.github.io/apidocs/voptions/en/#open-interest).
+#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#open-interest).
+#'   - `"dapi"`: for [Futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#open-interest).
+#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#open-interest).
 #'
 #' @param expiration POSIXct, specifying the expiration date for options contracts. This parameter is used when `api = "eapi"`. 
 #' Default is NULL, which represents the most recent data. 
-#' You can provide a POSIXct object, e.g., Sys.Date() + 1 or a specific date and time in the future.
 #' 
 #' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
 #' 
@@ -76,10 +75,11 @@ binance_open_interest <- function(pair, api, expiration = Sys.Date(), quiet = FA
   # GET call 
   response <- safe_fun()
   
-  if(!quiet & !is.null(response$error)){
-    warning(response$error)
+  if (!quiet & !is.null(response$error)) {
+    cli::cli_alert_danger(response$error)
+  } else {
+    return(response$result)
   }
-  return(response$result)
 }
 
 # openInterest implementation for USD-m api 
@@ -99,6 +99,7 @@ binance_fapi_open_interest <- function(pair, quiet = FALSE) {
   
   attr(response, "ip_weight") <- 1
   attr(response, "api") <- "usd-m"
+  
   return(response)
 }
 
@@ -119,6 +120,7 @@ binance_dapi_open_interest <- function(pair, quiet = FALSE) {
   
   attr(response, "ip_weight") <- 1
   attr(response, "api") <- "coin-m"
+  
   return(response)
 }
 
@@ -158,5 +160,6 @@ binance_eapi_open_interest <- function(symbol, expiration = Sys.Date(), quiet = 
   
   attr(response, "ip_weight") <- 1
   attr(response, "api") <- "eapi"
+  
   return(response)
 }
