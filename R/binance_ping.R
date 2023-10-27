@@ -1,14 +1,14 @@
-#' Test Connectivity to Binance REST API
+#' Ping to Binance REST API
 #'
-#' Check the connectivity to the Binance API to ensure it is working. 
+#' Check the connection to the Binance API. 
 #'
-#' @param api Character, reference API. Available options are:
-#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#test-connectivity).
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#test-connectivity).
-#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity).
-#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#test-connectivity).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#test-connectivity).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#test-connectivity).
+#'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#test-connectivity).
 #'
-#' @return `TRUE` if the connection was successful, otherwise `FALSE` if the connection failed.
+#' @return A logical value. It is `TRUE` if the connection was successful, otherwise it is `FALSE`.
 #'
 #' @details The IP weight for this API call is 1, and the data source is memory.
 #' 
@@ -46,6 +46,8 @@ binance_ping <- function(api = "spot"){
   
   attr(response, "api") <- api
   attr(response, "ip_weight") <- 1
+  attr(response, "endpoint") <- "ping"
+  
   return(response)
 }
 

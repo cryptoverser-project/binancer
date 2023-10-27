@@ -1,40 +1,38 @@
 #' Retrieve Recent Trades Data
 #'
-#' Get the most recent 1000 trades for a trading pair.
+#' Get the last 1000 trades for a trading pair.
 #'
-#' @param pair Character, trading pair, e.g. `"BTCUSDT"` or `"BTCUSD_PERP"`.
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
 #'
-#' @param api Character, reference API. Available options are:
-#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list).
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list).
-#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list).
-#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list).
+#'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list).
 #'
-#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #' 
 #' @usage 
 #' binance_last_trades(pair, 
 #'                     api, 
 #'                     quiet = FALSE)
 #'
-#' @return A tibble with 7 columns:
-#'   - `date`: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date;
+#' @return A \code{\link[=data.frame-class]{data.frame}} with 7 columns:
+#'   - `date`: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date.
 #'   - `market`: Character, selected API.
 #'   - `pair`: Character, trading pair.
 #'   - `price`: Numeric, trade price.
 #'   - `quantity`: Numeric, trade quantity.
 #'   - `side`: Character, trade side. Can be `"BUY"` or `"SELL"`.
-#'   - `trade_id`: Integer, trade Id.
+#'   - `trade_id`: Integer, trade id.
 #'
 #' @examples
 #'
 #' # Get last 1000 trades for BTCUSDT
 #' binance_last_trades(pair = "BTCUSDT", api = "spot")
-#'
-#' # Get last 1000 trades for BTCUSDT
 #' binance_last_trades(pair = "BTCUSDT", api = "fapi")
 #'
-#' # Get last 1000 trades for BTCUSDT
+#' # Get last 1000 trades for BTCUSD_PERP
 #' binance_last_trades(pair = "BTCUSD_PERP", api = "dapi")
 #' 
 #' # Get last 1000 trades for a put option on BTC
@@ -50,7 +48,7 @@ binance_last_trades <- function(pair, api, quiet = FALSE){
   # Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
     if (!quiet) {
-      wrn <- paste0('The pair argument is missing with no default.')
+      wrn <- paste0('The pair argument is missing with no default')
       cli::cli_abort(wrn)
     }
   } else {
@@ -109,5 +107,7 @@ binance_api_last_trades <- function(pair, api){
   
   attr(response, "api") <- api
   attr(response, "ip_weight") <- ifelse(api == "spot", 1, 5)
+  attr(response, "endpoint") <- "trades"
+  
   return(response)
 }

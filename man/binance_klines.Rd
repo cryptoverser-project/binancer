@@ -11,54 +11,57 @@ binance_klines(pair,
                to,
                contract_type,
                uiKlines = FALSE,
+               as_xts = FALSE,
                quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
-\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-m API}.
-\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{Futures COIN-m API}.
-\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{options API}.
 }}
 
-\item{interval}{Character, default is \code{"1d"}. Time interval for Klines data. Available intervals are:
+\item{interval}{Character. Default is \code{"1d"}. Time interval for Klines data. Available intervals are:
 \itemize{
-\item \code{secondly}: \code{"1s"}, available only for \code{api = "spot"}.
-\item \code{minutely}: \code{"1m"}, \code{"3m"}, \code{"5m"}, \code{"15m"} and \code{"30m"};
-\item \code{hourly}: \code{"1h"}, \code{"2h"}, \code{"4h"}, \code{"6h"}, \code{"8h"} and \code{"12h"};
-\item \code{daily}: \code{"1d"} and \code{"3d"};
-\item \code{weekly}: \code{"1w"};
-\item \code{monthly}: \code{"1M"}.
+\item Secondly: \code{"1s"}, available only if \code{api = "spot"}.
+\item Minutely: \code{"1m"}, \code{"3m"}, \code{"5m"}, \code{"15m"} and \code{"30m"}.
+\item Hourly: \code{"1h"}, \code{"2h"}, \code{"4h"}, \code{"6h"}, \code{"8h"} and \code{"12h"}.
+\item Daily: \code{"1d"} and \code{"3d"}.
+\item Weekly: \code{"1w"}.
+\item Monthly: \code{"1M"}.
 }}
 
-\item{from}{Character or \code{"\link[=POSIXt-class]{POSIXt}"} object. Start time for historical data.
-Default is \code{missing} and will be used as start date \code{Sys.time()-lubridate::days(1)}.}
+\item{from}{Character or \code{\link[=POSIXt-class]{POSIXt}} object. Start time for historical data.
+If it is \code{missing}, the default, will be used as start date \code{Sys.time()-lubridate::days(1)}.}
 
-\item{to}{Character or \code{"\link[=POSIXt-class]{POSIXt}"} object. End time for historical data.
-Default is \code{missing} and will be used as end date \code{"\link[=Sys.time]{Sys.time()}"}.}
+\item{to}{Character or \code{\link[=POSIXt-class]{POSIXt}} object. End time for historical data.
+If it is \code{missing}, the default, will be used as end date \code{\link[=Sys.time]{Sys.time()}}.}
 
-\item{contract_type}{Character, used only if \code{api = "dapi"}. Available contract type are:
+\item{contract_type}{Character. Used only if \code{api = "dapi"}. Available contract's types are:
 \itemize{
 \item \code{"perpetual"}: perpetual futures.
-\item \code{"current_quarter"}: futures contracts with maturity in the current quarter.
-\item \code{"next_quarter"}: futures contracts with maturity in the next quarter.
+\item \code{"current_quarter"}: futures with maturity in the current quarter.
+\item \code{"next_quarter"}: futures with maturity in the next quarter.
 }}
 
-\item{uiKlines}{Logical, if \code{TRUE} return data in UIklines format. Default is \code{FALSE}.}
+\item{uiKlines}{Logical. Default is \code{FALSE}. If \code{TRUE} return data in UIklines format.}
 
-\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}}
+\item{as_xts}{Logical. Default is \code{FALSE}. If \code{TRUE} convert the data into an \code{\link[=xts-class]{xts}} object.}
+
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \value{
-A tibble (data frame) with the following 13 columns:
+A \code{\link[=data.frame-class]{data.frame}} with the following 13 columns:
 \itemize{
-\item \code{date}: \code{"\link[=POSIXt-class]{POSIXt}"}, the opening date of the candle.
-\item \code{date_close}: \code{"\link[=POSIXt-class]{POSIXt}"}, the closing date of the candle.
-\item \code{market}: Character, selected API.
-\item \code{pair}: Character, selected trading pair.
-\item \code{open}: Numeric, open price or price in \code{date}.
+\item \code{date}: \code{\link[=POSIXt-class]{POSIXt}}, the opening date of the candle.
+\item \code{date_close}: \code{\link[=POSIXt-class]{POSIXt}}, the closing date of the candle.
+\item \code{market}: Character, API.
+\item \code{pair}: Character, trading pair.
+\item \code{open}: Numeric, open price (price in \code{date}).
 \item \code{high}: Numeric, highest price from \code{date} up to \code{date_close}.
 \item \code{low}: Numeric, lowest price from \code{date} up to \code{date_close}.
 \item \code{close}: Numeric, close price or price in \code{date_close}.
@@ -80,20 +83,32 @@ The IP weight for this API call is 1, and the data source is memory.
 # Get 1-hour OHLC data for BTCUSDT in the spot market
 binance_klines(pair = "BTCUSDT", api = "spot", interval = "1h")
 
-# Get 30-minute OHLC data for BNBUSDT in the perpetual market
-binance_klines(pair = "BNBUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "perpetual")
-binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "next_quarter")
-binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = TRUE, contract_type = "current_quarter")
+# Get 30-minute OHLC data for BTCUSDT in USD-m market
+# Perpetual contracts 
 binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", uiKlines = FALSE)
+binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", 
+               uiKlines = TRUE, contract_type = "perpetual")
+# Futures contracts with maturity in current quarter 
+binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", 
+               uiKlines = TRUE, contract_type = "current_quarter")
+# Futures contracts with maturity in next quarter 
+binance_klines(pair = "BTCUSDT", api = "fapi", interval = "30m", 
+               uiKlines = TRUE, contract_type = "next_quarter")
+               
+# Get 15-minute OHLC data for BTCUSD in COIN-m market
+# Perpetual contracts 
+binance_klines(pair = "BTCUSD_PERP", api = "dapi", interval = "15m", uiKlines = FALSE)
+binance_klines(pair = "BTCUSD", api = "dapi", interval = "15m", 
+               uiKlines = TRUE, contract_type = "perpetual") 
+# Futures contracts with maturity in current quarter 
+binance_klines(pair = "BTCUSD", api = "dapi", interval = "15m", 
+               uiKlines = TRUE, contract_type = "current_quarter") 
+# Futures contracts with maturity in next quarter 
+binance_klines(pair = "BTCUSD", api = "dapi", interval = "1h", 
+               uiKlines = TRUE, contract_type = "next_quarter")
 
-# Get 15-minute OHLC data for BTCUSD_PERP 
-binance_klines(api = "dapi", pair = "BTCUSD_PERP", interval = "15m", uiKlines = FALSE)
-binance_klines(api = "dapi", pair = "BTCUSD", interval = "15m", uiKlines = TRUE, contract_type = "perpetual") 
-
-binance_klines(api = "dapi", pair = "BTCUSD", interval = "1h", uiKlines = TRUE, contract_type = "next_quarter")
-binance_klines(api = "dapi", pair = "BTCUSD", interval = "15m", uiKlines = TRUE, contract_type = "current_quarter") 
-
-# Get 1-hour OHLC data for a put option on BTCUSDT with a strike of 30000 and maturity on 2024-06-28
-binance_klines(api = "eapi", pair = "BTC-240628-30000-P", interval = "1h")
+# Get 1-hour OHLC data for a put option on BTCUSDT.
+# Strike of 30000 and maturity on 2024-06-28.
+binance_klines(pair = "BTC-240628-30000-P", api = "eapi", interval = "1h")
 
 }

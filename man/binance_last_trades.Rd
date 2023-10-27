@@ -9,42 +9,40 @@ binance_last_trades(pair,
                     quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. \code{"BTCUSDT"} or \code{"BTCUSD_PERP"}.}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list}{Spot API}.
-\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list}{Futures USD-m API}.
-\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list}{Futures COIN-m API}.
-\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#recent-trades-list}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list}{futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#recent-trades-list}{options API}.
 }}
 
-\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \value{
-A tibble with 7 columns:
+A \code{\link[=data.frame-class]{data.frame}} with 7 columns:
 \itemize{
-\item \code{date}: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date;
+\item \code{date}: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date.
 \item \code{market}: Character, selected API.
 \item \code{pair}: Character, trading pair.
 \item \code{price}: Numeric, trade price.
 \item \code{quantity}: Numeric, trade quantity.
 \item \code{side}: Character, trade side. Can be \code{"BUY"} or \code{"SELL"}.
-\item \code{trade_id}: Integer, trade Id.
+\item \code{trade_id}: Integer, trade id.
 }
 }
 \description{
-Get the most recent 1000 trades for a trading pair.
+Get the last 1000 trades for a trading pair.
 }
 \examples{
 
 # Get last 1000 trades for BTCUSDT
 binance_last_trades(pair = "BTCUSDT", api = "spot")
-
-# Get last 1000 trades for BTCUSDT
 binance_last_trades(pair = "BTCUSDT", api = "fapi")
 
-# Get last 1000 trades for BTCUSDT
+# Get last 1000 trades for BTCUSD_PERP
 binance_last_trades(pair = "BTCUSD_PERP", api = "dapi")
 
 # Get last 1000 trades for a put option on BTC

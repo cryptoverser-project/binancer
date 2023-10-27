@@ -7,21 +7,21 @@
 binance_live_trades(pair, api, from, to, quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{spot}: For \href{https://binance-docs.github.io/apidocs/spot/en/#aggregate-trade-streams}{Spot API}.
-\item \code{fapi}: For \href{https://binance-docs.github.io/apidocs/futures/en/#aggregate-trade-streams}{Futures USD-M API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#aggregate-trade-streams}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#aggregate-trade-streams}{futures USD-M API}.
 }}
 
-\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data.
-Default is \code{Sys.time()-lubridate::minutes(10)}.}
+\item{from}{Character or \code{\link[=POSIXt-class]{POSIXt}} object. Start time for historical data.
+If it is \code{missing}, the default, will be used as start date \code{Sys.time()-lubridate::minutes(10)}.}
 
-\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
-Default is \code{Sys.time()}.}
+\item{to}{Character or \code{\link[=POSIXt-class]{POSIXt}} object. End time for historical data.
+If it is \code{missing}, the default, will be used as end date \code{\link[=Sys.time]{Sys.time()}}.}
 
-\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \description{
 Live trades stream for a trading pair.

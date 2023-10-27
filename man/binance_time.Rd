@@ -7,37 +7,31 @@
 binance_time(api, quiet = FALSE)
 }
 \arguments{
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{"spot"}: For \href{https://binance-docs.github.io/apidocs/spot/en/#check-server-time}{spot API};
-\item \code{"fapi"}: For \href{https://binance-docs.github.io/apidocs/futures/en/#check-server-time}{futures USD-m API};
-\item \code{"dapi"}: For \href{https://binance-docs.github.io/apidocs/delivery/en/#check-server-time}{futures COIN-m API};
-\item \code{"eapi"}: For \href{https://binance-docs.github.io/apidocs/voptions/en/#check-server-time}{options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#check-server-time}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#check-server-time}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#check-server-time}{futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#check-server-time}{options API}.
 }}
 
-\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \value{
-An object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the server's time for the reference API.
+A \code{\link[=POSIXt-class]{POSIXt}} object. The server time for the reference API.
 }
 \description{
-Obtain the current server time.
+Get the current server time from Binance API.
 }
 \details{
 The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Get the server time for the Spot API.
+# Get the server time
 binance_time("spot")
-
-# Get the server time for the Futures USD-M API.
 binance_time("fapi")
-
-# Get the server time for the Futures Coin-M API.
 binance_time("dapi")
-
-# Get the server time for the Options API.
 binance_time("eapi")
 
 }

@@ -4,29 +4,29 @@
 \alias{binance_open_interest}
 \title{Current Open Interest Data}
 \usage{
-binance_open_interest(pair, api, expiration = Sys.Date(), quiet = FALSE)
+binance_open_interest(pair, api, expiration, quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"fapi"}. Available options are:
 \itemize{
-\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{Futures USD-m API}.
-\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{Futures Coin-m API}.
-\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#open-interest}{Options API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#open-interest}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#open-interest}{futures Coin-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#open-interest}{options API}.
 }}
 
-\item{expiration}{POSIXct, specifying the expiration date for options contracts. This parameter is used when \code{api = "eapi"}.
-Default is NULL, which represents the most recent data.}
+\item{expiration}{Character or \code{\link[=POSIXt-class]{POSIXt}} object. Used only if \code{api = "eapi"}.
+Expiration date for options contracts. If it is \code{missing}, the default, will be used \code{\link[=Sys.time]{Sys.time()}}.}
 
-\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \value{
-A tibble with 4 columns:
+A \code{\link[=data.frame-class]{data.frame}} with 4 columns:
 \itemize{
-\item \code{date}: Datetime, observation date.
-\item \code{market}: Character, selected API.
-\item \code{pair}: Character, selected pair.
+\item \code{date}: \code{\link[=POSIXt-class]{POSIXt}}, observation date.
+\item \code{market}: Character, API.
+\item \code{pair}: Character, trading pair.
 \item \code{open_interest}: Numeric, open interest in base currency.
 }
 }
@@ -38,10 +38,10 @@ The IP weight for this API call is 1, and the data source is memory.
 }
 \examples{
 
-# Get the open interest data for "BTCUSDT" in USD-M market
+# Get the open interest data for BTCUSDT
 binance_open_interest(pair = "BTCUSDT", api = "fapi")
 
-# Get the open interest data for "BTCUSD_PERP" in COIN-M market
+# Get the open interest data for BTCUSD_PERP
 binance_open_interest(pair = "BTCUSD_PERP", api = "dapi")
 
 # Get the open interest data for options on BTC

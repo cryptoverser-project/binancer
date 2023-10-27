@@ -4,29 +4,31 @@
 \alias{binance_live_klines}
 \title{Binance Live Klines}
 \usage{
-binance_live_klines(
-  pair = "BTCUSDT",
-  interval = "1m",
-  api,
-  data = NULL,
-  quiet = FALSE
-)
+binance_live_klines(pair, api, interval, data = NULL, quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{interval}{Character, the time interval for Klines data.
-Acceptable intervals include "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M".}
-
-\item{api}{Character, specifying the reference API. Available options include:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{spot}: For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-streams}{Spot API}.
-\item \code{fapi}: For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-streams}{Futures USD-m API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-streams}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-streams}{futures USD-m API}.
+}}
+
+\item{interval}{Character. Time interval for Klines data.
+If it is \code{missing}, the default, will be used as start date \code{"1m"}. Available intervals are:
+\itemize{
+\item Secondly: \code{"1s"}, available only if \code{api = "spot"}.
+\item Minutely: \code{"1m"}, \code{"3m"}, \code{"5m"}, \code{"15m"} and \code{"30m"}.
+\item Hourly: \code{"1h"}, \code{"2h"}, \code{"4h"}, \code{"6h"}, \code{"8h"} and \code{"12h"}.
+\item Daily: \code{"1d"} and \code{"3d"}.
+\item Weekly: \code{"1w"}.
+\item Monthly: \code{"1M"}.
 }}
 
 \item{data}{initial data}
 
-\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \description{
 Live klines stream for a trading pair.

@@ -58,6 +58,17 @@ globalVariables(
     "weighted_price",
     "last_quantity",
     "quantity.y",
-    "quantity.x"
+    "quantity.x",
+    "x",
+    "xmax",
+    "xmin",
+    "dx" , 
+    "ymin",
+    "ymax",
+    "dx",
+    "p_ask",
+    "q_ask",
+    "p_bid",
+    "q_bid"
   )
 )

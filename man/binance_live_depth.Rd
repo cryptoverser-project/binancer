@@ -7,15 +7,15 @@
 binance_live_depth(pair, api, quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. "BTCUSDT".}
+\item{pair}{Character, trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{spot}: For \href{https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream}{Spot API}.
-\item \code{fapi}: For \href{https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams}{Futures USD-m API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams}{futures USD-m API}.
 }}
 
-\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \description{
 Live depth stream for a trading pair.

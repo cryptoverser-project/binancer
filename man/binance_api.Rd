@@ -13,25 +13,26 @@ binance_api(api = NULL,
 \arguments{
 \item{api}{Character, reference API. Available options are:
 \itemize{
-\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#introduction}{Spot API}.
-\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#introduction}{Futures USD-m API}.
-\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#introduction}{Futures Coin-m API}.
-\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#introduction}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#introduction}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#introduction}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#introduction}{futures Coin-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#introduction}{options API}.
 }}
 
-\item{path}{Character vector, API path. \code{NULL} or \code{NA} elements will be excluded.}
+\item{path}{Character vector. API path, \code{NULL} or \code{NA} elements will be excluded.}
 
-\item{query}{Named list, query parameters for the API call. \code{NULL} or \code{NA} elements will be excluded.}
+\item{query}{Named list. Query parameters for the API call, \code{NULL} or \code{NA} elements will be excluded.}
 
-\item{use_base_path}{Logical, Default is \code{TRUE} and to \code{path} will be added a base bath on the selected API. Base paths are:
+\item{use_base_path}{Logical. When \code{TRUE}, the default, to \code{path} argument will be added a \code{base_bath} based on the selected API.
+Available \code{base_bath} are:
 \itemize{
-\item \code{"spot"}: base path is \code{"api/v3"};
-\item \code{"fapi"}: base path is \code{"fapi/v1"};
-\item \code{"dapi"}: base path is \code{"dapi/v1"};
+\item \code{"spot"}: base path is \code{"api/v3"}.
+\item \code{"fapi"}: base path is \code{"fapi/v1"}.
+\item \code{"dapi"}: base path is \code{"dapi/v1"}.
 \item \code{"eapi"}: base path is \code{"eapi/v1"}.
 }}
 
-\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default is \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \description{
 Execute an GET call to the Binance REST API.

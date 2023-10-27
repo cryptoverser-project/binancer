@@ -3,22 +3,23 @@
 #' Execute an GET call to the Binance REST API.
 #'
 #' @param api  Character, reference API. Available options are:
-#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#introduction).
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#introduction).
-#'   - `"dapi"`: for [Futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#introduction).
-#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#introduction).
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#introduction).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#introduction).
+#'   - `"dapi"`: for [futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#introduction).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#introduction).
 #'
-#' @param path Character vector, API path. `NULL` or `NA` elements will be excluded. 
+#' @param path Character vector. API path, `NULL` or `NA` elements will be excluded. 
 #'
-#' @param query Named list, query parameters for the API call. `NULL` or `NA` elements will be excluded. 
+#' @param query Named list. Query parameters for the API call, `NULL` or `NA` elements will be excluded. 
 #'
-#' @param use_base_path Logical, Default is `TRUE` and to `path` will be added a base bath on the selected API. Base paths are:
-#'   - `"spot"`: base path is `"api/v3"`;
-#'   - `"fapi"`: base path is `"fapi/v1"`;
-#'   - `"dapi"`: base path is `"dapi/v1"`;
+#' @param use_base_path Logical. When `TRUE`, the default, to `path` argument will be added a `base_bath` based on the selected API. 
+#' Available `base_bath` are:
+#'   - `"spot"`: base path is `"api/v3"`.
+#'   - `"fapi"`: base path is `"fapi/v1"`.
+#'   - `"dapi"`: base path is `"dapi/v1"`.
 #'   - `"eapi"`: base path is `"eapi/v1"`.
 #'
-#' @param quiet Logical, suppress informational messages if `TRUE`. Default is `FALSE`.
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #' 
 #' @usage 
 #' binance_api(api = NULL, 

@@ -2,18 +2,18 @@
 #' 
 #' Live depth stream for a trading pair. 
 #' 
-#' @param pair Character, trading pair, e.g. "BTCUSDT".
+#' @param pair Character, trading pair, e.g. `"BTCUSDT"`.
 #' 
-#' @param api Character, reference API. Available options are:
-#'   - `spot`: For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream).
-#'   - `fapi`: For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams).
 #'   
-#' @param quiet Logical, suppress informational messages if `TRUE`. Default `FALSE`.
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
+#' 
+#' @export
 #' 
 #' @name binance_live_depth
 #' @rdname binance_live_depth
-#' 
-#' @export
 
 binance_live_depth <- function(pair, api, quiet = FALSE){
   
@@ -58,26 +58,47 @@ binance_live_depth <- function(pair, api, quiet = FALSE){
   )
 }
 
+
 #' Binance Live Klines 
 #' 
 #' Live klines stream for a trading pair. 
 #' 
-#' @param pair Character, trading pair, e.g. "BTCUSDT".
-#' @param interval Character, the time interval for Klines data. 
-#' Acceptable intervals include "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M".
-#' @param api Character, specifying the reference API. Available options include:
-#'   - `spot`: For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-streams).
-#'   - `fapi`: For [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-streams).
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
+#' 
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-streams).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-streams).
+#'   
+#' @param interval Character. Time interval for Klines data. 
+#' If it is `missing`, the default, will be used as start date `"1m"`. Available intervals are: 
+#'   - Secondly: `"1s"`, available only if `api = "spot"`.
+#'   - Minutely: `"1m"`, `"3m"`, `"5m"`, `"15m"` and `"30m"`.
+#'   - Hourly: `"1h"`, `"2h"`, `"4h"`, `"6h"`, `"8h"` and `"12h"`.
+#'   - Daily: `"1d"` and `"3d"`.
+#'   - Weekly: `"1w"`.
+#'   - Monthly: `"1M"`.
+#'   
 #' @param data initial data
-#' @param quiet Logical, suppress informational messages if `TRUE`. Default `FALSE`.
+#' 
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #' 
 #' @export
 #' 
 #' @name binance_live_klines
 #' @rdname binance_live_klines
 
-binance_live_klines <- function(pair = "BTCUSDT", interval = "1m", api, data = NULL, quiet = FALSE){
+binance_live_klines <- function(pair, api, interval, data = NULL, quiet = FALSE){
 
+  # Check "pair" argument 
+  if (missing(pair) || is.null(pair)) {
+    if (!quiet) {
+      wrn <- paste0('The pair argument is missing with no default.')
+      cli::cli_abort(wrn)
+    }
+  } else {
+    pair <- toupper(pair)
+  }
+  
   # Check "api" argument 
   if (missing(api) || is.null(api)) {
     api <- "spot"
@@ -89,17 +110,22 @@ binance_live_klines <- function(pair = "BTCUSDT", interval = "1m", api, data = N
     api <- match.arg(api, choices = c("spot", "fapi"))
   }
   
-  # Check "pair" argument 
-  if (missing(pair) || is.null(pair)) {
-    pair <- "BTCUSDT"
+  # Check "interval" argument 
+  if (missing(interval) || is.null(interval)) {
+    interval <- "1m"
     if (!quiet) {
-      wrn <- paste0('The pair argument is missing, default is ', '"', pair, '"')
+      wrn <- paste0('The `interval` argument is missing, default is ', '"', interval, '"')
       cli::cli_alert_warning(wrn)
     }
   } else {
-    pair <- toupper(pair)
+    av_int <- c("1s", "1m", "3m", "5m", "15m","30m","1h", "2h", 
+                "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M")
+    if (api != "spot"){
+      av_int <- av_int[-1] 
+    }
+    interval  <- match.arg(interval, choices = av_int)
   }
-
+  
   # Initialize with klines from last 24 hours
   sys_time <- Sys.time() 
   if (is.null(data)) {
@@ -133,21 +159,24 @@ binance_live_klines <- function(pair = "BTCUSDT", interval = "1m", api, data = N
   )
 }
 
+
 #' Binance Live Trades 
 #' 
 #' Live trades stream for a trading pair. 
 #' 
-#' @param pair Character, trading pair, e.g. "BTCUSDT".
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
 #' 
-#' @param api Character, specifying the reference API. Available options include:
-#'   - `spot`: For [Spot API](https://binance-docs.github.io/apidocs/spot/en/#aggregate-trade-streams).
-#'   - `fapi`: For [Futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#aggregate-trade-streams).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#aggregate-trade-streams).
+#'   - `"fapi"`: for [futures USD-M API](https://binance-docs.github.io/apidocs/futures/en/#aggregate-trade-streams).
 #'   
-#' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data. 
-#' Default is `Sys.time()-lubridate::minutes(10)`.
-#' @param to Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
-#' Default is `Sys.time()`.
-#' @param quiet Logical, suppress informational messages if `TRUE`. Default `FALSE`.
+#' @param from Character or \code{\link[=POSIXt-class]{POSIXt}} object. Start time for historical data. 
+#' If it is `missing`, the default, will be used as start date `Sys.time()-lubridate::minutes(10)`.
+#' 
+#' @param to Character or \code{\link[=POSIXt-class]{POSIXt}} object. End time for historical data.
+#' If it is `missing`, the default, will be used as end date \code{\link[=Sys.time]{Sys.time()}}.
+#' 
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #' 
 #' @export
 #' 
@@ -158,10 +187,9 @@ binance_live_trades <- function(pair, api, from, to, quiet = FALSE){
 
   # Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
-    pair <- "BTCUSDT"
     if (!quiet) {
-      wrn <- paste0('The pair argument is missing, default is ', '"', pair, '"')
-      cli::cli_alert_warning(wrn)
+      wrn <- paste0('The pair argument is missing with no default.')
+      cli::cli_abort(wrn)
     }
   } else {
     pair <- toupper(pair)

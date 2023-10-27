@@ -11,36 +11,36 @@ binance_trades(pair,
                quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. \code{"BTCUSDT"}.}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup}{Spot API}.
-\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup}{Futures USD-m API}.
-\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup}{Futures COIN-m API}.
-\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup}{futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup}{options API}.
 }}
 
-\item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data.
-Default is \code{NULL} and will be used as start date \code{Sys.time()-lubridate::minutes(10)}.}
+\item{from}{Character or \code{\link[=POSIXt-class]{POSIXt}} object. Start time for historical data.
+If it is \code{missing}, the default, will be used as start date \code{Sys.time()-lubridate::minutes(10)}.}
 
-\item{to}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
-Default is \code{NULL} and will be used as end date \code{Sys.time()}.}
+\item{to}{Character or \code{\link[=POSIXt-class]{POSIXt}} object. End time for historical data.
+If it is \code{missing}, the default, will be used as end date \code{\link[=Sys.time]{Sys.time()}}.}
 
-\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \value{
-A tibble with 9 columns:
+A \code{\link[=data.frame-class]{data.frame}} with 9 columns:
 \itemize{
-\item \code{date}: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date;
-\item \code{market}: Character, selected API.
+\item \code{date}: \code{\link[=POSIXt-class]{POSIXt}}, trade execution date;
+\item \code{market}: Character, API.
 \item \code{pair}: Character, trading pair.
 \item \code{price}: Numeric, trade price.
 \item \code{quantity}: Numeric, trade quantity.
 \item \code{side}: Character, trade side. Can be \code{"BUY"} or \code{"SELL"}.
-\item \code{agg_id}: Integer, aggregated trade Id.
-\item \code{first_id}: Integer, first trade Id for aggregation.
-\item \code{last_id}: Integer, last trade Id for aggregation.
+\item \code{agg_id}: Integer, aggregated trade id.
+\item \code{first_id}: Integer, first trade id for aggregation.
+\item \code{last_id}: Integer, last trade id for aggregation.
 }
 }
 \description{

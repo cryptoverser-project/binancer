@@ -9,23 +9,23 @@ binance_depth(pair,
               quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. \code{"BTCUSDT"} or \code{"BTCUSD_PERP"}.}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#order-book}{Spot API}.
-\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#order-book}{Futures USD-m API}.
-\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#order-book}{Futures COIN-m API}.
-\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#order-book}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#order-book}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#order-book}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#order-book}{futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#order-book}{options API}.
 }}
 
-\item{quiet}{Logical, if \code{TRUE} suppress informational and warnings. Default is \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \value{
-A tibble with 7 columns:
+A \code{\link[=data.frame-class]{data.frame}} with 7 columns:
 \itemize{
 \item \code{last_update_id}: Integer, id of the last snapshot.
-\item \code{date}: \code{"\link[=POSIXt-class]{POSIXt}"}, time of the snapshot.
+\item \code{date}: \code{\link[=POSIXt-class]{POSIXt}}, time of the snapshot.
 \item \code{market}: Character, reference API.
 \item \code{pair}: Character, trading pair.
 \item \code{side}: Character, side of the order. Can be \code{"ASK"} or \code{"BID"}.
@@ -40,8 +40,6 @@ Retrieve a snapshot of the order book for a specified trading pair.
 
 # Get the order book for BTCUSDT
 binance_depth(pair = "BTCUSDT", api = "spot")
-
-# Get the order book for BTCUSDT
 binance_depth(pair = "BTCUSDT", api = "fapi")
 
 # Get the order book for BTCUSD_PERP

@@ -4,20 +4,23 @@
 \alias{binance_live_order_book}
 \title{Binance Live Order Book}
 \usage{
-binance_live_order_book(pair, api, update_speed = 1000, quiet = FALSE)
+binance_live_order_book(pair, 
+                        api, 
+                        update_speed = 1000, 
+                        quiet = FALSE)
 }
 \arguments{
-\item{pair}{Character, trading pair, e.g. \code{"BTCUSDT"}.}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. Available options are:
 \itemize{
-\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream}{Spot API}.
-\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams}{Futures USD-m API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams}{futures USD-m API}.
 }}
 
-\item{update_speed}{Integer, update speed in milliseconds.}
+\item{update_speed}{Integer. Update speed in milliseconds.}
 
-\item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default is \code{FALSE}.}
+\item{quiet}{Logical. Default is \code{FALSE}. If \code{TRUE} suppress messages and warnings.}
 }
 \description{
 Local order book management for a trading pair.

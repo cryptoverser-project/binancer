@@ -1,36 +1,37 @@
 #' Historical Open Interest Data
 #'
-#' Get the historical open interest data for a specific trading pair.
+#' Get the historical open interest data for a trading pair.
 #'
-#' @param pair Character, trading pair, e.g. `"BTCUSDT"` or `"BTCUSD"`.
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"` or `"BTCUSD"`.
 #'
 #' @param api Character, reference API. Available options are:
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#open-interest).
-#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#open-interest).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#open-interest).
+#'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#open-interest).
 #'   
-#' @param interval Character, time interval for open interest data. Default is `"1d"`. Available intervals are: 
-#'   - `minutely`: `"5m"`, `"15m"` and `"30m"`;
-#'   - `hourly`: `"1h"`, `"2h"`, `"4h"`, `"6h"`, `"8h"` and `"12h"`;
-#'   - `daily`: `"1d"`.
+#' @param interval Character. Default is `"1h"`. Time interval for open interest data. Available intervals are: 
+#'   - Minutely: `"5m"`, `"15m"` and `"30m"`.
+#'   - Hourly: `"1h"`, `"2h"`, `"4h"`, `"6h"`, `"8h"` and `"12h"`.
+#'   - Daily: `"1d"`.
+#' 
+#' @param from Character or \code{\link[=POSIXt-class]{POSIXt}} object. Start time for historical data, only last 30 days are available. 
+#' If it is `missing`, the default, will be used as start date `Sys.time()-lubridate::days(30)`.
+#' 
+#' @param to Character or \code{\link[=POSIXt-class]{POSIXt}} object. End time for historical data, only last 30 days are available. 
+#' If it is `missing`, the default, will be used as start date `Sys.time()`.
+#' 
+#' 
+#' @param contract_type Character. Used only if `api = "dapi"`. Available contract's types are: 
+#'   - `"all"`: for all types of contracts.
+#'   - `"perpetual"`: for perpetual futures.
+#'   - `"current_quarter"`: for futures with maturity in the current quarter.
+#'   - `"next_quarter"`: for futures with maturity in the next quarter.
 #'
-#' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data. 
-#' Default is `NULL` and will be used as start date `Sys.time()-lubridate::days(30)`.
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #' 
-#' @param to Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
-#' Default is `NULL` and will be used as end date `Sys.time()`.
-#' 
-#' @param contract_type Character, used only if `api = "dapi"`. Available contract's types are: 
-#'   - `"all"`: for all types of contracts;
-#'   - `"perpetual"`: for perpetual futures;
-#'   - `"current_quarter"`: for futures with a maturity in the current quarter;
-#'   - `"next_quarter"`: for futures with a maturity in the next quarter.
-#'
-#' @param quiet Logical, suppress informational and warnings if `TRUE`. Default is `FALSE`.
-#' 
-#' @return A tibble with 5 columns:
+#' @return A \code{\link[=data.frame-class]{data.frame}} with 5 columns:
 #'   - `date`: \code{"\link[=POSIXt-class]{POSIXt}"}, observation date.
-#'   - `market`: Character, selected API.
-#'   - `pair`: Character, selected pair.
+#'   - `market`: Character, API.
+#'   - `pair`: Character, trading pair.
 #'   - `open_interest`: Numeric, open interest in base currency.
 #'   - `open_interest_usd`: Numeric, open interest in USD.
 #'   
@@ -52,13 +53,14 @@
 #' binance_open_interest_hist(pair = "BTCUSDT", 
 #'                            api = "fapi", 
 #'                            interval = "1d", 
-#'                            from = "2023-10-01")
+#'                            from = Sys.time()-lubridate::days(15),
+#'                            to = Sys.time()-lubridate::days(5))
 #'
 #' # Historical open interest for BTCUSD
 #' binance_open_interest_hist(pair = "BTCUSD", 
 #'                            api = "dapi", 
 #'                            interval = "1d", 
-#'                            from = "2023-01-01",
+#'                            from = Sys.time()-lubridate::days(15),
 #'                            to = NULL)
 #'
 #' @export
@@ -126,7 +128,12 @@ binance_open_interest_hist <- function(pair, api = "fapi", interval = "1d", from
   
   # Check "contract_type" argument 
   if (missing(contract_type) || is.null(contract_type)) {
-    contract_type <- "ALL"
+    contract_type <- "all"
+    if (!quiet) {
+      wrn <- paste0('The "contract_type" argument is missing, default is ', '"', contract_type, '"')
+      cli::cli_alert_warning(wrn)
+    }
+    contract_type <- toupper(contract_type)
   } else {
     av_type <- c("all", "perpetual", "current_quarter", "next_quarter")
     contract_type <- match.arg(contract_type, choices = av_type)
@@ -201,6 +208,8 @@ binance_fapi_open_interest_hist <- function(pair, interval = "1d", from = NULL, 
   attr(response, "api") <- "fapi"
   attr(response, "ip_weight") <- i
   attr(response, "interval") <- interval
+  attr(response, "endpoint") <- "openInterestHist"
+  
   return(response)
 }
 
@@ -251,6 +260,8 @@ binance_dapi_open_interest_hist <- function(pair, interval = "1d", from = NULL, 
   attr(response, "api") <- "dapi"
   attr(response, "ip_weight") <- i
   attr(response, "interval") <- interval
+  attr(response, "endpoint") <- "openInterestHist"
+  
   return(response)
 }
 

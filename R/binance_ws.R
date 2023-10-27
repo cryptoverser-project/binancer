@@ -1,20 +1,29 @@
-#' binance_spot_socket
-#' @name binance_ws_socket
-#' @rdname binance_ws_socket
-#' @description api websocket
-#' @param pair Character, the trading pair of interest, e.g., "BTCUSDT".
-#' @param api Character, specifying the reference API. Available options are `spot`, `fapi`, `dapi`, `eapi`.
+#' Binance Websocket in R
+#' 
+#' Create a connection to Binance websocket API in R.
+#' 
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
+#' 
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data).
+#'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data).
+#'   
 #' @param subscription Character
 #' @param interval Character, the time interval for Klines data. 
 #' Acceptable intervals are "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", and "1M".
 #' @param contract_type Character, only used if `api = "dapi"`. Choose from:
-#'   - "perpetual": For perpetual futures.
-#'   - "current_quarter": For futures with a maturity in the current quarter.
-#'   - "next_quarter": For futures with a maturity in the next quarter.
+#'   - `"perpetual"`: For perpetual futures.
+#'   - `"current_quarter"`: For futures with a maturity in the current quarter.
+#'   - `"next_quarter"`: For futures with a maturity in the next quarter.
 #' @param update_speed time in milliseconds 
 #' @param nobs_max Integer, maximum number of observations to save. 
 #' @param quiet Logical, suppress informational messages if TRUE.
 #' @export
+#' 
+#' @name binance_ws_socket
+#' @rdname binance_ws_socket
 
 binance_ws_socket <- function(pair = "BTCUSDT", api = "spot", subscription = "kline", interval = "1m", contract_type = NULL, update_speed = 1000, nobs_max = NULL, quiet = FALSE){
   

@@ -4,31 +4,45 @@
 \alias{OrderBook}
 \title{Order Book}
 \usage{
-OrderBook(
-  data = NULL,
-  min_price = NULL,
-  max_price = NULL,
-  levels = NULL,
-  trades = NULL,
-  as_datatable = FALSE
-)
+OrderBook(data = NULL, 
+          min_price = NULL, 
+          max_price = NULL, 
+          levels = NULL, 
+          trades = NULL, 
+          as_datatable = FALSE)
 }
 \arguments{
-\item{data}{A tibble with at least 3 columns (price, quantity and side).}
+\item{data}{A \code{\link[=data.frame-class]{data.frame}} with at least 3 columns (\code{price}, \code{quantity} and \code{side}).}
 
-\item{min_price}{Numeric, the minimum price for the aggregation of order book.}
+\item{min_price}{Numeric. Minimum price for the aggregation of order book.}
 
-\item{max_price}{Numeric, the maximum price for the aggregation of order book.}
+\item{max_price}{Numeric. Maximum price for the aggregation of order book.}
 
-\item{levels}{The number of levels for the aggregated order book.}
+\item{levels}{Integer. Number of levels for the aggregated order book.}
 
-\item{trades}{A tibble with trades data.}
+\item{trades}{A \code{\link[=data.frame-class]{data.frame}} containing trades data.}
 
 \item{as_datatable}{Logical, if \code{TRUE} return the order book as a datatable. Default is \code{FALSE}.}
 }
 \value{
-A tibble with depth data in the specified price range.
+A \code{\link[=data.frame-class]{data.frame}} or \code{\link[=DT::datatables-class]{datatables}} object.
+Depth data aggregated for a specified price range.
 }
 \description{
 Create and structure an order book from depth data.
+}
+\examples{
+ 
+# Generate an order book for BTCUSDT 
+depth_data <- binance_depth("BTCUSDT", api = "spot")
+depth <- 0.01
+best_ask <- min(depth_data[depth_data$side == "ASK",]$price)
+best_bid <- max(depth_data[depth_data$side == "BID",]$price)
+OrderBook(data = depth_data, 
+          min_price = best_bid*(1 - depth), 
+          max_price = best_ask*(1 + depth), 
+          levels = 10, 
+          trades = NULL, 
+          as_datatable = FALSE)
+
 }

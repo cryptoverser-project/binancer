@@ -1,19 +1,33 @@
 summary.depth <- function(data, depth = 0.02) {
   
   output <- data[1,1:3]
+  # ASK (sellers)
+  ask_data <- dplyr::filter(data, side == "ASK") 
+  ask_data <- dplyr::arrange(ask_data, price)
+  # BID (buyers)
+  bid_data <- dplyr::filter(data, side == "BID")
+  bid_data <- dplyr::arrange(bid_data, dplyr::desc(price))
   
-  ask_data <- dplyr::filter(data, side == "ASK") # sellers
-  bid_data <- dplyr::filter(data, side == "BID") # buyers
+  # Best BID-ASK 
+  ask <- ask_data[1,]
+  bid <- bid_data[1,]
+  output$p_ask <- ask$price
+  output$q_ask <- ask$quantity
+  output$p_bid <- bid$price
+  output$q_bid <- bid$quantity
+  # Microprice, imbalance and spread
+  output <- dplyr::mutate(output, 
+                          p_mp = (p_ask*q_ask + p_bid*q_bid)/(q_ask + q_bid), 
+                          i_bid = (q_bid - q_ask)/(q_ask + q_bid),
+                          s = p_ask - p_bid)
   
-  output$ask <- min(ask_data$price) # best ask
-  output$bid <- max(bid_data$price) # best bid 
-  output$spread <- output$ask - output$bid # spread 
-  ask_depth <- dplyr::filter(ask_data, price <= output$ask*(1+depth)) # +depth%
-  bid_depth <- dplyr::filter(bid_data, price <= output$bid*(1-depth)) # -depth%
-  output$ask_depth <- sum(ask_depth$quantity*ask_depth$price) # quantity*price at +depth%
-  output$bid_depth <- sum(bid_depth$quantity*bid_depth$price) # quantity*price at -depth%
-  output$ask_perc <- output$ask_depth/sum(ask_data$quantity*ask_data$price) 
-  output$bid_perc <- output$bid_depth/sum(bid_data$quantity*bid_data$price) 
+  # Depth data 
+  ask_depth <- dplyr::filter(ask_data, price <= output$p_ask*(1+depth)) # +depth%
+  bid_depth <- dplyr::filter(bid_data, price <= output$p_bid*(1-depth)) # -depth%
+  output$ask_d <- sum(ask_depth$price*ask_depth$quantity)
+  output$bid_d <- sum(bid_depth$price*bid_depth$quantity)
+  output$i_bid_depth <- (output$bid_d - output$ask_d)/(output$bid_d + output$ask_d)
+
   return(output)
 }
 

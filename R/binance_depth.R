@@ -2,24 +2,24 @@
 #'
 #' Retrieve a snapshot of the order book for a specified trading pair. 
 #'
-#' @param pair Character, trading pair, e.g. `"BTCUSDT"` or `"BTCUSD_PERP"`.
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
 #'
-#' @param api Character, reference API. Available options are:
-#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#order-book).
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#order-book).
-#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#order-book).
-#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#order-book).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#order-book).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#order-book).
+#'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#order-book).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#order-book).
 #'
-#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #' 
 #' @usage 
 #' binance_depth(pair, 
 #'               api, 
 #'               quiet = FALSE)
 #'
-#' @return A tibble with 7 columns:
+#' @return A \code{\link[=data.frame-class]{data.frame}} with 7 columns:
 #'   - `last_update_id`: Integer, id of the last snapshot.
-#'   - `date`: \code{"\link[=POSIXt-class]{POSIXt}"}, time of the snapshot.
+#'   - `date`: \code{\link[=POSIXt-class]{POSIXt}}, time of the snapshot.
 #'   - `market`: Character, reference API.
 #'   - `pair`: Character, trading pair.
 #'   - `side`: Character, side of the order. Can be `"ASK"` or `"BID"`.
@@ -31,8 +31,6 @@
 #'
 #' # Get the order book for BTCUSDT
 #' binance_depth(pair = "BTCUSDT", api = "spot")
-#'
-#' # Get the order book for BTCUSDT
 #' binance_depth(pair = "BTCUSDT", api = "fapi")
 #'
 #' # Get the order book for BTCUSD_PERP
@@ -112,15 +110,10 @@ binance_api_depth <- function(pair, api, quiet = FALSE){
     # Order-book
     response <- dplyr::bind_rows(df_bid, df_ask)
     # Add extra information (date, pair and market)
-    market = dplyr::case_when(
-      api == "spot" ~ "spot", 
-      api == "fapi" ~ "usd-m", 
-      api == "dapi" ~ "coin-m", 
-      api == "eapi" ~ "options")
     response <- dplyr::mutate(response, 
                               date = update_time, 
                               pair = pair, 
-                              market = market, 
+                              market = api, 
                               last_update_id = last_update_id)
     # Select and reorder variables 
     response <- dplyr::select(response, last_update_id, date, market, pair, side, price, quantity)
@@ -130,5 +123,7 @@ binance_api_depth <- function(pair, api, quiet = FALSE){
   
   attr(response, "ip_weight") <- 50
   attr(response, "api") <- api
+  attr(response, "endpoint") <- "depth"
+  
   return(response)
 }

@@ -1,16 +1,16 @@
 #' Binance Server Time
 #'
-#' Obtain the current server time. 
+#' Get the current server time from Binance API. 
 #'
-#' @param api Character, reference API. Available options are:
-#'   - `"spot"`: For [spot API](https://binance-docs.github.io/apidocs/spot/en/#check-server-time);
-#'   - `"fapi"`: For [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#check-server-time);
-#'   - `"dapi"`: For [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#check-server-time);
-#'   - `"eapi"`: For [options API](https://binance-docs.github.io/apidocs/voptions/en/#check-server-time).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#check-server-time).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#check-server-time).
+#'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#check-server-time).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#check-server-time).
 #'
-#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #'
-#' @return An object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the server's time for the reference API.
+#' @return A \code{\link[=POSIXt-class]{POSIXt}} object. The server time for the reference API.
 #'
 #' @details The IP weight for this API call is 1, and the data source is memory.
 #' 
@@ -19,16 +19,10 @@
 #' 
 #' @examples
 #'
-#' # Get the server time for the Spot API.
+#' # Get the server time
 #' binance_time("spot")
-#'
-#' # Get the server time for the Futures USD-M API.
 #' binance_time("fapi")
-#'
-#' # Get the server time for the Futures Coin-M API.
 #' binance_time("dapi")
-#'
-#' # Get the server time for the Options API.
 #' binance_time("eapi")
 #'
 #' @export
@@ -58,6 +52,7 @@ binance_time <- function(api, quiet = FALSE){
   
   attr(response, "api") <- api
   attr(response, "ip_weight") <- 1
+  attr(response, "endpoint") <- "time"
   
   return(response)
 }

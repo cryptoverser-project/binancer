@@ -2,32 +2,32 @@
 #'
 #' Get the current open interest data for a specific trading pair.
 #'
-#' @param pair Character, trading pair, e.g. "BTCUSDT".
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
 #'
-#' @param api Character, reference API. Available options are:
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#open-interest).
-#'   - `"dapi"`: for [Futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#open-interest).
-#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#open-interest).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"fapi"`. Available options are:
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#open-interest).
+#'   - `"dapi"`: for [futures Coin-m API](https://binance-docs.github.io/apidocs/delivery/en/#open-interest).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#open-interest).
 #'
-#' @param expiration POSIXct, specifying the expiration date for options contracts. This parameter is used when `api = "eapi"`. 
-#' Default is NULL, which represents the most recent data. 
+#' @param expiration Character or \code{\link[=POSIXt-class]{POSIXt}} object. Used only if `api = "eapi"`. 
+#' Expiration date for options contracts. If it is `missing`, the default, will be used \code{\link[=Sys.time]{Sys.time()}}.  
 #' 
-#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #' 
-#' @return A tibble with 4 columns:
-#'   - `date`: Datetime, observation date.
-#'   - `market`: Character, selected API.
-#'   - `pair`: Character, selected pair.
+#' @return A \code{\link[=data.frame-class]{data.frame}} with 4 columns:
+#'   - `date`: \code{\link[=POSIXt-class]{POSIXt}}, observation date.
+#'   - `market`: Character, API.
+#'   - `pair`: Character, trading pair.
 #'   - `open_interest`: Numeric, open interest in base currency.
 #'  
 #' @details The IP weight for this API call is 1, and the data source is memory.
 #'
 #' @examples
 #'
-#' # Get the open interest data for "BTCUSDT" in USD-M market
+#' # Get the open interest data for BTCUSDT
 #' binance_open_interest(pair = "BTCUSDT", api = "fapi")
 #' 
-#' # Get the open interest data for "BTCUSD_PERP" in COIN-M market
+#' # Get the open interest data for BTCUSD_PERP
 #' binance_open_interest(pair = "BTCUSD_PERP", api = "dapi")
 #' 
 #' # Get the open interest data for options on BTC
@@ -38,7 +38,7 @@
 #' @rdname binance_open_interest
 #' @name binance_open_interest
 
-binance_open_interest <- function(pair, api, expiration = Sys.Date(), quiet = FALSE){
+binance_open_interest <- function(pair, api, expiration, quiet = FALSE){
   
   #  Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
@@ -54,11 +54,22 @@ binance_open_interest <- function(pair, api, expiration = Sys.Date(), quiet = FA
   if (missing(api) || is.null(api)) {
     api <- "fapi"
     if (!quiet) {
-      wrn <- paste0('The "api" argument is missing, default is ', '"', api, '"')
+      wrn <- paste0('The `api` argument is missing, default is ', '"', api, '"')
       cli::cli_alert_warning(wrn)
     }
   } else {
     api <- match.arg(api, choices = c("fapi", "dapi", "eapi"))
+  }
+  
+  # Check "expiration" argument 
+  if (missing(expiration) || is.null(expiration)) {
+    expiration <- Sys.Date()
+    if (!quiet) {
+      wrn <- paste0('The `expiration` argument is missing, default is ', '"', expiration, '"')
+      cli::cli_alert_warning(wrn)
+    }
+  } else {
+    expiration <- as.Date(expiration)
   }
   
   # Query parameters depends on api 
@@ -90,7 +101,7 @@ binance_fapi_open_interest <- function(pair, quiet = FALSE) {
   if (!purrr::is_empty(response)) {
     response <- dplyr::as_tibble(dplyr::bind_rows(response))
     response <- tibble::tibble(date = as.POSIXct(as.numeric(response$time)/1000, origin = "1970-01-01"),
-                               market = "usd-m",
+                               market = "fapi",
                                pair = response$symbol,
                                open_interest = as.numeric(response$openInterest))                            
   } else {
@@ -98,7 +109,8 @@ binance_fapi_open_interest <- function(pair, quiet = FALSE) {
   }
   
   attr(response, "ip_weight") <- 1
-  attr(response, "api") <- "usd-m"
+  attr(response, "api") <- "fapi"
+  attr(response, "endpoint") <- "openInterest"
   
   return(response)
 }
@@ -111,7 +123,7 @@ binance_dapi_open_interest <- function(pair, quiet = FALSE) {
   if (!purrr::is_empty(response)) {
     response <- dplyr::as_tibble(dplyr::bind_rows(response))
     response <- tibble::tibble(date = as.POSIXct(as.numeric(response$time)/1000, origin = "1970-01-01"),
-                               market = "coin-m",
+                               market = "dapi",
                                pair = response$symbol,
                                open_interest = as.numeric(response$openInterest))                            
   } else {
@@ -119,13 +131,14 @@ binance_dapi_open_interest <- function(pair, quiet = FALSE) {
   }
   
   attr(response, "ip_weight") <- 1
-  attr(response, "api") <- "coin-m"
+  attr(response, "api") <- "dapi"
+  attr(response, "endpoint") <- "openInterest"
   
   return(response)
 }
 
 # openInterest implementation for options api 
-binance_eapi_open_interest <- function(symbol, expiration = Sys.Date(), quiet = FALSE){
+binance_eapi_open_interest <- function(symbol, expiration, quiet = FALSE){
   
   # Expiration date
   expiration <- as.Date(expiration)
@@ -160,6 +173,7 @@ binance_eapi_open_interest <- function(symbol, expiration = Sys.Date(), quiet = 
   
   attr(response, "ip_weight") <- 1
   attr(response, "api") <- "eapi"
+  attr(response, "endpoint") <- "openInterest"
   
   return(response)
 }

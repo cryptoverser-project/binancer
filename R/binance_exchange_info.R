@@ -2,31 +2,30 @@
 #'
 #' Obtain market information and available trading pairs.
 #'
-#' @param pair Character, optional trading pair, e.g. `"BTCUSDT"`. 
-#' Default is `NULL` and all available pairs will be retrieved.
+#' @param pair Character, optional. Trading pair, e.g. `"BTCUSDT"`. If `NULL`, the default, all available pairs will be returned.
 #'
-#' @param api Character, specifying the reference API. Available options include:
-#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#exchange-information);
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#exchange-information);
-#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#exchange-information);
-#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#exchange-information).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#exchange-information).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#exchange-information).
+#'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#exchange-information).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#exchange-information).
 #'
-#' @param permissions Character or NULL, specifying the types of trading pairs to retrieve (optional). 
-#' Available options include:
-#'   - `"all"`: get available trading pairs in all markets;
-#'   - `"spot"`: get available trading pairs in spot markets;
-#'   - `"margin"`: get available trading pairs in margin markets;
-#'   - `"leveraged"`: get available trading pairs in leveraged markets.
+#' @param permissions Character, optional. Used only if `api = "spot"`. Types of trading pairs to return. 
+#' If `"all"`, the default, all available types of pairs will be returned. Available options are:
+#'   - `"all"`: trading pairs in all markets.
+#'   - `"spot"`: trading pairs only in spot markets.
+#'   - `"margin"`: trading pairs only in margin markets.
+#'   - `"leveraged"`: trading pairs only in leveraged markets.
 #'   
-#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #'
-#' @return A tibble containing market information, including trading pairs, symbols.
+#' @return A \code{\link[=data.frame-class]{data.frame}} with trading pairs and others information.
 #'
-#' @details The IP weight for this API call is 1, and the data source is memory.
+#' @details The IP weight for this API call is 20 if `api = "spot"` while 1 for others `api`, The data source is memory.
 #' 
 #' @usage 
 #' binance_exchange_info(pair = NULL, 
-#'                       api = "spot", 
+#'                       api, 
 #'                       permissions = "all", 
 #'                       quiet = FALSE)
 #'
@@ -71,7 +70,20 @@
 #' @rdname binance_exchange_info
 #' @name binance_exchange_info
 
-binance_exchange_info <- function(pair = NULL, api = "spot", permissions = "all", quiet = FALSE){
+binance_exchange_info <- function(pair = NULL, api, permissions = "all", quiet = FALSE){
+  
+  
+  # Check "api" argument 
+  if (missing(api) || is.null(api)) {
+    api <- "spot"
+    if (!quiet) {
+      wrn <- paste0('The "api" argument is missing, default is ', '"', api, '"')
+      cli::cli_alert_warning(wrn)
+    }
+  } else {
+    api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
+  }
+  
   
   args <- list(pair = pair)
   if (api == "spot") {
@@ -145,7 +157,7 @@ binance_spot_exchange_info <- function(pair = NULL, permissions = "all"){
   } 
   attr(response, "api") <- "spot"
   attr(response, "ip_weight") <- 20
-  
+  attr(response, "endpoint") <- "exchangeInfo"
   return(response)
 }
 
@@ -168,6 +180,7 @@ binance_fapi_exchange_info <- function(pair = NULL){
   
   attr(response, "api") <- "fapi"
   attr(response, "ip_weight") <- 1
+  attr(response, "endpoint") <- "exchangeInfo"
   
   return(response)
 }
@@ -190,6 +203,7 @@ binance_dapi_exchange_info <- function(pair = NULL){
   
   attr(response, "api") <- "dapi"
   attr(response, "ip_weight") <- 1
+  attr(response, "endpoint") <- "exchangeInfo"
   
   return(response)
 }
@@ -215,6 +229,7 @@ binance_eapi_exchange_info <- function(pair = NULL){
   
   attr(response, "api") <- "eapi"
   attr(response, "ip_weight") <- 1
+  attr(response, "endpoint") <- "exchangeInfo"
   
   return(response)
 }

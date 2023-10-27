@@ -2,9 +2,9 @@ Package: binancer
 Type: Package
 Title: Wrapper for Binance REST API in R
 Version: 0.1.0
-Author: Cryptoverser
+Author: Beniamino Sartini
 Maintainer: Cryptoverser <cryptoverser-project@gmail.com>
-Description: Provides a comprehensive R interface to the Binance REST API.
+Description: Provides a comprehensive R interface for the Binance REST API.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -21,8 +21,9 @@ Imports:
     stringr,
     tibble (>= 3.2.0),
     TTR,
+    xts,
     utils,
-    websocket,
+    websocket
 Suggests: 
     DT,
     knitr,
@@ -30,6 +31,6 @@ Suggests:
     testthat (>= 2.1.0)
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
-URL: http://www.cryptoverser.org https://github.com/cryptoverser-project/binancer
+URL: http://www.cryptoverser.org
 BugReports: https://github.com/cryptoverser-project/binancer/issues
 VignetteBuilder: knitr

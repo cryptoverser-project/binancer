@@ -2,24 +2,32 @@
 #' 
 #' Local order book management for a trading pair. 
 #' 
-#' @param pair Character, trading pair, e.g. `"BTCUSDT"`.
-#' @param api Character, reference API. Available options are:
-#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream).
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams).
-#' @param update_speed Integer, update speed in milliseconds. 
-#' @param quiet Logical, suppress informational messages if `TRUE`. Default is `FALSE`.
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
+#' 
+#' @param api Character. Reference API. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams).
+#'   
+#' @param update_speed Integer. Update speed in milliseconds. 
+#' 
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
+#' 
+#' @usage 
+#' binance_live_order_book(pair, 
+#'                         api, 
+#'                         update_speed = 1000, 
+#'                         quiet = FALSE)
+#' @export
 #' 
 #' @name binance_live_order_book
 #' @rdname binance_live_order_book
-#' 
-#' @export
 
 binance_live_order_book <- function(pair, api, update_speed = 1000, quiet = FALSE){
   
   # Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
     if (!quiet) {
-      msg <- paste0('The "pair" argument is missing with no default.')
+      msg <- paste0('The `pair` argument is missing with no default.')
       cli::cli_abort(msg)
     }
   } else {
@@ -30,7 +38,7 @@ binance_live_order_book <- function(pair, api, update_speed = 1000, quiet = FALS
   if (missing(api) || is.null(api)) {
     api <- "spot"
     if (!quiet) {
-      wrn <- paste0('The "api" argument is missing, default is ', '"', api, '"')
+      wrn <- paste0('The `api` argument is missing, default is ', '"', api, '"')
       cli::cli_alert_warning(wrn)
     }
   } else {

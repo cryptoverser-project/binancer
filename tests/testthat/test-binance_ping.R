@@ -1,50 +1,37 @@
 library(binancer)
 
-
+# ------------  Test for api = "spot" ------------
 ping_api <- binance_ping(api = "spot")
-
-test_that('Test 2: binance_ping(api = "spot")', {
-  
-  # Check Response
+test_that('Test 1: binance_ping(api = "spot")', {
+  # Check response
   expect_true(ping_api)
-
-  # Check API attribute
+  # Check "api" attribute
   expect_equal(attr(ping_api, "api"), "spot")
-
 })
 
-ping_fapi <-  binance_ping(api = "fapi")
-
+# ------------  Test for api = "fapi" ------------
+ping_api <-  binance_ping(api = "fapi")
 test_that('Test 2: binance_ping(api = "fapi")', {
-
-  # Check Response
-  expect_true(ping_fapi)
-
-  # Check API attribute
-  expect_equal(attr(ping_fapi, "api"), "fapi")
-
+  # Check response
+  expect_true(ping_api)
+  # Check "api" attribute
+  expect_equal(attr(ping_api, "api"), "fapi")
 })
 
-ping_dapi <- binance_ping(api = "dapi")
-
-test_that('Test 2: binance_ping(api = "dapi")', {
-  
-  # Check Response
-  expect_true(ping_dapi)
-
-  # Check API attribute
-  expect_equal(attr(ping_dapi, "api"), "dapi")
-
+# ------------  Test for api = "dapi" ------------
+ping_api <- binance_ping(api = "dapi")
+test_that('Test 3: binance_ping(api = "dapi")', {
+  # Check response
+  expect_true(ping_api)
+  # Check "api" attribute
+  expect_equal(attr(ping_api, "api"), "dapi")
 })
 
-ping_eapi <- binance_ping(api = "eapi")
-
-test_that('Test 2: binance_ping(api = "eapi")', {
-  
-  # Check Response
-  expect_true(ping_eapi)
-
-  # Check API attribute
-  expect_equal(attr(ping_eapi, "api"), "eapi")
-
+# ------------  Test for api = "eapi" ------------
+ping_api <- binance_ping(api = "eapi")
+test_that('Test 4: binance_ping(api = "eapi")', {
+  # Check response
+  expect_true(ping_api)
+  # Check "api" attribute
+  expect_equal(attr(ping_api, "api"), "eapi")
 })

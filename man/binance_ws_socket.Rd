@@ -2,7 +2,7 @@
 % Please edit documentation in R/binance_ws.R
 \name{binance_ws_socket}
 \alias{binance_ws_socket}
-\title{binance_spot_socket}
+\title{Binance Websocket in R}
 \usage{
 binance_ws_socket(
   pair = "BTCUSDT",
@@ -16,9 +16,15 @@ binance_ws_socket(
 )
 }
 \arguments{
-\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
+\item{pair}{Character. Trading pair, e.g. \code{"BTCUSDT"}.}
 
-\item{api}{Character, specifying the reference API. Available options are \code{spot}, \code{fapi}, \code{dapi}, \code{eapi}.}
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
+\itemize{
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data}{futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{options API}.
+}}
 
 \item{subscription}{Character}
 
@@ -27,9 +33,9 @@ Acceptable intervals are "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h",
 
 \item{contract_type}{Character, only used if \code{api = "dapi"}. Choose from:
 \itemize{
-\item "perpetual": For perpetual futures.
-\item "current_quarter": For futures with a maturity in the current quarter.
-\item "next_quarter": For futures with a maturity in the next quarter.
+\item \code{"perpetual"}: For perpetual futures.
+\item \code{"current_quarter"}: For futures with a maturity in the current quarter.
+\item \code{"next_quarter"}: For futures with a maturity in the next quarter.
 }}
 
 \item{update_speed}{time in milliseconds}
@@ -39,5 +45,5 @@ Acceptable intervals are "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h",
 \item{quiet}{Logical, suppress informational messages if TRUE.}
 }
 \description{
-api websocket
+Create a connection to Binance websocket API in R.
 }

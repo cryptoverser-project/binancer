@@ -2,24 +2,24 @@
 % Please edit documentation in R/binance_ping.R
 \name{binance_ping}
 \alias{binance_ping}
-\title{Test Connectivity to Binance REST API}
+\title{Ping to Binance REST API}
 \usage{
 binance_ping(api)
 }
 \arguments{
-\item{api}{Character, reference API. Available options are:
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#test-connectivity}{Spot API}.
-\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#test-connectivity}{Futures USD-m API}.
-\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity}{Futures COIN-m API}.
-\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#test-connectivity}{Options API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#test-connectivity}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#test-connectivity}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity}{futures COIN-m API}.
+\item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#test-connectivity}{options API}.
 }}
 }
 \value{
-\code{TRUE} if the connection was successful, otherwise \code{FALSE} if the connection failed.
+A logical value. It is \code{TRUE} if the connection was successful, otherwise it is \code{FALSE}.
 }
 \description{
-Check the connectivity to the Binance API to ensure it is working.
+Check the connection to the Binance API.
 }
 \details{
 The IP weight for this API call is 1, and the data source is memory.

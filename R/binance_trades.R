@@ -2,20 +2,21 @@
 #'
 #' Get aggregated historical trades data for a trading pair.
 #'
-#' @param pair Character, trading pair, e.g. `"BTCUSDT"`.
+#' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
 #'
-#' @param api Character, reference API. Available options are:
-#'   - `"spot"`: for [Spot API](https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup).
-#'   - `"fapi"`: for [Futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup).
-#'   - `"dapi"`: for [Futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup).
-#'   - `"eapi"`: for [Options API](https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup).
+#' @param api Character. Reference API. If it is `missing`, the default, will be used `"spot"`. Available options are:
+#'   - `"spot"`: for [spot API](https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup).
+#'   - `"fapi"`: for [futures USD-m API](https://binance-docs.github.io/apidocs/futures/en/#old-trade-lookup).
+#'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#old-trade-lookup).
+#'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#old-trade-lookup).
 #'
-#' @param from Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for historical data. 
-#' Default is `NULL` and will be used as start date `Sys.time()-lubridate::minutes(10)`.
-#' @param to Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the end time for historical data.
-#' Default is `NULL` and will be used as end date `Sys.time()`.
+#' @param from Character or \code{\link[=POSIXt-class]{POSIXt}} object. Start time for historical data. 
+#' If it is `missing`, the default, will be used as start date `Sys.time()-lubridate::minutes(10)`.
 #' 
-#' @param quiet Logical, if `TRUE` suppress informational and warnings. Default is `FALSE`.
+#' @param to Character or \code{\link[=POSIXt-class]{POSIXt}} object. End time for historical data.
+#' If it is `missing`, the default, will be used as end date \code{\link[=Sys.time]{Sys.time()}}.
+#' 
+#' @param quiet Logical. Default is `FALSE`. If `TRUE` suppress messages and warnings. 
 #' 
 #' @usage 
 #' binance_trades(pair, 
@@ -24,16 +25,16 @@
 #'                to,
 #'                quiet = FALSE)
 #'
-#' @return A tibble with 9 columns:
-#'   - `date`: \code{"\link[=POSIXt-class]{POSIXt}"}, trade execution date;
-#'   - `market`: Character, selected API.
+#' @return A \code{\link[=data.frame-class]{data.frame}} with 9 columns:
+#'   - `date`: \code{\link[=POSIXt-class]{POSIXt}}, trade execution date;
+#'   - `market`: Character, API.
 #'   - `pair`: Character, trading pair.
 #'   - `price`: Numeric, trade price.
 #'   - `quantity`: Numeric, trade quantity.
 #'   - `side`: Character, trade side. Can be `"BUY"` or `"SELL"`.
-#'   - `agg_id`: Integer, aggregated trade Id.
-#'   - `first_id`: Integer, first trade Id for aggregation.
-#'   - `last_id`: Integer, last trade Id for aggregation.
+#'   - `agg_id`: Integer, aggregated trade id.
+#'   - `first_id`: Integer, first trade id for aggregation.
+#'   - `last_id`: Integer, last trade id for aggregation.
 #'
 #' @examples
 #'
