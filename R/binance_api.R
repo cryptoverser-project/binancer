@@ -34,7 +34,7 @@
 #' 
 #' # Execute a call to spot API with base path
 #' binance_api(api = "spot", 
-#'             path = c("time"), 
+#'             path = "time", 
 #'             query = NULL, 
 #'             use_base_path = TRUE)
 #'
