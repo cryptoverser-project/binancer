@@ -91,7 +91,6 @@ binance_api <- function(api = NULL, path = NULL, query = NULL, use_base_path = T
     non_na <- !purrr::map_lgl(api_query, is.na)
     api_query <- api_query[non_na]
   }
-  
   # Api url
   api_url <- httr::modify_url(base_url, path = api_path, query = api_query)
   # GET call
