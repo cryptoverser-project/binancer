@@ -1,6 +1,6 @@
 #' Get Klines Data from Binance
 #'
-#' Get candlestick data for a trading pair with Binance API. 
+#' Get klines data for a trading pair with Binance API. 
 #'
 #' @param pair Character. Trading pair, e.g. `"BTCUSDT"`.
 #' 
@@ -10,7 +10,7 @@
 #'   - `"dapi"`: for [futures COIN-m API](https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data).
 #'   - `"eapi"`: for [options API](https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data).
 #'   
-#' @param interval Character. Default is `"1d"`. Time interval for Klines data. Available intervals are: 
+#' @param interval Character. Default is `"1d"`. Time interval for klines data. Available intervals are: 
 #'   - Secondly: `"1s"`, available only if `api = "spot"`.
 #'   - Minutely: `"1m"`, `"3m"`, `"5m"`, `"15m"` and `"30m"`.
 #'   - Hourly: `"1h"`, `"2h"`, `"4h"`, `"6h"`, `"8h"` and `"12h"`.
@@ -24,7 +24,7 @@
 #' @param to Character or \code{\link[=POSIXt-class]{POSIXt}} object. End time for historical data.
 #' If it is `missing`, the default, will be used as end date \code{\link[=Sys.time]{Sys.time()}}.
 #' 
-#' @param contract_type Character. Used only if `api = "dapi"`. Available contract's types are: 
+#' @param contract_type Character. Used only if `api` is `"fapi"` or `"dapi"`. Available contract's types are: 
 #'   - `"perpetual"`: perpetual futures.
 #'   - `"current_quarter"`: futures with maturity in the current quarter.
 #'   - `"next_quarter"`: futures with maturity in the next quarter.
@@ -208,6 +208,11 @@ binance_klines <- function(pair, api = "spot", interval, from, to, contract_type
   }
 }
 
+to <- Sys.time()
+paste0(trunc(as.integer(to)), "000")
+
+format(as.integer(to)*1000, scientific = FALSE)
+
 # Klines implementation for spot api 
 binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, as_xts = FALSE, quiet = FALSE){
 
@@ -215,8 +220,8 @@ binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, as_
   last_date <- 0
   response  <- list()
   condition <- TRUE
-  end_time <- paste0(trunc(as.integer(to)), "000")
-  start_time <- paste0(trunc(as.integer(from)), "000")
+  end_time <- format(as.integer(to)*1000, scientific = FALSE)
+  start_time <- format(as.integer(from)*1000, scientific = FALSE)
   while(condition){
     # GET call 
     api_path <- ifelse(uiKlines, "uiKlines", "klines")
@@ -237,7 +242,7 @@ binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, as_
     # Break if first_date is greater than start_time
     condition <- first_date > as.numeric(start_time) & first_date != last_date
     last_date <- first_date # avoid infinite loops 
-    end_time <- paste0(trunc(first_date/1000), "000")
+    end_time <- format(as.integer(first_date)*1000, scientific = FALSE)
     i <- i + 1
   }
   

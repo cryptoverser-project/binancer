@@ -49,8 +49,8 @@ binance_depth <- function(pair, api, quiet = FALSE){
   # Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
     if (!quiet) {
-      wrn <- paste0('The "pair" argument is missing with no default argument.')
-      cli::cli_abort(wrn)
+      msg <- paste0('The "pair" argument is missing with no default argument.')
+      cli::cli_abort(msg)
     }
   } else {
     pair <- toupper(pair)
@@ -60,14 +60,14 @@ binance_depth <- function(pair, api, quiet = FALSE){
   if (missing(api) || is.null(api)) {
     api <- "spot"
     if (!quiet) {
-      wrn <- paste0('The "api" argument is missing, default is ', '"', api, '"')
-      cli::cli_alert_warning(wrn)
+      msg <- paste0('The "api" argument is missing, default is ', '"', api, '"')
+      cli::cli_alert_warning(msg)
     }
   } else {
     api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
   }
   
-  # safe call to avoid errors 
+  # Safe call to avoid errors
   safe_fun <- purrr::safely(~do.call(binance_api_depth, args = list(pair = pair, api = api, quiet = quiet)))
   # GET call
   response <- safe_fun()

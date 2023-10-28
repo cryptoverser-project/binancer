@@ -125,7 +125,7 @@ OrderBook <- function(data = NULL, min_price = NULL, max_price = NULL, levels = 
         order_book[i,]$buy <- 0 
         order_book[i,]$sell <- 0
       } else {
-        trades_data <- data[index, ]
+        trades_data <- trades[index, ]
         # Aggregate BUY trades 
         order_book[i,]$buy <- sum(dplyr::filter(trades_data, side == "BUY")$quantity, na.rm = TRUE)
         # Aggregate SELL trades 
@@ -164,7 +164,7 @@ OrderBook <- function(data = NULL, min_price = NULL, max_price = NULL, levels = 
     dt_order_book <- DT::formatStyle(dt_order_book, 'bid', backgroundColor = "#00E679", color = "white")
     # Format ASK side 
     dt_order_book <-DT::formatStyle(dt_order_book, "ask",
-                                    background = DT::styleColorBar(range(order_book$ask), '#961E0C'),
+                                    background = DT::styleColorBar(range(order_book$ask), '#961E0C', angle = 270),
                                     backgroundSize = '98% 88%',
                                     backgroundRepeat = 'no-repeat',
                                     backgroundPosition = 'center')

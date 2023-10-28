@@ -30,16 +30,13 @@ binance_vision_klines <- function(api = "spot", pair = NULL, interval = "1d", fr
     api == "fapi" ~ "usd-m",
     api == "dapi" ~ "coin-m"
   )
-  # api function name 
-  fun_name <- paste0("binance_vision_", ifelse(api == "spot", "spot", "futures"), "_klines")
-  
-  # safe call to avoid errors 
+ 
   if (api == "spot") {
-    safe_fun <- purrr::safely(function(date){do.call(fun_name, args = list(pair = pair, day_date = date, interval = interval, quiet = quiet))} )
+    args <- list(pair = pair, day_date = date, interval = interval, quiet = quiet)
   } else {
-    safe_fun <- purrr::safely(function(date){do.call(fun_name, args = list(pair = pair, day_date = date, market = market, interval = interval, quiet = quiet))})
+    args <- list(pair = pair, day_date = date, market = market, interval = interval, quiet = quiet)
   }
-  
+ 
   if(is.null(from) & !is.null(to)){
     to <- as.Date(to)
     from <- to - 1
@@ -58,14 +55,16 @@ binance_vision_klines <- function(api = "spot", pair = NULL, interval = "1d", fr
     seq_date <- seq.Date(from, to, by = "days")
   } 
   
-  response <- NULL
+  # Function name 
+  fun_name <- paste0("binance_vision_", ifelse(api == "spot", "spot", "futures"), "_klines")
+  # safe call to avoid errors 
+  safe_fun <- purrr::safely(function(date){do.call(fun_name, args = args)})
+  # GET call
   response <- purrr::map_df(seq_date, ~safe_fun(.x)$result)
-  
-  # interval attribute
+
   attr(response, "interval") <- interval
   
   return(response)
-  
 }
 
 # spot 

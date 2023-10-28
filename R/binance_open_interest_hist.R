@@ -70,12 +70,11 @@
 
 binance_open_interest_hist <- function(pair, api = "fapi", interval = "1d", from = NULL, to = NULL, contract_type = "all", quiet = FALSE){
   
-  # Check "pair" argument
+  # Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
-    pair <- ifelse(api == "fapi", "BTCUSDT", "BTCUSD")
     if (!quiet) {
-      wrn <- paste0('The pair argument is missing, default is ', '"', pair, '"')
-      cli::cli_alert_warning(wrn)
+      wrn <- paste0('The "pair" argument is missing with no default argument.')
+      cli::cli_abort(wrn)
     }
   } else {
     pair <- toupper(pair)
@@ -170,7 +169,6 @@ binance_fapi_open_interest_hist <- function(pair, interval = "1d", from = NULL, 
   end_time <- paste0(trunc(as.integer(to)), "000")
   start_time <- paste0(trunc(as.integer(from)), "000")
   last_date <- as.integer(to)*1000
-  
   while(condition){
     # GET call 
     api_query <- list(symbol = pair, period = interval, startTime = NULL, endTime = end_time, limit = 500)
