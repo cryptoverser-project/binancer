@@ -2,29 +2,27 @@
 % Please edit documentation in R/binance_vision_klines.R
 \name{binance_vision_klines}
 \alias{binance_vision_klines}
-\title{Historical Kline/Candlestick from database}
+\title{Historical Klines data from Binance Vision}
 \usage{
-binance_vision_klines(
-  api = "spot",
-  pair = NULL,
-  interval = "1d",
-  from = NULL,
-  to = NULL,
-  quiet = FALSE
-)
+binance_vision_klines(pair, api, interval, from, to, quiet = FALSE)
 }
 \arguments{
-\item{api}{Character, specifying the reference API. Available options include:
+\item{pair}{Character. Trading pair, e.g., \code{"BTCUSDT"}.}
+
+\item{api}{Character. Reference API. If it is \code{missing}, the default, will be used \code{"spot"}. Available options are:
 \itemize{
-\item "spot": For \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{Spot API}.
-\item "fapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures USD-m API}.
-\item "dapi": For \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{Futures COIN-m API}.
+\item \code{"spot"}: for \href{https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data}{spot API}.
+\item \code{"fapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{futures USD-m API}.
+\item \code{"dapi"}: for \href{https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data}{futures COIN-m API}.
 }}
 
-\item{pair}{Character, the trading pair of interest, e.g., "BTCUSDT".}
-
-\item{interval}{Character, the time interval for Klines data.
-Available intervals are: "1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h" and "1d".}
+\item{interval}{Character. Default is \code{"1d"}. Time interval for klines data. Available intervals are:
+\itemize{
+\item Secondly: \code{"1s"}, available only if \code{api = "spot"}.
+\item Minutely: \code{"1m"}, \code{"3m"}, \code{"5m"}, \code{"15m"} and \code{"30m"}.
+\item Hourly: \code{"1h"}, \code{"2h"}, \code{"4h"}, \code{"6h"}, \code{"8h"} and \code{"12h"}.
+\item Daily: \code{"1d"}.
+}}
 
 \item{from}{Character or an object of class \code{"\link[=POSIXt-class]{POSIXt}"}, the start time for data retrieval.
 If \code{NULL}, the default is \code{Sys.Date()-lubridate::days(4)}.}
@@ -35,8 +33,21 @@ If \code{NULL}, the default is \code{Sys.Date()-lubridate::days(2)}.}
 \item{quiet}{Logical, suppress informational messages if \code{TRUE}. Default \code{FALSE}.}
 }
 \value{
-Returns a \code{tibble}.
+A \code{\link[=data.frame-class]{data.frame}}.
 }
 \description{
-Historical Kline/Candlestick Data for a pair from the database.
+Historical Kline data for a trading pair from the Binance Vision database.
+}
+\examples{
+
+from <- "2023-01-01"
+to <- "2023-01-01"
+interval <- "1m"
+binance_vision_klines("BTCUSDT", api = "spot", 
+                      interval = interval, from = from, to = from)
+binance_vision_klines("BTCUSDT", api = "fapi",
+                      interval = interval, from = from, to = from)
+binance_vision_klines("BTCUSD_PERP", api = "dapi", 
+                      interval = interval, from = from, to = from)
+
 }

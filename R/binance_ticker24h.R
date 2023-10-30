@@ -30,6 +30,7 @@
 #' @examples
 #'
 #' # Get full 24-hour ticker for BTCUSDT
+#' binance_ticker24h("BTCUSDT")
 #' binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "full")
 #'
 #' # Get mini 24-hour ticker for BTCUSDT
@@ -52,34 +53,34 @@
 
 binance_ticker24h <- function(pair, api, type, quiet = FALSE){
   
-  # Check "pair" argument 
+  # Check `pair` argument 
   if (missing(pair) || is.null(pair)) {
     if (!quiet) {
-      wrn <- paste0('The pair argument is missing with no default.')
-      cli::cli_abort(wrn)
+      msg <- paste0('The pair argument is missing with no default.')
+      cli::cli_abort(msg)
     }
   } else {
     pair <- toupper(pair)
   }
   
-  # Check "api" argument 
+  # Check `api` argument 
   if (missing(api) || is.null(api)) {
     api <- "spot"
     if (!quiet) {
-      wrn <- paste0('The "api" argument is missing, default is ', '"', api, '"')
-      cli::cli_alert_warning(wrn)
+      msg <- paste0('The "api" argument is missing, default is ', '"', api, '"')
+      cli::cli_alert_warning(msg)
     }
   } else {
     api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
   }
   
-  # Check "type" argument 
+  # Check `type` argument 
   if (missing(type) || is.null(type)) {
     type <- "full"
     if (api == "spot"){
       if (!quiet) {
-        wrn <- paste0('The type argument is missing, default is ', '"', type, '"')
-        warning(wrn)
+        msg <- paste0('The type argument is missing, default is ', '"', type, '"')
+        cli::cli_alert_warning(msg)
       }
     }
     type <- toupper(type)
@@ -92,21 +93,25 @@ binance_ticker24h <- function(pair, api, type, quiet = FALSE){
     }
   }
   
-  # api function name 
-  fun_name <- paste0("binance_", api, "_ticker24h")
-  
-  # safe call to avoid errors 
+  # Function arguments depending on `api` 
   if (api == "spot") {
-    safe_fun <- purrr::safely(~do.call(fun_name, args = list(pair, type)))
+    args <- list(pair, type)
   } else {
-    safe_fun <- purrr::safely(~do.call(fun_name, args = list(pair)))
+    args <- list(pair)
   }
   
+  # Function name 
+  fun_name <- paste0("binance_", api, "_ticker24h")
+  # Safe function to avoid errors 
+  safe_fun <- purrr::safely(~do.call(fun_name, args = args))
+  # GET call
   response <- safe_fun()
+  # Output
   if (!quiet & !is.null(response$error)) {
-    warning(response$error)
+    cli::cli_alert_danger(response$error)
+  } else {
+    return(response$result)
   }
-  return(response$result)
 }
 
 # Ticker24h implementation for spot api 
@@ -128,55 +133,24 @@ binance_spot_ticker24h <- function(pair, type, quiet = FALSE) {
   } else {
     api_query$symbol <- pair_name
   }
-  
-  # api GET call 
-  response <- binance_api(api = "spot", path = c("ticker", "24hr" ), query = api_query)
+
+  # GET call 
+  response <- binance_query(api = "spot", path = c("ticker", "24hr" ), query = api_query)
   
   # structure output dataset 
-  if (!purrr::is_empty(response) & type == "mini") {
-    response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
-                               date_close = as.POSIXct(as.numeric(response$closeTime)/1000, origin = "1970-01-01"),
-                               pair = response$symbol,
-                               market = "spot",
-                               open = as.numeric(response$openPrice),
-                               high = as.numeric(response$highPrice),
-                               low = as.numeric(response$lowPrice),
-                               close = as.numeric(response$lastPrice),
-                               volume = as.numeric(response$volume),
-                               volume_quote = as.numeric(response$quoteVolume),
-                               first_id = as.character(response$firstId),
-                               last_id = as.character(response$lastId),
-                               trades = as.integer(response$count))
-    
-  } else if(!purrr::is_empty(response) & type == "full") {
-    response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
-                               date_close = as.POSIXct(as.numeric(response$closeTime)/1000, origin = "1970-01-01"),
-                               pair = response$symbol,
-                               weighted_price = as.numeric(response$weightedAvgPrice),
-                               L1_close = as.numeric(response$prevClosePrice),
-                               open = as.numeric(response$openPrice),
-                               high = as.numeric(response$highPrice),
-                               low = as.numeric(response$lowPrice),
-                               last = as.numeric(response$lastPrice),
-                               volume = as.numeric(response$volume),
-                               volume_quote = as.numeric(response$quoteVolume),
-                               ask = as.numeric(response$askPrice),
-                               bid = as.numeric(response$bidPrice),
-                               quantity_ask = as.numeric(response$askQty),
-                               quantity_bid = as.numeric(response$bidQty),
-                               first_id = as.character(response$firstId),
-                               last_id = as.character(response$lastId),
-                               trades = as.integer(response$count))
+  if (!purrr::is_empty(response)) {
+    response <- dplyr::bind_rows(response)
+    response$pair <- pair
+    response$market <- "spot"
+    response <- binance_formatter(response)
   } 
-  
 
   attr(response, "ip_weight") <- dplyr::case_when(
     length(pair) >= 1 & length(pair) <= 20 ~ 1,
     length(pair) > 20 & length(pair) <= 100 ~ 20,
     length(pair) > 100 ~ 40)
   attr(response, "api") <- "spot"
-  attr(response, "endpoint") <- "ticker24hr"
-  
+
   return(response)
 }
 
@@ -187,7 +161,7 @@ binance_fapi_ticker24h <- function(pair, quiet = FALSE) {
   response <- list()
   for(i in 1:length(pair)){
     # api GET call 
-    new_data <- binance_api(api = "fapi", path = c("ticker", "24hr"), query = list(symbol = pair[i]))
+    new_data <- binance_query(api = "fapi", path = c("ticker", "24hr"), query = list(symbol = pair[i]))
     if(purrr::is_empty(new_data)){
       next
     }
@@ -198,19 +172,9 @@ binance_fapi_ticker24h <- function(pair, quiet = FALSE) {
   if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
-    response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
-                               date_close = as.POSIXct(as.numeric(response$closeTime)/1000, origin = "1970-01-01"),
-                               pair = response$symbol,
-                               market = "fapi",
-                               open = as.numeric(response$openPrice),
-                               high = as.numeric(response$highPrice),
-                               low = as.numeric(response$lowPrice),
-                               close = as.numeric(response$lastPrice),
-                               volume = as.numeric(response$volume),
-                               volume_quote = as.numeric(response$quoteVolume),
-                               first_id = as.character(response$firstId),
-                               last_id = as.character(response$lastId),
-                               trades = as.integer(response$count))
+    response$pair <- pair
+    response$market <- "fapi"
+    response <- binance_formatter(response)
   } 
   
   attr(response, "ip_weight") <- i
@@ -227,7 +191,7 @@ binance_dapi_ticker24h <- function(pair, quiet = FALSE) {
   response <- list()
   for(i in 1:length(pair)){
     # api GET call 
-    new_data <- binance_api(api = "dapi", path = c("ticker", "24hr"), query = list(symbol = pair[i]))
+    new_data <- binance_query(api = "dapi", path = c("ticker", "24hr"), query = list(symbol = pair[i]))
     if(purrr::is_empty(new_data)){
       next
     }
@@ -238,24 +202,14 @@ binance_dapi_ticker24h <- function(pair, quiet = FALSE) {
   if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
-    response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
-                               date_close = as.POSIXct(as.numeric(response$closeTime)/1000, origin = "1970-01-01"),
-                               pair = response$symbol,
-                               market = "dapi",
-                               open = as.numeric(response$openPrice),
-                               high = as.numeric(response$highPrice),
-                               low = as.numeric(response$lowPrice),
-                               close = as.numeric(response$lastPrice),
-                               volume = as.numeric(response$volume),
-                               first_id = as.character(response$firstId),
-                               last_id = as.character(response$lastId),
-                               trades = as.integer(response$count))
+    response$pair <- pair
+    response$market <- "dapi"
+    response <- binance_formatter(response)
   } 
   
   attr(response, "ip_weight") <- i
   attr(response, "api") <- "dapi"
-  attr(response, "endpoint") <- "ticker24hr"
-  
+
   return(response)
 }
 
@@ -266,7 +220,7 @@ binance_eapi_ticker24h <- function(pair, quiet = FALSE) {
   response <- list()
   for(i in 1:length(pair)){
     # api GET call 
-    new_data <- binance_api(api = "eapi", path = "ticker", query = list(symbol = pair[i]))
+    new_data <- binance_query(api = "eapi", path = "ticker", query = list(symbol = pair[i]))
     if(purrr::is_empty(new_data)){
       next
     }
@@ -277,28 +231,14 @@ binance_eapi_ticker24h <- function(pair, quiet = FALSE) {
   if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
     response <- dplyr::as_tibble(response)
-    response <- tibble::tibble(date = as.POSIXct(as.numeric(response$openTime)/1000, origin = "1970-01-01"),
-                               date_close = as.POSIXct(as.numeric(response$closeTime)/1000, origin = "1970-01-01"),
-                               pair = response$symbol,
-                               market = "eapi",
-                               open = as.numeric(response$open),
-                               high = as.numeric(response$high),
-                               low = as.numeric(response$low),
-                               last = as.numeric(response$lastPrice),
-                               last_volume = as.numeric(response$lastQty),
-                               ask = as.numeric(response$askPrice),
-                               bid = as.numeric(response$bidPrice),
-                               volume = as.numeric(response$volume),
-                               quote_volume = as.numeric(response$amount),
-                               first_id = as.character(response$firstTradeId),
-                               trades = as.integer(response$tradeCount),
-                               strike = as.numeric(response$strikePrice),
-                               excercise_price = as.numeric(response$exercisePrice))
+    response$pair <- pair
+    response$market <- "eapi"
+    response <- binance_formatter(response)
   } 
   
-  attr(response, "ip_weight") <- i * 5
+  attr(response, "ip_weight") <- i*5
   attr(response, "api") <- "eapi"
-  attr(response, "endpoint") <- "ticker"
+
   return(response)
 }
 

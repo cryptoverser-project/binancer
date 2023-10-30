@@ -66,64 +66,46 @@ binance_depth <- function(pair, api, quiet = FALSE){
   } else {
     api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
   }
-  
-  # Safe call to avoid errors
-  safe_fun <- purrr::safely(~do.call(binance_api_depth, args = list(pair = pair, api = api, quiet = quiet)))
-  # GET call
-  response <- safe_fun()
-  
-  if (!quiet & !is.null(response$error)) {
-    cli::cli_alert_danger(response$error)
-  } else {
-    return(response$result)
-  }
-}
 
-# Depth implementation for all APIs
-binance_api_depth <- function(pair, api, quiet = FALSE){
-  
-  # GET call
+  # Create API query
   query <- list(symbol = pair, limit = ifelse(api == "spot", 5000, 1000))
-  response <- binance_api(api = api, path = "depth", query = query)
-  #return(response)
-  # Save update time
-  update_time <- Sys.time()
-  # Save last update id 
-  last_update_id <- ifelse(api == "eapi", as.numeric(response$u), as.numeric(response$lastUpdateId))
+  # GET call
+  response <- binance_query(api = api, path = "depth", method = "GET", query = query, quiet = quiet)
   
-  if (!purrr::is_empty(response)) {
+  if(!is.null(response$code)){
+    return(NULL)
+  } else {
+    # Save update time
+    update_time <- Sys.time()
+    # Save last update id 
+    last_update_id <- ifelse(api == "eapi", as.numeric(response$u), as.numeric(response$lastUpdateId))
+    
     # Standard columns names
     colnames(response$bids) <- c("price", "quantity")
     colnames(response$asks) <- c("price", "quantity")
     # Bid data 
     df_bid <- dplyr::as_tibble(response$bids)
-    df_bid <- dplyr::mutate(df_bid, 
-                            side = "BID", 
-                            price = as.numeric(price), 
-                            quantity = as.numeric(quantity))
+    df_bid$side <- "BID"
+    df_bid <- binance_formatter(df_bid)
     # Ask data 
     df_ask <- dplyr::as_tibble(response$asks)
-    df_ask <- dplyr::mutate(df_ask, 
-                            side = "ASK", 
-                            price = as.numeric(price), 
-                            quantity = as.numeric(quantity))
-    # Order-book
+    df_ask$side <- "ASK"
+    df_ask <- binance_formatter(df_ask)
+    # Depth data 
     response <- dplyr::bind_rows(df_bid, df_ask)
     # Add extra information (date, pair and market)
-    response <- dplyr::mutate(response, 
-                              date = update_time, 
-                              pair = pair, 
-                              market = api, 
-                              last_update_id = last_update_id)
+    response$date <- update_time
+    response$last_update_id <- last_update_id
+    response$pair <- pair
+    response$market <- api
     # Select and reorder variables 
-    response <- dplyr::select(response, last_update_id, date, market, pair, side, price, quantity)
-    # Arrange by price in descending order 
-    response <- dplyr::arrange(response, dplyr::desc(price))
+    response <- response[,c("last_update_id", "date", "market", "pair", "side", "price", "quantity")]
+    # Arrange by price (descending) 
+    response <- response[order(response$price, decreasing = TRUE),]
   }
-  
+
   attr(response, "ip_weight") <- 50
   attr(response, "api") <- api
-  attr(response, "endpoint") <- "depth"
   
   return(response)
 }

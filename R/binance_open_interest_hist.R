@@ -73,8 +73,8 @@ binance_open_interest_hist <- function(pair, api = "fapi", interval = "1d", from
   # Check "pair" argument 
   if (missing(pair) || is.null(pair)) {
     if (!quiet) {
-      wrn <- paste0('The "pair" argument is missing with no default argument.')
-      cli::cli_abort(wrn)
+      msg <- paste0('The "pair" argument is missing with no default argument.')
+      cli::cli_abort(msg)
     }
   } else {
     pair <- toupper(pair)
@@ -84,33 +84,46 @@ binance_open_interest_hist <- function(pair, api = "fapi", interval = "1d", from
   if (missing(api) || is.null(api)) {
     api <- "fapi"
     if (!quiet) {
-      wrn <- paste0('The "api" argument is missing, default is ', '"', api, '"')
-      cli::cli_alert_warning(wrn)
+      msg <- paste0('The "api" argument is missing, default is ', '"', api, '"')
+      cli::cli_alert_warning(msg)
     }
   } else {
     api <- match.arg(api, choices = c("fapi", "dapi"))
   }
   
+  sys_time <- Sys.time()
   # Check "from" argument
   if (missing(from) || is.null(from)) {
-    from <- Sys.time() - lubridate::days(30)
+    from <- sys_time - lubridate::days(30)
     if (!quiet) {
-      wrn <- paste0('The "from" argument is missing, default is ', '"', from, '"')
-      cli::cli_alert_warning(wrn)
+      msg <- paste0('The "from" argument is missing, default is ', '"', from, '"')
+      cli::cli_alert_warning(msg)
     }
   } else {
     from <- as.POSIXct(from, origin = "1970-01-01")
+    max_from <- sys_time - lubridate::days(30)
+    if (!(from < max_from) & !quiet) {
+      msg <- paste0('The "from" argument is greater than the maximum value ', max_from)
+      cli::cli_alert_warning(msg)
+      from <- max_from 
+    } 
   }
   
   # Check "to" argument
   if (missing(to) || is.null(to)) {
-    to <- Sys.time() 
+    to <- sys_time 
     if (!quiet) {
       wrn <- paste0('The "to" argument is missing, default is ', '"', to, '"')
       cli::cli_alert_warning(wrn)
     }
   } else {
     to <- as.POSIXct(to, origin = "1970-01-01")
+    min_to <- sys_time - lubridate::days(30)
+    if (!(to < min_to) & !quiet) {
+      msg <- paste0('The "to" argument is lower than the minimum value ', min_to)
+      cli::cli_alert_warning(msg)
+      to <- sys_time 
+    } 
   }
   
   # Check "interval" argument
@@ -139,48 +152,29 @@ binance_open_interest_hist <- function(pair, api = "fapi", interval = "1d", from
     contract_type <- toupper(contract_type)
   }
   
-  # Build query parameters depends on api 
-  if (api == "fapi") {
-    args <- list(pair = pair, interval = interval, from = from, to = to)
-  } else if (api %in% c("dapi")) {
-    args <- list(pair = pair, interval = interval, from = from, to = to, contract_type = contract_type)
-  } 
-
-  # Function name 
-  fun_name <- paste0("binance_", api, "_open_interest_hist")
-  # Safe call to avoid errors 
-  safe_fun <- purrr::safely(~do.call(fun_name, args = args))
-  # GET call 
-  response <- safe_fun()
-  
-  if (!quiet & !is.null(response$error)) {
-    cli::cli_abort(response$error)
-  } else {
-    return(response$result)
-  }
-}
-
-# openInterestHist implementation for futures USD-m api 
-binance_fapi_open_interest_hist <- function(pair, interval = "1d", from = NULL, to = NULL){
-  
   i <- 1
   response  <- list()
   condition <- TRUE
-  end_time <- paste0(trunc(as.integer(to)), "000")
-  start_time <- paste0(trunc(as.integer(from)), "000")
-  last_date <- as.integer(to)*1000
+  end_time <- as_unix_time(to, as_character = TRUE)
+  start_time <- as_unix_time(from, as_character = TRUE)
+  last_date <- as_unix_time(to, as_character = FALSE)
   while(condition){
+    # Build query parameters depends on api 
+    if (api == "fapi") {
+      query <- list(symbol = pair, period = interval, startTime = NULL, endTime = end_time, limit = 500)
+    } else if (api %in% c("dapi")) {
+      query <- list(pair = pair, period = interval, contractType = contract_type, startTime = NULL, endTime = end_time, limit = 500)
+    } 
     # GET call 
-    api_query <- list(symbol = pair, period = interval, startTime = NULL, endTime = end_time, limit = 500)
-    new_data <- binance_api(api = "fapi", path = c("futures","data", "openInterestHist"), use_base_path = FALSE, query = api_query)
+    new_data <- binance_query(api = api, path = c("futures","data", "openInterestHist"), query = query, use_base_path = FALSE)
     # Break Condition: new_data is empty 
-    if(purrr::is_empty(new_data)){
+    if(!is.null(new_data$code)){
       break
+    } else {
+      response[[i]] <- dplyr::as_tibble(new_data)
     }
-    response[[i]] <- new_data
-    response[[i]] <- dplyr::as_tibble(response[[i]])
     
-    # extract the minimum date
+    # Extract the minimum date
     first_date <- min(as.numeric(response[[i]]$timestamp))
     # Break Condition: IF first_date is greater than start_time THEN stop
     condition <- first_date > as.numeric(start_time) & first_date < last_date
@@ -192,73 +186,15 @@ binance_fapi_open_interest_hist <- function(pair, interval = "1d", from = NULL, 
   
   if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
-    response <- dplyr::mutate(response,
-                              pair = pair,
-                              api = "fapi",
-                              date = as.POSIXct(as.numeric(timestamp)/1000, origin = "1970-01-01"),
-                              open_interest = as.numeric(sumOpenInterest),
-                              open_interest_usd = as.numeric(sumOpenInterestValue))
-    response <- dplyr::select(response, date, api, pair, open_interest, open_interest_usd)
+    response$api <- api
+    response <- binance_formatter(response)
     response <- dplyr::filter(response, date >= from & date <= to)
     response <- dplyr::arrange(response, date)
   }
   
-  attr(response, "api") <- "fapi"
+  attr(response, "api") <- api
   attr(response, "ip_weight") <- i
   attr(response, "interval") <- interval
-  attr(response, "endpoint") <- "openInterestHist"
-  
-  return(response)
-}
-
-# openInterestHist implementation for futures COIN-m api 
-binance_dapi_open_interest_hist <- function(pair, interval = "1d", from = NULL, to = NULL, contract_type = "all"){
-  
-  i <- 1
-  response  <- list()
-  condition <- TRUE
-  end_time <- paste0(trunc(as.integer(to)), "000")
-  start_time <- paste0(trunc(as.integer(from)), "000")
-  last_date <- as.integer(to)*1000
-  while(condition){
-    # GET call 
-    api_query <- list(pair = pair, period = interval, contractType = contract_type, startTime = NULL, endTime = end_time, limit = 500)
-    new_data <- binance_api(api = "dapi", path = c("futures","data", "openInterestHist"), use_base_path = FALSE, query = api_query)
-    
-    # Break if new_data is empty 
-    if (purrr::is_empty(new_data)) {
-      break
-    }
-    response[[i]] <- new_data
-    response[[i]] <- dplyr::as_tibble(response[[i]])
-    
-    # Extract the first date
-    first_date <- min(as.numeric(response[[i]]$timestamp))
-    # Break if first_date is greater than start_time
-    condition <- first_date > as.numeric(start_time) & first_date != last_date
-    last_date <- end_time # needed avoid infinite loops 
-    end_time <- paste0(trunc(first_date/1000), "000")
-    i <- i + 1
-  }
-  
-  if (!purrr::is_empty(response)) {
-    response <- dplyr::bind_rows(response)
-    response <- dplyr::mutate(response,
-                              pair = pair,
-                              api = "dapi",
-                              contract_type = tolower(contract_type),
-                              date = as.POSIXct(as.numeric(timestamp)/1000, origin = "1970-01-01"),
-                              open_interest = as.numeric(sumOpenInterest),
-                              open_interest_usd = as.numeric(sumOpenInterestValue))
-    response <- dplyr::select(response, date, api, pair, contract_type, open_interest, open_interest_usd)
-    response <- dplyr::filter(response, date >= from & date <= to)
-    response <- dplyr::arrange(response, date)
-  }
-  
-  attr(response, "api") <- "dapi"
-  attr(response, "ip_weight") <- i
-  attr(response, "interval") <- interval
-  attr(response, "endpoint") <- "openInterestHist"
   
   return(response)
 }

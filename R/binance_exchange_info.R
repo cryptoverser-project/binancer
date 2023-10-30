@@ -32,46 +32,45 @@
 #' @examples
 #'
 #' # Get all pairs in all markets
-#' binance_exchange_info(pair = NULL, api = "spot", permissions = "all")
+#' binance_exchange_info(api = "spot", permissions = "all", pair = NULL)
 #'
 #' # Get all pairs only in spot markets
-#' binance_exchange_info(pair = NULL, api = "spot", permissions = "spot")
+#' binance_exchange_info(api = "spot", permissions = "spot", pair = NULL)
 #'
 #' # Get all pairs only in margin markets
-#' binance_exchange_info(pair = NULL, api = "spot", permissions = "margin")
+#' binance_exchange_info(api = "spot", permissions = "margin", pair = NULL)
 #'
 #' # Get all pairs only in leveraged market
-#' binance_exchange_info(pair = NULL, api = "spot", permissions = "leveraged")
+#' binance_exchange_info(api = "spot", permissions = "leveraged", pair = NULL)
 #'
 #' # Get information only for BTCUSDT in all markets
-#' binance_exchange_info(pair = "BTCUSDT", api = "spot", permissions = "all")
+#' binance_exchange_info(api = "spot", permissions = "all", pair = "BTCUSDT")
 #'
 #' # Get information for multiple pairs in all markets
-#' binance_exchange_info(pair = c("BTCUSDT", "BNBUSDT"), 
-#'                       api = "spot", 
-#'                       permissions = "all")
+#' binance_exchange_info(api = "spot", 
+#'                       permissions = "all", 
+#'                       pair = c("BTCUSDT", "BNBUSDT"))
 #'
 #' # Get information for multiple pairs only in margin and leveraged markets
-#' binance_exchange_info(pair = c("BTCBUSD", "ETHBUSD"), 
-#'                       api = "spot", 
-#'                       permissions = c("margin", "leveraged"))
+#' binance_exchange_info(api = "spot", 
+#'                       permissions = c("margin", "leveraged"), 
+#'                       pair = c("BTCBUSD", "ETHBUSD"))
 #'                       
 #' # Get all pairs in futures USD-m markets
-#' binance_exchange_info(pair = NULL, api = "fapi")
+#' binance_exchange_info(api = "fapi")
 #'
 #' # Get all pairs in futures COIN-m markets
-#' binance_exchange_info(pair = NULL, api = "dapi")
+#' binance_exchange_info(api = "dapi")
 #'
 #' # Get all pairs in options markets
-#' binance_exchange_info(pair = NULL, api = "eapi")
+#' binance_exchange_info(api = "eapi")
 #'
 #' @export
 #'
 #' @rdname binance_exchange_info
 #' @name binance_exchange_info
 
-binance_exchange_info <- function(pair = NULL, api, permissions = "all", quiet = FALSE){
-  
+binance_exchange_info <- function(api, permissions, pair, quiet = FALSE){
   
   # Check "api" argument 
   if (missing(api) || is.null(api)) {
@@ -83,155 +82,47 @@ binance_exchange_info <- function(pair = NULL, api, permissions = "all", quiet =
   } else {
     api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
   }
-  
-  
-  args <- list(pair = pair)
-  if (api == "spot") {
-    args$permissions <- permissions
-  } 
-  
-  # Function name 
-  fun_name <- paste0("binance_", api, "_exchange_info")
-  # Safe call to avoid errors 
-  safe_fun <- purrr::safely(~do.call(fun_name, args = args))
-  # GET call 
-  response <- safe_fun()
-  
-  if (!quiet & !is.null(response$error)) {
-    cli::cli_alert_warning(response$error)
+  query <- list(permissions = NULL)
+  # Check "permissions" argument 
+  if (missing(permissions) || is.null(permissions)) {
+    if (api == "spot") {
+      permissions <- "all"
+      if (!quiet) {
+        msg <- paste0('The `permissions` argument is missing, default is ', '"', permissions, '"')
+        cli::cli_alert_warning(msg)
+      }
+      query$permissions <- NULL
+    } 
   } else {
-    return(response$result) 
-  }
-}
-
-# exchangeInfo implementation for spot API
-binance_spot_exchange_info <- function(pair = NULL, permissions = "all"){
-  
-  # multiple pairs in one query are allowed
-  if (length(pair) > 1) {
-    mult_pair_name <- toupper(pair)
-    # Query for Multiple Pairs
-    mult_pair_query <- purrr::map_chr(mult_pair_name, ~paste0('"', .x, '"'))
-    mult_pair_query <- paste0(mult_pair_query, collapse = ",")
-    pair_name <- paste0('[', mult_pair_query, ']')
-  } else {
-    mult_pair_name <- NULL
-    mult_pair_query <- NULL
-  }
-  
-  # Multiple Permissions are allowed, however if a submission is inserted
-  # the result must be returned for all the pairs
-  if (!is.null(permissions) & sum(tolower(permissions) %in% "all") == 0) {
-    
-    pair_name <- NULL
     permissions <- tolower(permissions)
-    permissions <- match.arg(permissions, choices = c("spot", "margin", "leveraged"), several.ok = TRUE)
-    permissions <- toupper(permissions)
-    
-    if (length(permissions) > 1) {
-      permissions <- purrr::map_chr(permissions, ~paste0('"', .x, '"' ))
-      permissions <- paste0('[', paste0(permissions, collapse = ","), ']')
+    # Multiple `permissions` are allowed
+    if (sum(permissions %in% "all") == 0) {
+      permissions <- match.arg(permissions, choices = c("spot", "margin", "leveraged"), several.ok = TRUE)
+      if (length(permissions) > 1) {
+        permissions <- purrr::map_chr(permissions, ~paste0('"', .x, '"' ))
+        permissions <- paste0('[', paste0(permissions, collapse = ","), ']')
+      }
+      query$permissions <- toupper(permissions)
     }
+  }
+  
+  # GET call
+  response <- binance_query(api = api, path = "exchangeInfo", query = query, quiet = quiet)
+  
+  if(api == "eapi") {
+    data <- dplyr::as_tibble(response$optionSymbols)
+    data <- dplyr::mutate(data, expiryDate = as.POSIXct(expiryDate/1000, origin = "1970-01-01"))
+    data <- dplyr::arrange(data, expiryDate)
   } else {
-    permissions <- NULL
+    data <- dplyr::as_tibble(response$symbols)
   }
   
-  # Query parameter "symbol" change for multiple "symbols"
-  if (length(mult_pair_name) > 1 & is.null(permissions)) {
-    api_query <- list(symbols = pair_name, permissions = permissions)
-  } else {
-    api_query <- list(symbol = NULL, permissions = permissions)
-  }
-  
-  # GET call
-  response <- binance_api(api = "spot", path = c("exchangeInfo"), query = api_query)
-  
-  if (!purrr::is_empty(response)) {
-    
-    response <- dplyr::as_tibble(response$symbols)
-    response <- dplyr::bind_cols(market = "spot", response)
-    # Filter only if a pair is specified (pair is not NULL)
-    if (length(mult_pair_name) > 1) {
-      response <- dplyr::filter(response, symbol %in% mult_pair_name)
-    }
-  } 
-  attr(response, "api") <- "spot"
-  attr(response, "ip_weight") <- 20
-  attr(response, "endpoint") <- "exchangeInfo"
-  return(response)
-}
-
-# exchangeInfo implementation for futures USD-M api
-binance_fapi_exchange_info <- function(pair = NULL){
-  
-  # GET call
-  response <- binance_api(api = "fapi", path = "exchangeInfo", query = NULL)
-  
-  if (!purrr::is_empty(response)) {
-    
-    response <- dplyr::as_tibble(response$symbols)
-    response <- dplyr::bind_cols(market = "usd-m", response)
-    # Filter only if a pair is specified (pair is not NULL)
-    pair_name <- toupper(pair)
-    if(length(pair_name) > 1){
-      response <- dplyr::filter(response, symbol %in% pair_name)
+  # Filter only if a pair is specified (pair is not NULL)
+  if(!missing(pair) && !is.null(pair)){
+    pair <- toupper(pair)
+    if(length(pair) >= 1){
+      data <- dplyr::filter(data, symbol %in% pair)
     }
   }
-  
-  attr(response, "api") <- "fapi"
-  attr(response, "ip_weight") <- 1
-  attr(response, "endpoint") <- "exchangeInfo"
-  
-  return(response)
+  return(data)
 }
-
-# exchangeInfo implementation for futures COIN-M api
-binance_dapi_exchange_info <- function(pair = NULL){
-  
-  # GET call
-  response <- binance_api(api = "dapi", path = "exchangeInfo", query = NULL)
-  
-  if (!purrr::is_empty(response)) {
-    response <- dplyr::as_tibble(response$symbols)
-    response <- dplyr::bind_cols(market = "coin-m", response)
-    # Filter only if a pair is specified (pair is not NULL)
-    pair_name <- toupper(pair)
-    if(length(pair_name) > 1){
-      response <- dplyr::filter(response, symbol %in% pair_name)
-    }
-  }
-  
-  attr(response, "api") <- "dapi"
-  attr(response, "ip_weight") <- 1
-  attr(response, "endpoint") <- "exchangeInfo"
-  
-  return(response)
-}
-
-# exchangeInfo implementation for options api
-binance_eapi_exchange_info <- function(pair = NULL){
-  
-  # GET call
-  response <- binance_api(api = "eapi", path = "exchangeInfo", query = NULL)
-  
-  if (!purrr::is_empty(response)) {
- 
-    response <- dplyr::as_tibble(response$optionSymbols)
-    response <- dplyr::bind_cols(market = "options", dplyr::select(response, -filters, -contractId))
-    response <- dplyr::mutate(response, expiryDate = as.POSIXct(expiryDate/1000, origin = "1970-01-01"))
-    response <- dplyr::arrange(response, expiryDate)
-    # Filter only if a pair is specified (pair is not NULL)
-    pair_name <- toupper(pair)
-    if(length(pair_name) >= 1){
-      response <- dplyr::filter(response, underlying %in% pair_name)
-    }
-  }
-  
-  attr(response, "api") <- "eapi"
-  attr(response, "ip_weight") <- 1
-  attr(response, "endpoint") <- "exchangeInfo"
-  
-  return(response)
-}
-
-

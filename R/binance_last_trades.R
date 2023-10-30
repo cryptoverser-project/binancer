@@ -66,48 +66,31 @@ binance_last_trades <- function(pair, api, quiet = FALSE){
     api <- match.arg(api, choices = c("spot", "fapi", "dapi", "eapi"))
   }
   
-  # Safe call to avoid errors 
-  safe_fun <- purrr::safely(~do.call(binance_api_last_trades, args = list(pair = pair, api = api)))
+  # Create API query
+  query <- list(symbol = pair, limit = 1000)
   # GET call 
-  response <- safe_fun()
+  response <- binance_query(api = api, path = "trades", query = query, quiet = quiet)
   
-  if (!quiet & !is.null(response$error)) {
-    cli::cli_alert_danger(response$error)
-  } else {
-    return(response$result)
-  }
-}
-
-# trades implementation for all APIs
-binance_api_last_trades <- function(pair, api){
-  
-  # GET call 
-  response <- binance_api(api = api, path = "trades", query = list(symbol = pair, limit = 1000))
-  
-  if (!purrr::is_empty(response) & api != "eapi") {
-    response <- dplyr::tibble(
-      date = as.POSIXct(response$time/1000, origin = "1970-01-01"),
-      market = api,
-      pair = pair,
-      price = as.numeric(response$price),
-      quantity = as.numeric(response$qty),
-      side = ifelse(response$isBuyerMaker, "SELL", "BUY"),
-      trade_id = response$id)
-  } else {
-    response <- dplyr::tibble(
-      date = as.POSIXct(response$time/1000, origin = "1970-01-01"),
-      market = api,
-      pair = response$symbol,
-      price = as.numeric(response$price),
-      quantity = as.numeric(response$qty),
-      side = response$side, 
-      trade_id = response$id)
-    response <- dplyr::mutate(response, side = ifelse(side == -1, "SELL", "BUY"))
+  if(!is.null(response$code)){
+    return(NULL)
+  } else if (!purrr::is_empty(response)) {
+    output <- dplyr::as_tibble(response)
+    output$market <- api
+    if(api == "eapi") {
+      output <- binance_formatter(output)
+      output <- dplyr::mutate(output, 
+                              side = ifelse(side == -1, "SELL", "BUY"))
+    } else {
+      output$pair <- pair
+      output <- binance_formatter(output)
+      output <- dplyr::mutate(output, 
+                              side = ifelse(side, "SELL", "BUY"))
+    }
+    response <- output
   }
   
   attr(response, "api") <- api
   attr(response, "ip_weight") <- ifelse(api == "spot", 1, 5)
-  attr(response, "endpoint") <- "trades"
-  
+
   return(response)
 }

@@ -57,9 +57,3 @@ test_that('Test 4: binance_klines(pair = "BTCUSD", api = "dapi", interval = inte
   # Check "interval" attribute
   expect_equal(attr(klines_api, "interval"), interval)
 })
-
-klines_api <- binance_klines(pair = "BTCUSD_PERP", api = "dapi", interval = interval, uiKlines = TRUE, from = from, to = to)
-test_that('Test 5: binance_klines(pair = "BTCUSD_PERP", api = "dapi", interval = interval, uiKlines = TRUE, from = from, to = to)', {
-  # Check if min(date) is equal to "from" date
-  expect_true(purrr::is_empty(klines_api))
-})

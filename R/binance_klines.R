@@ -136,7 +136,7 @@ binance_klines <- function(pair, api = "spot", interval, from, to, contract_type
     if (api != "spot"){
       av_int <- av_int[-1] 
     }
-    interval  <- match.arg(interval, choices = av_int)
+    interval <- match.arg(interval, choices = av_int)
   }
   
   # Check "from" argument 
@@ -208,11 +208,6 @@ binance_klines <- function(pair, api = "spot", interval, from, to, contract_type
   }
 }
 
-to <- Sys.time()
-paste0(trunc(as.integer(to)), "000")
-
-format(as.integer(to)*1000, scientific = FALSE)
-
 # Klines implementation for spot api 
 binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, as_xts = FALSE, quiet = FALSE){
 
@@ -220,13 +215,13 @@ binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, as_
   last_date <- 0
   response  <- list()
   condition <- TRUE
-  end_time <- format(as.integer(to)*1000, scientific = FALSE)
-  start_time <- format(as.integer(from)*1000, scientific = FALSE)
+  end_time <- as_unix_time(to, as_character = TRUE)
+  start_time <- as_unix_time(from, as_character = TRUE)
   while(condition){
     # GET call 
     api_path <- ifelse(uiKlines, "uiKlines", "klines")
     api_query <- list(symbol = pair, startTime = NULL, interval = interval, endTime = end_time, limit = 1000)
-    new_data <- binance_api(api = "spot", path = api_path, query = api_query)
+    new_data <- binance_query(api = "spot", path = api_path, query = api_query)
     # Break if new_data is empty 
     if (purrr::is_empty(new_data)) {
       break
@@ -242,34 +237,20 @@ binance_spot_klines <- function(pair, interval, from , to, uiKlines = FALSE, as_
     # Break if first_date is greater than start_time
     condition <- first_date > as.numeric(start_time) & first_date != last_date
     last_date <- first_date # avoid infinite loops 
-    end_time <- format(as.integer(first_date)*1000, scientific = FALSE)
+    end_time <- format(first_date, scientific = FALSE)
     i <- i + 1
   }
   
   if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
-    response <- dplyr::mutate(response,
-                              pair = pair,
-                              market = "spot",
-                              date = as.POSIXct(as.numeric(date)/1000, origin = "1970-01-01"),
-                              date_close = as.POSIXct(as.numeric(date_close)/1000, origin = "1970-01-01"),
-                              open = as.numeric(open),
-                              high = as.numeric(high),
-                              low = as.numeric(low),
-                              close = as.numeric(close),
-                              volume = as.numeric(volume),
-                              volume_quote = as.numeric(volume_quote),
-                              trades = as.numeric(trades),
-                              taker_buy = as.numeric(taker_buy),
-                              taker_buy_quote = as.numeric(taker_buy_quote))
-    # Remove ignore column and reorder 
-    response <- dplyr::select(response, -ignore)
-    response <- dplyr::select(response, date, date_close, market, pair, dplyr::everything())
+    response$pair <- pair 
+    response$market <- "spot"
+    response <- binance_formatter(response)
     # Filter to be exactly in from-to range
     response <- dplyr::filter(response, date >= from & date <= to)
     # Arrange with respect to date
     response <- dplyr::arrange(response, date)
-    if (as_xts) {
+    if (isTRUE(as_xts)) {
       response <- binance_xts(response)
     }
   } else {
@@ -290,10 +271,9 @@ binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKline
   i <- 1
   response  <- list()
   condition <- TRUE
-  last_date <- as.integer(to)*1000
-  start_time <- paste0(trunc(as.integer(from)), "000")
-  end_time <- paste0(trunc(as.integer(to)), "000")
-  last_date <- 0
+  last_date <- as_unix_time(to, as_character = FALSE)
+  end_time <- as_unix_time(to, as_character = TRUE)
+  start_time <- as_unix_time(from, as_character = TRUE)
   while(condition){
     
     api_query <- list(pair = NULL,
@@ -312,7 +292,7 @@ binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKline
     }
     # api GET call 
     api_path <- ifelse(uiKlines, "continuousKlines", "klines")
-    new_data <- binance_api(api = "fapi", path = api_path, query = api_query)
+    new_data <- binance_query(api = "fapi", path = api_path, query = api_query)
     
     # Break if new_data is empty 
     if (purrr::is_empty(new_data)) {
@@ -330,35 +310,21 @@ binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKline
     # Break if first_date is greater than start_time
     condition <- first_date > as.numeric(start_time) & first_date != last_date
     last_date <- first_date # avoid infinite loops 
-    end_time <- paste0(trunc(first_date/1000), "000")
+    end_time <- format(first_date, scientific = FALSE)
     i <- i + 1
   }
   
   if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
-    response <- dplyr::mutate(response,
-                              pair = pair,
-                              market = "fapi",
-                              date = as.POSIXct(as.numeric(date)/1000, origin = "1970-01-01"),
-                              date_close = as.POSIXct(as.numeric(date_close)/1000, origin = "1970-01-01"),
-                              open = as.numeric(open),
-                              high = as.numeric(high),
-                              low = as.numeric(low),
-                              close = as.numeric(close),
-                              volume = as.numeric(volume),
-                              volume_quote = as.numeric(volume_quote),
-                              trades = as.numeric(trades),
-                              taker_buy = as.numeric(taker_buy),
-                              taker_buy_quote = as.numeric(taker_buy_quote))
-    
-    # Remove ignore column and reorder 
-    response <- dplyr::select(response, -ignore)
-    response <- dplyr::select(response, date, date_close, market, pair, dplyr::everything())
+    response$pair <- pair 
+    response$market <- "fapi"
+    response <- binance_formatter(response)
     # Filter to be exactly in from-to range
     response <- dplyr::filter(response, date >= from & date <= to)
     # Arrange with respect to date
     response <- dplyr::arrange(response, date)
-    if (as_xts) {
+
+    if (isTRUE(as_xts)) {
       response <- binance_xts(response)
     }
   } else {
@@ -376,18 +342,12 @@ binance_fapi_klines <- function(pair, interval, from, to, contract_type, uiKline
 # Klines implementation for futures COIN-M api 
 binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKlines = FALSE, as_xts = FALSE, quiet = FALSE){
  
-  # format start and end time
-  format_time <- function(x){
-    paste0(trunc(as.integer(x)), "000")
-  }
-  
   i <- 1
   response  <- list()
   condition <- TRUE
-  last_date <- as.integer(to)*1000
-  start_time <- format_time(from)
-  end_time <- format_time(to)
-  last_date <- 0
+  last_date <- as_unix_time(to, as_character = FALSE)
+  end_time <- as_unix_time(to, as_character = TRUE)
+  start_time <- as_unix_time(from, as_character = TRUE)
   while(condition){
     
     api_query <- list(pair = NULL,
@@ -406,7 +366,7 @@ binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKline
     }
     # GET call 
     api_path <- ifelse(uiKlines, "continuousKlines", "klines")
-    new_data <- binance_api(api = "dapi", path = api_path, query = api_query)
+    new_data <- binance_query(api = "dapi", path = api_path, query = api_query)
     # Break if new_data is empty 
     if (purrr::is_empty(new_data)) {
       break
@@ -416,6 +376,7 @@ binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKline
     colnames(response[[i]]) <- c("date", "open", "high", "low", "close", "volume",
                                  "date_close", "volume_quote", "trades", "taker_buy",
                                  "taker_buy_quote", "ignore")
+    
     response[[i]] <- dplyr::as_tibble(response[[i]])
     
     # Extract the first date
@@ -423,35 +384,20 @@ binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKline
     # Break if first_date is greater than start_time
     condition <- first_date > as.numeric(start_time) & first_date != last_date
     last_date <- first_date # avoid infinite loops 
-    end_time <- paste0(trunc(first_date/1000), "000")
+    end_time <- format(first_date, scientific = FALSE)
     i <- i + 1
   }
   
   if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
-    response <- dplyr::mutate(response,
-                              pair = pair,
-                              market = "dapi",
-                              date = as.POSIXct(as.numeric(date)/1000, origin = "1970-01-01"),
-                              date_close = as.POSIXct(as.numeric(date_close)/1000, origin = "1970-01-01"),
-                              open = as.numeric(open),
-                              high = as.numeric(high),
-                              low = as.numeric(low),
-                              close = as.numeric(close),
-                              volume = as.numeric(volume),
-                              volume_quote = as.numeric(volume_quote),
-                              trades = as.numeric(trades),
-                              taker_buy = as.numeric(taker_buy),
-                              taker_buy_quote = as.numeric(taker_buy_quote))
-    
-    # Remove ignore column and reorder 
-    response <- dplyr::select(response, -ignore)
-    response <- dplyr::select(response, date, date_close, market, pair, dplyr::everything())
+    response$pair <- pair 
+    response$market <- "dapi"
+    response <- binance_formatter(response)
     # Filter to be exactly in from-to range
     response <- dplyr::filter(response, date >= from & date <= to)
     # Arrange with respect to date
     response <- dplyr::arrange(response, date)
-    if (as_xts) {
+    if (isTRUE(as_xts)) {
       response <- binance_xts(response)
     }
   } else {
@@ -469,19 +415,12 @@ binance_dapi_klines <- function(pair, interval, from, to, contract_type, uiKline
 # Klines implementation for options api
 binance_eapi_klines <- function(pair, interval, from, to, as_xts = FALSE, quiet = FALSE){
   
-  # format start and end time
-  format_time <- function(x){
-    paste0(trunc(as.integer(x)), "000")
-  }
-  
   i <- 1
   response  <- list()
   condition <- TRUE
-  last_date <- as.integer(to)*1000
-  start_time <- format_time(from)
-  end_time <- format_time(to)
-  last_date <- 0
-  
+  last_date <- as_unix_time(to, as_character = FALSE)
+  end_time <- as_unix_time(to, as_character = TRUE)
+  start_time <- as_unix_time(from, as_character = TRUE)
   while(condition){
     # GET call
     api_query <- list(symbol = pair,
@@ -489,7 +428,8 @@ binance_eapi_klines <- function(pair, interval, from, to, as_xts = FALSE, quiet 
                       interval = interval, 
                       endTime = end_time, 
                       limit = 1500)
-    new_data <- binance_api(api = "eapi", path = "klines", query = api_query)
+    
+    new_data <- binance_query(api = "eapi", path = "klines", query = api_query)
     
     # Break if new_data is empty 
     if (purrr::is_empty(new_data)) {
@@ -508,34 +448,14 @@ binance_eapi_klines <- function(pair, interval, from, to, as_xts = FALSE, quiet 
   
   if (!purrr::is_empty(response)) {
     response <- dplyr::bind_rows(response)
-    response <- dplyr::mutate(response,
-                              pair = pair,
-                              market = "eapi",
-                              openTime = as.POSIXct(as.numeric(openTime)/1000, origin = "1970-01-01"),
-                              closeTime = as.POSIXct(as.numeric(closeTime)/1000, origin = "1970-01-01"),
-                              open = as.numeric(open),
-                              high = as.numeric(high),
-                              low = as.numeric(low),
-                              close = as.numeric(close),
-                              volume = as.numeric(volume),
-                              tradeCount = as.numeric(tradeCount),
-                              takerVolume = as.numeric(takerVolume),
-                              takerAmount = as.numeric(takerAmount),
-                              amount = as.numeric(amount))
-    # Rename and reorder 
-    response <- dplyr::select(response, 
-                              date = "openTime", 
-                              date_close = "closeTime", 
-                              market, pair, open, high, low, close, volume, 
-                              trades = "tradeCount", 
-                              taker_volume = "takerVolume", 
-                              taker_amount = "takerAmount", 
-                              amount)
+    response$pair <- pair 
+    response$market <- "eapi"
+    response <- binance_formatter(response)
     # Filter to be exactly in from-to range
     response <- dplyr::filter(response, date >= from & date <= to)
     # Arrange with respect to date
     response <- dplyr::arrange(response, date)
-    if (as_xts) {
+    if (isTRUE(as_xts)) {
       response <- binance_xts(response)
     }
   } else {
@@ -553,7 +473,9 @@ binance_eapi_klines <- function(pair, interval, from, to, as_xts = FALSE, quiet 
 
 binance_xts <- function(data){
   pair <- data$pair[1]
-  df_xts <- dplyr::select(data, open, high, low, close, volume)
+  cols <- c("open", "high", "low", "close", "volume")
+  df_xts <- data[,cols]
   colnames(df_xts) <- paste0(pair, c(".Open", ".Close", ".High", ".Low", ".Volume"))
   xts::xts(df_xts, order.by = data$date)
 }
+

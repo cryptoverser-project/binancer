@@ -108,6 +108,7 @@ binance_ws_cleaner.ticker <- function(data){
                           volume = "v", 
                           quantity = "q", 
                           trades = "n")
+  
   output <- dplyr::mutate(output,
                           date = as.POSIXct(date/1000, origin = "1970-01-01"),
                           price_change = as.double(price_change),

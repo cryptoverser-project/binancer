@@ -126,7 +126,7 @@ binance_spot_trades <- function(pair, from, to, quiet = FALSE){
   while(condition){
     # GET call 
     api_query <- list(symbol = pair, startTime = start_time, endTime = NULL, limit = 1000)
-    new_data <- binance_api(api = "spot", path = c("aggTrades"), query = api_query)
+    new_data <- binance_api_query(api = "spot", path = c("aggTrades"), query = api_query)
     # Break if new_data is empty 
     if (purrr::is_empty(new_data)) {
       break
@@ -182,7 +182,7 @@ binance_fapi_trades <- function(pair, from, to, quiet = FALSE){
   while(condition){
     # GET call 
     api_query <- list(symbol = pair, startTime = start_time, endTime = NULL, limit = 1000)
-    new_data <- binance_api(api = "fapi", path = "aggTrades", query = api_query)
+    new_data <- binance_api_query(api = "fapi", path = "aggTrades", query = api_query)
     
     # Break if new_data is empty 
     if (purrr::is_empty(new_data)) {
@@ -232,7 +232,7 @@ binance_dapi_trades <- function(pair, from, to, quiet = FALSE){
   while(condition){
     # GET call 
     api_query <- list(symbol = pair, startTime = start_time, endTime = NULL, limit = 1000)
-    new_data <- binance_api(api = "dapi", path = c("aggTrades"), query = api_query)
+    new_data <- binance_api_query(api = "dapi", path = "aggTrades", query = api_query)
     # Break if new_data is empty 
     if (purrr::is_empty(new_data)) {
       break

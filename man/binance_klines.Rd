@@ -25,7 +25,7 @@ binance_klines(pair,
 \item \code{"eapi"}: for \href{https://binance-docs.github.io/apidocs/voptions/en/#kline-candlestick-data}{options API}.
 }}
 
-\item{interval}{Character. Default is \code{"1d"}. Time interval for Klines data. Available intervals are:
+\item{interval}{Character. Default is \code{"1d"}. Time interval for klines data. Available intervals are:
 \itemize{
 \item Secondly: \code{"1s"}, available only if \code{api = "spot"}.
 \item Minutely: \code{"1m"}, \code{"3m"}, \code{"5m"}, \code{"15m"} and \code{"30m"}.
@@ -41,7 +41,7 @@ If it is \code{missing}, the default, will be used as start date \code{Sys.time(
 \item{to}{Character or \code{\link[=POSIXt-class]{POSIXt}} object. End time for historical data.
 If it is \code{missing}, the default, will be used as end date \code{\link[=Sys.time]{Sys.time()}}.}
 
-\item{contract_type}{Character. Used only if \code{api = "dapi"}. Available contract's types are:
+\item{contract_type}{Character. Used only if \code{api} is \code{"fapi"} or \code{"dapi"}. Available contract's types are:
 \itemize{
 \item \code{"perpetual"}: perpetual futures.
 \item \code{"current_quarter"}: futures with maturity in the current quarter.
@@ -73,7 +73,7 @@ A \code{\link[=data.frame-class]{data.frame}} with the following 13 columns:
 }
 }
 \description{
-Get candlestick data for a trading pair with Binance API.
+Get klines data for a trading pair with Binance API.
 }
 \details{
 The IP weight for this API call is 1, and the data source is memory.

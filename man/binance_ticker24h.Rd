@@ -41,6 +41,7 @@ The IP weight for this API call is 1, and the data source is memory.
 \examples{
 
 # Get full 24-hour ticker for BTCUSDT
+binance_ticker24h("BTCUSDT")
 binance_ticker24h(pair = "BTCUSDT", api = "spot", type = "full")
 
 # Get mini 24-hour ticker for BTCUSDT

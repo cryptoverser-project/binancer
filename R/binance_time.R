@@ -42,7 +42,7 @@ binance_time <- function(api, quiet = FALSE){
   } 
   
   # GET call
-  response <- binance_api(api = api, path = "time", query = NULL, quiet = quiet)
+  response <- binance_query(api = api, path = "time", query = NULL, quiet = quiet)
 
   if (purrr::is_empty(response)) {
     response <- ""
