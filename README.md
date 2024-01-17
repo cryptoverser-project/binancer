@@ -1,7 +1,7 @@
 # Wrapper for Binance REST API in R
 
 The "binancer" package is part of a collection of development tools designed for retrieving cryptocurrency data. It enables you to access various data related to cryptocurrency pairs through the [Binance API](https://binance-docs.github.io/apidocs). 
-More details and examples documenting the functions can be found at [cryptoverser.org](https://cryptoverser.org/docs).
+More details and examples documenting the functions can be found at [cryptoverser.org](https://cryptoverser.org/binancer).
 
 
 # Installation 
